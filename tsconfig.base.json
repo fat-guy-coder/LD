@@ -1,7 +1,6 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
-      /* 基础选项 */
       "target": "ES2022",
       "lib": ["ES2022", "DOM", "DOM.Iterable"],
       "module": "ESNext",
@@ -10,7 +9,6 @@
       "allowSyntheticDefaultImports": true,
       "esModuleInterop": true,
       
-      /* 类型检查选项 */
       "strict": true,
       "noImplicitAny": true,
       "strictNullChecks": true,
@@ -30,7 +28,6 @@
       "allowUnusedLabels": false,
       "allowUnreachableCode": false,
       
-      /* 模块解析选项 */
       "baseUrl": ".",
       "paths": {
         "@vld/*": ["packages/@vld/*/src"],
@@ -39,19 +36,16 @@
       },
       "rootDir": ".",
       
-      /* 源码映射选项 */
       "sourceMap": true,
       "declaration": true,
       "declarationMap": true,
       "inlineSources": false,
       "sourceRoot": "",
       
-      /* 实验性选项 */
       "experimentalDecorators": false,
       "emitDecoratorMetadata": false,
       "useDefineForClassFields": true,
       
-      /* 高级选项 */
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
       "verbatimModuleSyntax": true,
@@ -59,11 +53,9 @@
       "allowImportingTsExtensions": false,
       "noEmit": true,
       
-      /* 性能选项 */
       "incremental": true,
       "tsBuildInfoFile": "node_modules/.tsbuildinfo",
       
-      /* 语言和环境 */
       "jsx": "preserve",
       "jsxImportSource": "vue"
     },

@@ -8,7 +8,7 @@ vi.setConfig({ testTimeout: 10000 })
 
 // 模拟浏览器环境
 if (typeof globalThis.window === 'undefined') {
-  const { window } = new (await import('@vitest/utils')).JSDOM('<!DOCTYPE html>')
+  const { window } = new (await import('jsdom')).Window('<!DOCTYPE html>')
   globalThis.window = window
   globalThis.document = window.document
   globalThis.navigator = window.navigator
