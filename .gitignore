@@ -1,0 +1,113 @@
+# 依赖
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+npm-debug.log*
+
+# 构建输出
+dist/
+*.tgz
+*.zip
+*.js.map
+*.d.ts.map
+tsconfig.tsbuildinfo
+
+# 开发环境
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+
+# 日志
+logs
+*.log
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 测试覆盖率
+coverage/
+.nyc_output
+.nyc_output/
+*.lcov
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+*.temp
+
+# 类型声明缓存
+*.tsbuildinfo
+
+# 示例项目
+examples/*/node_modules
+examples/*/dist
+examples/*/coverage
+
+# 生成的报告
+reports/
+analysis/
+stats.json
+bundle-stats.html
+
+# 性能分析
+.perf/
+.profile
+*.cpuprofile
+*.heapsnapshot
+
+# 构建产物
+packages/*/dist/
+packages/*/coverage/
+packages/*/.turbo/
+packages/*/.rts2_cache_*/
+
+# 缓存
+.cache/
+.vite/
+.vitepress/cache/
+.vitepress/dist/
+.eslintcache
+
+# 系统文件
+*.pid
+*.seed
+*.pid.lock
+*.pem
+
+# 安全
+*.pem
+*.key
+*.crt
+*.csr
+
+# 文档
+_site/
+.sass-cache/
+.jekyll-metadata
+
+# 包管理器的锁文件
+pnpm-workspace.yaml
+
+# 可执行文件
+*.exe
+*.out
+*.app
+
+# 其他
+.history/
+.swc/
+.rollup.cache/

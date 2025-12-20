@@ -1,0 +1,120 @@
+{
+  "name": "@vld/reactivity",
+  "version": "0.1.0",
+  "description": "极致性能的Signal响应式系统，更新延迟<1ms",
+  "type": "module",
+  "main": "dist/vld-reactivity.cjs.js",
+  "module": "dist/vld-reactivity.esm.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/vld-reactivity.esm.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/vld-reactivity.cjs.js"
+      }
+    },
+    "./signal": {
+      "import": {
+        "types": "./dist/types/signal.d.ts",
+        "default": "./dist/signal.esm.js"
+      }
+    },
+    "./effect": {
+      "import": {
+        "types": "./dist/types/effect.d.ts",
+        "default": "./dist/effect.esm.js"
+      }
+    },
+    "./computed": {
+      "import": {
+        "types": "./dist/types/computed.d.ts",
+        "default": "./dist/computed.esm.js"
+      }
+    },
+    "./reactive": {
+      "import": {
+        "types": "./dist/types/reactive.d.ts",
+        "default": "./dist/reactive.esm.js"
+      }
+    },
+    "./batch": {
+      "import": {
+        "types": "./dist/types/batch.d.ts",
+        "default": "./dist/batch.esm.js"
+      }
+    },
+    "./scheduler": {
+      "import": {
+        "types": "./dist/types/scheduler.d.ts",
+        "default": "./dist/scheduler.esm.js"
+      }
+    },
+    "./untracked": {
+      "import": {
+        "types": "./dist/types/untracked.d.ts",
+        "default": "./dist/untracked.esm.js"
+      }
+    },
+    "./utils/equals": {
+      "import": {
+        "types": "./dist/types/utils/equals.d.ts",
+        "default": "./dist/utils/equals.esm.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "vld",
+    "reactivity",
+    "signal",
+    "vue",
+    "performance"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/vld",
+    "directory": "packages/reactivity"
+  },
+  "bugs": {
+    "url": "https://github.com/username/vld/issues"
+  },
+  "homepage": "https://github.com/username/vld#readme",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc && rollup -c",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "bench": "node benchmarks/index.js",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "rollup": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

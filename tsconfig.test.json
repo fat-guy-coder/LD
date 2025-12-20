@@ -1,0 +1,28 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "strictNullChecks": true,
+        "noImplicitAny": true,
+        "types": [
+            "node",
+            "vitest/globals"
+        ],
+        "noEmit": true,
+        "noImplicitAny": false
+    },
+    "include": [
+        "packages/**/*.ts",
+        "packages/**/*.tsx",
+        "packages/**/*.test.ts",
+        "packages/**/*.spec.ts",
+        "packages/**/__tests__/**/*.ts",
+        "vitest.config.ts",
+        "vitest.setup.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

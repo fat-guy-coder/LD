@@ -1,0 +1,35 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "declaration": true,
+      "declarationMap": true,
+      "sourceMap": true,
+      "outDir": "./dist",
+      "removeComments": true,
+      "stripInternal": true,
+      
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "strictBindCallApply": true,
+      "strictPropertyInitialization": true,
+      "noImplicitThis": true,
+      "useUnknownInCatchVariables": true,
+      "exactOptionalPropertyTypes": true,
+      
+      "incremental": false,
+      "tsBuildInfoFile": null,
+      "skipLibCheck": true,
+      "skipDefaultLibCheck": true
+    },
+    "include": ["packages/**/src"],
+    "exclude": [
+      "packages/**/test",
+      "packages/**/*.test.ts",
+      "packages/**/*.spec.ts",
+      "packages/**/__tests__",
+      "packages/**/__benchmarks__"
+    ]
+  }
