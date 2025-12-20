@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { execSync, spawn } from 'child_process'
+import { execSync } from 'child_process'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
 import semver from 'semver'
@@ -33,7 +33,15 @@ interface ReleaseOptions {
 
 class ReleaseManager {
   private packages: Map<string, PackageInfo> = new Map()
-  private options: ReleaseOptions
+  private options: ReleaseOptions = {
+    version: '',
+    tag: 'latest',
+    dryRun: false,
+    skipTests: false,
+    skipBuild: false,
+    skipGit: false,
+    skipPublish: false,
+  }
 
   constructor() {
     this.loadPackages()
@@ -41,7 +49,18 @@ class ReleaseManager {
   }
 
   private loadPackages(): void {
-    const packageNames = ['reactivity', 'router', 'compiler-core', 'compiler-sfc', 'runtime-core', 'runtime-dom', 'vld', 'vite-plugin', 'cli', 'devtools']
+    const packageNames = [
+      'reactivity',
+      'router',
+      'compiler-core',
+      'compiler-sfc',
+      'runtime-core',
+      'runtime-dom',
+      'vld',
+      'vite-plugin',
+      'cli',
+      'devtools',
+    ]
 
     for (const pkgName of packageNames) {
       const pkgPath = join(packagesDir, pkgName, 'package.json')
@@ -52,7 +71,7 @@ class ReleaseManager {
           path: join(packagesDir, pkgName),
           version: pkgJson.version,
           dependencies: pkgJson.dependencies || {},
-          private: pkgJson.private
+          private: pkgJson.private,
         })
       }
     }
@@ -67,26 +86,35 @@ class ReleaseManager {
       skipTests: args.includes('--skip-tests'),
       skipBuild: args.includes('--skip-build'),
       skipGit: args.includes('--skip-git'),
-      skipPublish: args.includes('--skip-publish')
+      skipPublish: args.includes('--skip-publish'),
     }
   }
 
   private async promptVersion(): Promise<string> {
     const currentVersions = Array.from(this.packages.values()).map(p => p.version)
     const currentVersion = currentVersions[0] || '0.1.0'
-    
+
     const { version } = await inquirer.prompt([
       {
         type: 'list',
         name: 'version',
         message: 'Select version bump type:',
         choices: [
-          { name: `Patch (${currentVersion} → ${semver.inc(currentVersion, 'patch')})`, value: 'patch' },
-          { name: `Minor (${currentVersion} → ${semver.inc(currentVersion, 'minor')})`, value: 'minor' },
-          { name: `Major (${currentVersion} → ${semver.inc(currentVersion, 'major')})`, value: 'major' },
-          { name: 'Custom version', value: 'custom' }
-        ]
-      }
+          {
+            name: `Patch (${currentVersion} → ${semver.inc(currentVersion, 'patch')})`,
+            value: 'patch',
+          },
+          {
+            name: `Minor (${currentVersion} → ${semver.inc(currentVersion, 'minor')})`,
+            value: 'minor',
+          },
+          {
+            name: `Major (${currentVersion} → ${semver.inc(currentVersion, 'major')})`,
+            value: 'major',
+          },
+          { name: 'Custom version', value: 'custom' },
+        ],
+      },
     ])
 
     if (version === 'custom') {
@@ -95,8 +123,8 @@ class ReleaseManager {
           type: 'input',
           name: 'customVersion',
           message: 'Enter custom version:',
-          validate: (input: string) => semver.valid(input) ? true : 'Invalid version'
-        }
+          validate: (input: string) => (semver.valid(input) ? true : 'Invalid version'),
+        },
       ])
       return customVersion
     }
@@ -174,14 +202,14 @@ class ReleaseManager {
 
   private async updateVersions(newVersion: string): Promise<void> {
     const spinner = ora('Updating package versions...').start()
-    
+
     try {
-      for (const [pkgName, pkgInfo] of this.packages) {
+      for (const [_, pkgInfo] of this.packages) {
         const pkgPath = join(pkgInfo.path, 'package.json')
         const pkgJson = JSON.parse(readFileSync(pkgPath, 'utf-8'))
-        
+
         pkgJson.version = newVersion
-        
+
         if (pkgJson.dependencies) {
           for (const dep in pkgJson.dependencies) {
             if (dep.startsWith('@vld/')) {
@@ -189,10 +217,10 @@ class ReleaseManager {
             }
           }
         }
-        
+
         writeFileSync(pkgPath, JSON.stringify(pkgJson, null, 2) + '\n')
       }
-      
+
       spinner.succeed(`Updated all packages to version ${chalk.cyan(newVersion)}`)
     } catch (error) {
       spinner.fail('Failed to update versions')
@@ -207,7 +235,7 @@ class ReleaseManager {
     }
 
     const spinner = ora('Committing changes...').start()
-    
+
     try {
       await this.runCommand('git add .')
       await this.runCommand(`git commit -m "chore: release v${version}"`)
@@ -226,7 +254,7 @@ class ReleaseManager {
     }
 
     const spinner = ora('Publishing packages to npm...').start()
-    
+
     try {
       for (const [pkgName, pkgInfo] of this.packages) {
         if (pkgInfo.private) {
@@ -236,7 +264,7 @@ class ReleaseManager {
 
         const publishCmd = `npm publish --tag ${this.options.tag} --access public`
         const pkgSpinner = ora(`  Publishing ${pkgName}...`).start()
-        
+
         try {
           if (!this.options.dryRun) {
             execSync(publishCmd, { cwd: pkgInfo.path, stdio: 'pipe' })
@@ -247,7 +275,7 @@ class ReleaseManager {
           throw error
         }
       }
-      
+
       spinner.succeed('All packages published')
     } catch (error) {
       spinner.fail('Publishing failed')
@@ -261,7 +289,7 @@ class ReleaseManager {
     }
 
     const spinner = ora('Pushing to git...').start()
-    
+
     try {
       await this.runCommand('git push origin main --tags')
       spinner.succeed('Pushed to git')
@@ -274,12 +302,14 @@ class ReleaseManager {
   public async release(): Promise<void> {
     console.log(chalk.cyan.bold('🚀 VLD Release Manager\n'))
 
-    const version = this.options.version || await this.promptVersion()
-    
+    const version = this.options.version || (await this.promptVersion())
+
     console.log(chalk.gray('─'.repeat(50)))
     console.log(`  ${chalk.bold('Version:')} ${chalk.cyan(`v${version}`)}`)
     console.log(`  ${chalk.bold('Tag:')} ${chalk.cyan(this.options.tag)}`)
-    console.log(`  ${chalk.bold('Dry Run:')} ${this.options.dryRun ? chalk.green('Yes') : chalk.red('No')}`)
+    console.log(
+      `  ${chalk.bold('Dry Run:')} ${this.options.dryRun ? chalk.green('Yes') : chalk.red('No')}`
+    )
     console.log(chalk.gray('─'.repeat(50)))
 
     if (this.options.dryRun) {
@@ -291,8 +321,8 @@ class ReleaseManager {
         type: 'confirm',
         name: 'confirm',
         message: 'Start release process?',
-        default: false
-      }
+        default: false,
+      },
     ])
 
     if (!confirm) {
@@ -313,7 +343,9 @@ class ReleaseManager {
       console.log(chalk.green.bold(`\n🎉 Successfully released v${version}!`))
       console.log(chalk.gray('─'.repeat(50)))
       console.log(`  ${chalk.bold('npm:')} https://www.npmjs.com/package/@vld/vld`)
-      console.log(`  ${chalk.bold('GitHub:')} https://github.com/username/vld/releases/tag/v${version}`)
+      console.log(
+        `  ${chalk.bold('GitHub:')} https://github.com/username/vld/releases/tag/v${version}`
+      )
       console.log(chalk.gray('─'.repeat(50)))
     } catch (error) {
       console.error(chalk.red.bold('\n❌ Release failed'))

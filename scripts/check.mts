@@ -106,18 +106,18 @@ class QualityChecker {
 
   private async runLint(cwd: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const process = spawn('pnpm', ['run', 'lint'], {
+      const childProcess = spawn('pnpm', ['run', 'lint'], {
         cwd,
         stdio: 'pipe',
         shell: true,
-        env: { ...process.env, NODE_ENV: 'test' }
+        env: { ...process.env, NODE_ENV: 'test' } as NodeJS.ProcessEnv
       })
 
       let output = ''
-      process.stdout?.on('data', (data) => output += data.toString())
-      process.stderr?.on('data', (data) => output += data.toString())
+      childProcess.stdout?.on('data', (data) => output += data.toString())
+      childProcess.stderr?.on('data', (data) => output += data.toString())
 
-      process.on('exit', (code) => {
+      childProcess.on('exit', (code) => {
         if (code === 0) {
           resolve()
         } else {
@@ -125,24 +125,24 @@ class QualityChecker {
         }
       })
 
-      process.on('error', reject)
+      childProcess.on('error', reject)
     })
   }
 
   private async runTypeCheck(cwd: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const process = spawn('npx', ['tsc', '--noEmit'], {
+      const childProcess = spawn('npx', ['tsc', '--noEmit'], {
         cwd,
         stdio: 'pipe',
         shell: true,
-        env: { ...process.env, NODE_ENV: 'test' }
+        env: { ...process.env, NODE_ENV: 'test' } as NodeJS.ProcessEnv
       })
 
       let output = ''
-      process.stdout?.on('data', (data) => output += data.toString())
-      process.stderr?.on('data', (data) => output += data.toString())
+      childProcess.stdout?.on('data', (data) => output += data.toString())
+      childProcess.stderr?.on('data', (data) => output += data.toString())
 
-      process.on('exit', (code) => {
+      childProcess.on('exit', (code) => {
         if (code === 0) {
           resolve()
         } else {
@@ -150,24 +150,24 @@ class QualityChecker {
         }
       })
 
-      process.on('error', reject)
+        childProcess.on('error', reject)
     })
   }
 
   private async runTests(cwd: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const process = spawn('pnpm', ['run', 'test'], {
+      const childProcess = spawn('pnpm', ['run', 'test'], {
         cwd,
         stdio: 'pipe',
         shell: true,
-        env: { ...process.env, NODE_ENV: 'test' }
+        env: { ...process.env, NODE_ENV: 'test' } as NodeJS.ProcessEnv
       })
 
       let output = ''
-      process.stdout?.on('data', (data) => output += data.toString())
-      process.stderr?.on('data', (data) => output += data.toString())
+      childProcess.stdout?.on('data', (data) => output += data.toString())
+      childProcess.stderr?.on('data', (data) => output += data.toString())
 
-      process.on('exit', (code) => {
+      childProcess.on('exit', (code) => {
         if (code === 0) {
           resolve()
         } else {
@@ -175,33 +175,33 @@ class QualityChecker {
         }
       })
 
-      process.on('error', reject)
+      childProcess.on('error', reject)
     })
   }
 
   private async getCoverage(cwd: string): Promise<number> {
     return new Promise((resolve) => {
-      const process = spawn('pnpm', ['run', 'test:coverage'], {
+      const childProcess = spawn('pnpm', ['run', 'test:coverage'], {
         cwd,
         stdio: 'pipe',
         shell: true,
-        env: { ...process.env, NODE_ENV: 'test' }
+        env: { ...process.env, NODE_ENV: 'test' } as NodeJS.ProcessEnv
       })
 
       let output = ''
-      process.stdout?.on('data', (data) => output += data.toString())
-      process.stderr?.on('data', (data) => output += data.toString())
+      childProcess.stdout?.on('data', (data) => output += data.toString())
+      childProcess.stderr?.on('data', (data) => output += data.toString())
 
-      process.on('exit', () => {
+      childProcess.on('exit', () => {
         const coverageMatch = output.match(/All files.*?(\d+\.?\d*)%/s)
-        resolve(coverageMatch ? parseFloat(coverageMatch[1]) : 0)
+        resolve(coverageMatch ? parseFloat(coverageMatch[1] ?? '0') : 0)
       })
     })
   }
 
   private printResults(): void {
     const totalTime = Date.now() - this.startTime
-    const allPassed = this.results.every(r => r.lint && r.typeCheck && r.tests)
+    //const allPassed = this.results.every(r => r.lint && r.typeCheck && r.tests) as boolean
     const totalPackages = this.results.length
     const passedPackages = this.results.filter(r => r.lint && r.typeCheck && r.tests).length
 

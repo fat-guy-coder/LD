@@ -1,58 +1,66 @@
 {
-    "compilerOptions": {
-      "target": "ES2022",
-      "lib": ["ES2022", "DOM", "DOM.Iterable"],
-      "module": "ESNext",
-      "moduleResolution": "bundler",
-      "resolveJsonModule": true,
-      "allowSyntheticDefaultImports": true,
-      "esModuleInterop": true,
-      "isolatedModules": true,
-      "allowImportingTsExtensions": true,
-      
-      "strict": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "noFallthroughCasesInSwitch": true,
-      "noImplicitOverride": true,
-      "noImplicitReturns": true,
-      "noUncheckedIndexedAccess": true,
-      "noPropertyAccessFromIndexSignature": true,
-      "forceConsistentCasingInFileNames": true,
-      
-      "skipLibCheck": true,
-      "skipDefaultLibCheck": true,
-      "verbatimModuleSyntax": true,
-      "noEmitOnError": true,
-      
-      "types": ["node"],
-      "baseUrl": ".",
-      "paths": {
-        "@vld/*": ["packages/*/src"],
-        "@scripts/*": ["scripts/*"]
-      }
-    },
-    "include": [
-      "packages/**/*.ts",
-      "packages/**/*.tsx",
-      "packages/**/*.vue",
-      "scripts/**/*.mts",
-      "scripts/**/*.ts",
-      "*.d.ts",
-      "*.config.ts",
-      "*.config.js"
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
     ],
-    "exclude": [
-      "node_modules",
-      "dist",
-      "**/dist/**",
-      "**/node_modules/**",
-      "**/*.test.ts",
-      "**/*.spec.ts",
-      "**/*.bench.ts",
-      "**/__tests__/**",
-      "**/__benchmarks__/**",
-      "reports/**",
-      "coverage/**"
-    ]
-  }
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "noEmitOnError": true,
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@vld/*": [
+        "packages/*/src"
+      ],
+      "@scripts/*": [
+        "scripts/*"
+      ]
+    }
+  },
+  "include": [
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "packages/**/*.vue",
+    "scripts/**/*.mts",
+    "scripts/**/*.ts",
+    "*.d.ts",
+    "*.config.ts",
+    "*.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.bench.ts",
+    "**/__tests__/**",
+    "**/__benchmarks__/**",
+    "reports/**",
+    "coverage/**"
+  ]
+}

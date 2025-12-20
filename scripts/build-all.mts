@@ -137,7 +137,7 @@ class BuildAllManager {
 
     try {
       const env = production ? { ...process.env, NODE_ENV: 'production' } : process.env
-      await this.executeCommand('pnpm run build', pkgDir, false, env)
+      await this.executeCommand('pnpm run build', pkgDir, false, env as NodeJS.ProcessEnv)
       
       const duration = Date.now() - startTime
       this.results.push({
@@ -170,7 +170,7 @@ class BuildAllManager {
     env?: NodeJS.ProcessEnv
   ): Promise<void> {
     return new Promise((resolve, reject) => {
-      const process = spawn(cmd, {
+      const childProcess = spawn(cmd, {
         cwd,
         stdio: showOutput ? 'inherit' : 'pipe',
         shell: true,
@@ -178,10 +178,10 @@ class BuildAllManager {
       })
 
       let output = ''
-      process.stdout?.on('data', (data) => output += data.toString())
-      process.stderr?.on('data', (data) => output += data.toString())
+      childProcess.stdout?.on('data', (data) => output += data.toString())
+      childProcess.stderr?.on('data', (data) => output += data.toString())
 
-      process.on('exit', (code) => {
+      childProcess.on('exit', (code) => {
         if (code === 0) {
           resolve()
         } else {
@@ -189,7 +189,7 @@ class BuildAllManager {
         }
       })
 
-      process.on('error', reject)
+      childProcess.on('error', reject)
     })
   }
 
@@ -217,8 +217,8 @@ class BuildAllManager {
       const status = result.success ? chalk.green('✅') : chalk.red('❌')
       const duration = chalk.yellow(result.duration + 'ms')
       const errors = result.errors.length > 0 
-        ? chalk.red(result.errors[0].substring(0, 30) + '...') 
-        : chalk.gray('none')
+          ? chalk.red(result.errors[0]?.substring(0, 30) + '...') 
+          : chalk.gray('none')
 
       table.push([
         chalk.bold(result.package),

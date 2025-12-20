@@ -2,7 +2,7 @@
 
 import { join, dirname, basename } from 'path'
 import { fileURLToPath } from 'url'
-import { readFileSync, existsSync, statSync, readdirSync } from 'fs'
+import { readFileSync, existsSync, readdirSync } from 'fs'
 import { gzipSync } from 'zlib'
 import chalk from 'chalk'
 import ora from 'ora'
@@ -71,7 +71,7 @@ class BundleAnalyzer {
 
   private async ensureBuild(): Promise<void> {
     const spinner = ora('Checking build status...').start()
-    
+
     try {
       execSync('pnpm build', { cwd: rootDir, stdio: 'pipe' })
       spinner.succeed('Build completed')
@@ -81,8 +81,17 @@ class BundleAnalyzer {
   }
 
   private async analyzeAllPackages(): Promise<void> {
-    const packages = ['reactivity', 'router', 'compiler-core', 'compiler-sfc', 'runtime-core', 'runtime-dom', 'vld', 'vite-plugin']
-    
+    const packages = [
+      'reactivity',
+      'router',
+      'compiler-core',
+      'compiler-sfc',
+      'runtime-core',
+      'runtime-dom',
+      'vld',
+      'vite-plugin',
+    ]
+
     for (const pkgName of packages) {
       const pkgDir = join(packagesDir, pkgName)
       if (existsSync(pkgDir) && existsSync(join(pkgDir, 'dist'))) {
@@ -94,7 +103,7 @@ class BundleAnalyzer {
   private async analyzePackage(pkgName: string): Promise<void> {
     const pkgDir = join(packagesDir, pkgName)
     const distDir = join(pkgDir, 'dist')
-    
+
     if (!existsSync(distDir)) {
       console.error(chalk.red(`❌ Package ${pkgName} not built`))
       return
@@ -105,13 +114,13 @@ class BundleAnalyzer {
     try {
       const bundles: BundleStats[] = []
       const issues: string[] = []
-      
+
       const files = this.getBundleFiles(distDir)
-      
+
       for (const file of files) {
         const stats = await this.analyzeBundle(file)
         bundles.push(stats)
-        
+
         if (stats.rawSize > 1024 * 100) {
           issues.push(`${basename(file)} exceeds 100KB (${(stats.rawSize / 1024).toFixed(1)}KB)`)
         }
@@ -127,7 +136,7 @@ class BundleAnalyzer {
         totalSize,
         totalGzip,
         dependencies,
-        issues
+        issues,
       })
 
       spinner.succeed(`Analyzed ${chalk.cyan(pkgName)} (${bundles.length} bundles)`)
@@ -139,13 +148,13 @@ class BundleAnalyzer {
 
   private getBundleFiles(dir: string): string[] {
     const files: string[] = []
-    
+
     const walk = (currentDir: string) => {
       const items = readdirSync(currentDir, { withFileTypes: true })
-      
+
       for (const item of items) {
         const fullPath = join(currentDir, item.name)
-        
+
         if (item.isDirectory()) {
           walk(fullPath)
         } else if (item.isFile() && item.name.endsWith('.js')) {
@@ -153,7 +162,7 @@ class BundleAnalyzer {
         }
       }
     }
-    
+
     walk(dir)
     return files
   }
@@ -162,7 +171,7 @@ class BundleAnalyzer {
     const content = readFileSync(filePath, 'utf-8')
     const rawSize = Buffer.byteLength(content, 'utf-8')
     const gzipSize = gzipSync(content).byteLength
-    
+
     const fileName = basename(filePath)
     const fileCount = 1
     const exports = this.countExports(content)
@@ -176,7 +185,7 @@ class BundleAnalyzer {
       fileCount,
       exports,
       dependencies,
-      treeShakeable
+      treeShakeable,
     }
   }
 
@@ -184,9 +193,9 @@ class BundleAnalyzer {
     const exportPatterns = [
       /export\s+(?:const|let|var|function|class|interface|type)\s+(\w+)/g,
       /export\s*\{\s*([^}]+)\s*\}/g,
-      /export\s+default\s+/g
+      /export\s+default\s+/g,
     ]
-    
+
     let count = 0
     for (const pattern of exportPatterns) {
       const matches = content.matchAll(pattern)
@@ -198,25 +207,29 @@ class BundleAnalyzer {
         }
       }
     }
-    
+
     return count
   }
 
   private countDependencies(content: string): number {
     const importPattern = /from\s+['"]([^'"]+)['"]/g
     const requirePattern = /require\(['"]([^'"]+)['"]\)/g
-    
+
     const imports = new Set<string>()
-    
+
     let match: RegExpExecArray | null
     while ((match = importPattern.exec(content)) !== null) {
-      imports.add(match[1])
+      if (match[1]) {
+        imports.add(match[1])
+      }
     }
-    
+
     while ((match = requirePattern.exec(content)) !== null) {
-      imports.add(match[1])
+      if (match[1]) {
+        imports.add(match[1])
+      }
     }
-    
+
     return imports.size
   }
 
@@ -224,8 +237,8 @@ class BundleAnalyzer {
     const sideEffects = content.includes('sideEffects')
     const pureComments = content.includes('#__PURE__')
     const usedExports = content.match(/export\s+(?:const|let|var|function|class)/g)
-    
-    return !sideEffects && (pureComments || (usedExports && usedExports.length > 0))
+
+    return !sideEffects && ((pureComments || (usedExports && usedExports.length > 0)) as boolean)
   }
 
   private async analyzeDependencies(pkgDir: string): Promise<DependencyAnalysis[]> {
@@ -236,35 +249,34 @@ class BundleAnalyzer {
 
     const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'))
     const dependencies = pkgJson.dependencies || {}
-    
+
     const analysis: DependencyAnalysis[] = []
-    
-    for (const [dep, version] of Object.entries(dependencies)) {
+
+    for (const [dep] of Object.entries(dependencies)) {
       if (dep.startsWith('@vld/')) {
         const depPkgDir = join(packagesDir, dep.replace('@vld/', ''))
         const depPkgJsonPath = join(depPkgDir, 'package.json')
-        
+
         if (existsSync(depPkgJsonPath)) {
           const depPkgJson = JSON.parse(readFileSync(depPkgJsonPath, 'utf-8'))
           const totalExports = Object.keys(depPkgJson.exports || {}).length
-          
           analysis.push({
             name: dep,
             usedExports: 0,
             totalExports,
             percentage: 0,
-            canShake: totalExports > 0
+            canShake: totalExports > 0,
           })
         }
       }
     }
-    
+
     return analysis
   }
 
   private printResults(): void {
     const totalTime = Date.now() - this.startTime
-    
+
     console.log('\n' + chalk.cyan.bold('📊 Bundle Size Analysis:'))
     console.log(chalk.gray('─'.repeat(100)))
 
@@ -277,16 +289,16 @@ class BundleAnalyzer {
         chalk.bold('Exports'),
         chalk.bold('Deps'),
         chalk.bold('Tree-shake'),
-        chalk.bold('Issues')
+        chalk.bold('Issues'),
       ],
       colWidths: [15, 12, 12, 8, 8, 8, 10, 20],
-      style: { head: ['cyan'] }
+      style: { head: ['cyan'] },
     })
 
     this.results.forEach(result => {
       const sizeColor = result.totalGzip > 10240 ? chalk.red : chalk.green
       const gzipColor = result.totalGzip > 10240 ? chalk.red : chalk.green
-      
+
       mainTable.push([
         chalk.bold(result.package),
         sizeColor(this.formatSize(result.totalSize)),
@@ -295,7 +307,7 @@ class BundleAnalyzer {
         chalk.yellow(result.bundles.reduce((sum, b) => sum + b.exports, 0).toString()),
         chalk.magenta(result.bundles.reduce((sum, b) => sum + b.dependencies, 0).toString()),
         result.bundles.every(b => b.treeShakeable) ? chalk.green('✓') : chalk.red('✗'),
-        result.issues.length > 0 ? chalk.red(result.issues.length.toString()) : chalk.green('0')
+        result.issues.length > 0 ? chalk.red(result.issues.length.toString()) : chalk.green('0'),
       ])
     })
 
@@ -303,26 +315,26 @@ class BundleAnalyzer {
 
     this.printBundleDetails()
     this.printDependencyAnalysis()
-    
+
     console.log(chalk.gray('─'.repeat(100)))
     console.log(`  ${chalk.bold('Analysis completed in:')} ${chalk.yellow(totalTime + 'ms')}`)
   }
 
   private printBundleDetails(): void {
     console.log(chalk.cyan.bold('\n📦 Bundle Details:'))
-    
+
     this.results.forEach(result => {
       console.log(`\n${chalk.bold(result.package)}:`)
-      
+
       const table = new Table({
         head: [
           chalk.bold('File'),
           chalk.bold('Raw'),
           chalk.bold('Gzip'),
           chalk.bold('Exports'),
-          chalk.bold('Deps')
+          chalk.bold('Deps'),
         ],
-        colWidths: [25, 10, 10, 8, 8]
+        colWidths: [25, 10, 10, 8, 8],
       })
 
       result.bundles.forEach(bundle => {
@@ -331,7 +343,7 @@ class BundleAnalyzer {
           this.formatSize(bundle.rawSize),
           this.formatSize(bundle.gzipSize),
           bundle.exports.toString(),
-          bundle.dependencies.toString()
+          bundle.dependencies.toString(),
         ])
       })
 
@@ -341,7 +353,7 @@ class BundleAnalyzer {
 
   private printDependencyAnalysis(): void {
     const allDeps = new Map<string, DependencyAnalysis>()
-    
+
     this.results.forEach(result => {
       result.dependencies.forEach(dep => {
         if (!allDeps.has(dep.name)) {
@@ -361,19 +373,20 @@ class BundleAnalyzer {
         chalk.bold('Dependency'),
         chalk.bold('Used/Tot'),
         chalk.bold('Usage %'),
-        chalk.bold('Shakeable')
+        chalk.bold('Shakeable'),
       ],
-      colWidths: [20, 10, 10, 10]
+      colWidths: [20, 10, 10, 10],
     })
 
     allDeps.forEach(dep => {
-      const usageColor = dep.percentage < 50 ? chalk.red : dep.percentage < 80 ? chalk.yellow : chalk.green
-      
+      const usageColor =
+        dep.percentage < 50 ? chalk.red : dep.percentage < 80 ? chalk.yellow : chalk.green
+
       table.push([
         dep.name,
         `${dep.usedExports}/${dep.totalExports}`,
         usageColor(`${dep.percentage}%`),
-        dep.canShake ? chalk.green('✓') : chalk.red('✗')
+        dep.canShake ? chalk.green('✓') : chalk.red('✗'),
       ])
     })
 
@@ -389,7 +402,7 @@ class BundleAnalyzer {
   private async generateVisualization(): Promise<void> {
     const reportDir = join(rootDir, 'reports')
     const reportPath = join(reportDir, 'bundle-analysis.json')
-    
+
     const report = {
       timestamp: new Date().toISOString(),
       duration: Date.now() - this.startTime,
@@ -398,22 +411,23 @@ class BundleAnalyzer {
         totalPackages: this.results.length,
         totalRawSize: this.results.reduce((sum, r) => sum + r.totalSize, 0),
         totalGzipSize: this.results.reduce((sum, r) => sum + r.totalGzip, 0),
-        averageBundleSize: this.results.reduce((sum, r) => sum + r.totalSize, 0) / this.results.length,
-        issuesCount: this.results.reduce((sum, r) => sum + r.issues.length, 0)
-      }
+        averageBundleSize:
+          this.results.reduce((sum, r) => sum + r.totalSize, 0) / this.results.length,
+        issuesCount: this.results.reduce((sum, r) => sum + r.issues.length, 0),
+      },
     }
 
     const fs = await import('fs')
     const { mkdirSync, writeFileSync } = fs
-    
+
     if (!existsSync(reportDir)) {
       mkdirSync(reportDir, { recursive: true })
     }
 
     writeFileSync(reportPath, JSON.stringify(report, null, 2))
-    
+
     console.log(chalk.gray(`\n📄 Report saved to: ${reportPath}`))
-    
+
     await this.generateHtmlReport(report)
   }
 
@@ -455,7 +469,9 @@ class BundleAnalyzer {
       </tr>
     </thead>
     <tbody>
-      ${report.results.map((pkg: any) => `
+      ${report.results
+        .map(
+          (pkg: any) => `
         <tr>
           <td>${pkg.package}</td>
           <td>${Math.round(pkg.totalSize / 1024)} KB</td>
@@ -463,7 +479,9 @@ class BundleAnalyzer {
           <td>${pkg.bundles.length}</td>
           <td>${pkg.issues.length}</td>
         </tr>
-      `).join('')}
+      `
+        )
+        .join('')}
     </tbody>
   </table>
   
@@ -505,10 +523,10 @@ class BundleAnalyzer {
 
     const reportDir = join(rootDir, 'reports')
     const htmlPath = join(reportDir, 'bundle-analysis.html')
-    
+
     const { writeFileSync } = await import('fs')
     writeFileSync(htmlPath, html)
-    
+
     console.log(chalk.gray(`📊 HTML report: ${htmlPath}`))
   }
 }

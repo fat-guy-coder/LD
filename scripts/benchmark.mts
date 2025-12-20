@@ -3,7 +3,7 @@
 import { spawn } from 'child_process'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { readdirSync, existsSync } from 'fs'
+import { existsSync } from 'fs'
 import chalk from 'chalk'
 import ora from 'ora'
 import Table from 'cli-table3'
@@ -66,31 +66,31 @@ class BenchmarkRunner {
 
   private async runReactivityBenchmarks(): Promise<void> {
     const benchDir = join(packagesDir, 'reactivity', 'benchmarks')
-    
+
     if (!existsSync(benchDir)) {
       console.log(chalk.yellow('⚠️  Reactivity benchmarks not found'))
       return
     }
 
     const spinner = ora('Running reactivity benchmarks...').start()
-    
+
     const benchmarks = [
       'signal-creation.bench.ts',
       'signal-update.bench.ts',
       'computed-cache.bench.ts',
       'batch-updates.bench.ts',
-      'memory-leak.bench.ts'
+      'memory-leak.bench.ts',
     ]
 
     for (const benchFile of benchmarks) {
       const benchPath = join(benchDir, benchFile)
-      
+
       if (existsSync(benchPath)) {
         try {
           const result = await this.runBenchmark(benchPath)
           this.results.push({
             name: benchFile.replace('.bench.ts', ''),
-            ...result
+            ...result,
           })
         } catch (error) {
           console.error(chalk.red(`Failed to run ${benchFile}:`), error)
@@ -103,7 +103,7 @@ class BenchmarkRunner {
 
   private async runRenderBenchmarks(): Promise<void> {
     const benchDir = join(packagesDir, 'runtime-core', 'benchmarks')
-    
+
     if (!existsSync(benchDir)) {
       console.log(chalk.yellow('⚠️  Render benchmarks not found'))
       return
@@ -115,18 +115,18 @@ class BenchmarkRunner {
       'dom-creation.bench.ts',
       'dom-update.bench.ts',
       'list-render.bench.ts',
-      'worker-render.bench.ts'
+      'worker-render.bench.ts',
     ]
 
     for (const benchFile of benchmarks) {
       const benchPath = join(benchDir, benchFile)
-      
+
       if (existsSync(benchPath)) {
         try {
           const result = await this.runBenchmark(benchPath)
           this.results.push({
             name: benchFile.replace('.bench.ts', ''),
-            ...result
+            ...result,
           })
         } catch (error) {
           console.error(chalk.red(`Failed to run ${benchFile}:`), error)
@@ -139,7 +139,7 @@ class BenchmarkRunner {
 
   private async runCompilerBenchmarks(): Promise<void> {
     const benchDir = join(packagesDir, 'compiler-core', 'benchmarks')
-    
+
     if (!existsSync(benchDir)) {
       console.log(chalk.yellow('⚠️  Compiler benchmarks not found'))
       return
@@ -147,21 +147,17 @@ class BenchmarkRunner {
 
     const spinner = ora('Running compiler benchmarks...').start()
 
-    const benchmarks = [
-      'template-parse.bench.ts',
-      'ast-optimize.bench.ts',
-      'codegen.bench.ts'
-    ]
+    const benchmarks = ['template-parse.bench.ts', 'ast-optimize.bench.ts', 'codegen.bench.ts']
 
     for (const benchFile of benchmarks) {
       const benchPath = join(benchDir, benchFile)
-      
+
       if (existsSync(benchPath)) {
         try {
           const result = await this.runBenchmark(benchPath)
           this.results.push({
             name: benchFile.replace('.bench.ts', ''),
-            ...result
+            ...result,
           })
         } catch (error) {
           console.error(chalk.red(`Failed to run ${benchFile}:`), error)
@@ -174,7 +170,7 @@ class BenchmarkRunner {
 
   private async runMemoryBenchmarks(): Promise<void> {
     const benchDir = join(packagesDir, 'reactivity', 'benchmarks')
-    
+
     if (!existsSync(benchDir)) {
       console.log(chalk.yellow('⚠️  Memory benchmarks not found'))
       return
@@ -186,7 +182,7 @@ class BenchmarkRunner {
       const result = await this.runBenchmark(join(benchDir, 'memory-usage.bench.ts'))
       this.results.push({
         name: 'memory-usage',
-        ...result
+        ...result,
       })
       spinner.succeed('Memory benchmarks completed')
     } catch (error) {
@@ -197,22 +193,22 @@ class BenchmarkRunner {
 
   private async runBenchmark(benchPath: string): Promise<Omit<BenchmarkResult, 'name'>> {
     return new Promise((resolve, reject) => {
-      const process = spawn('node', ['--loader', 'tsx', benchPath], {
+      const childProcess = spawn('node', ['--loader', 'tsx', benchPath], {
         stdio: 'pipe',
         shell: true,
-        env: { ...process.env, NODE_ENV: 'production' }
+        env: { ...process.env, NODE_ENV: 'production' } as NodeJS.ProcessEnv,
       })
 
       let output = ''
-      process.stdout?.on('data', (data) => {
+      childProcess.stdout?.on('data', data => {
         output += data.toString()
       })
 
-      process.stderr?.on('data', (data) => {
+      childProcess.stderr?.on('data', data => {
         output += data.toString()
       })
 
-      process.on('exit', () => {
+      childProcess.on('exit', () => {
         // 解析基准测试输出
         const opsMatch = output.match(/(\d+(?:\.\d+)?) ops\/sec/)
         const marginMatch = output.match(/±([\d.]+)%/)
@@ -221,17 +217,17 @@ class BenchmarkRunner {
 
         if (opsMatch && marginMatch && samplesMatch) {
           resolve({
-            opsPerSec: parseFloat(opsMatch[1]),
-            marginOfError: marginMatch[1],
-            samples: parseInt(samplesMatch[1]),
-            duration: durationMatch ? parseFloat(durationMatch[1]) : 0
+            opsPerSec: parseFloat(opsMatch[1] ?? '0'),
+            marginOfError: marginMatch[1] ?? '0',
+            samples: parseInt(samplesMatch[1] ?? '0'),
+            duration: durationMatch ? parseFloat(durationMatch[1] ?? '0') : 0,
           })
         } else {
           reject(new Error('Failed to parse benchmark output'))
         }
       })
 
-      process.on('error', reject)
+      childProcess.on('error', reject)
     })
   }
 
@@ -245,16 +241,16 @@ class BenchmarkRunner {
         chalk.bold('Ops/sec'),
         chalk.bold('Margin'),
         chalk.bold('Samples'),
-        chalk.bold('Duration')
+        chalk.bold('Duration'),
       ],
       colWidths: [25, 15, 10, 10, 10],
-      style: { head: ['cyan'] }
+      style: { head: ['cyan'] },
     })
 
     this.results.forEach(result => {
       const opsFormatted = result.opsPerSec.toLocaleString('en-US', {
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        maximumFractionDigits: 0,
       })
 
       table.push([
@@ -262,7 +258,7 @@ class BenchmarkRunner {
         chalk.green(opsFormatted),
         chalk.yellow(`±${result.marginOfError}%`),
         chalk.blue(result.samples.toString()),
-        chalk.magenta(`${result.duration.toFixed(2)}s`)
+        chalk.magenta(`${result.duration.toFixed(2)}s`),
       ])
     })
 
@@ -272,13 +268,29 @@ class BenchmarkRunner {
   private generateComparisonTable(): void {
     // 假设的性能数据 - 实际应该从基准测试中获取
     this.comparisons = [
-      { name: 'Signal Creation', vld: 1500000, vue3: 800000, react18: 500000, solid: 1200000, unit: 'ops/sec' },
-      { name: 'DOM Update', vld: 120000, vue3: 45000, react18: 35000, solid: 100000, unit: 'ops/sec' },
+      {
+        name: 'Signal Creation',
+        vld: 1500000,
+        vue3: 800000,
+        react18: 500000,
+        solid: 1200000,
+        unit: 'ops/sec',
+      },
+      {
+        name: 'DOM Update',
+        vld: 120000,
+        vue3: 45000,
+        react18: 35000,
+        solid: 100000,
+        unit: 'ops/sec',
+      },
       { name: 'Memory Usage', vld: 2.1, vue3: 4.5, react18: 6.2, solid: 2.8, unit: 'MB' },
-      { name: 'Bundle Size', vld: 8.2, vue3: 33.5, react18: 42.1, solid: 6.5, unit: 'KB gzip' }
+      { name: 'Bundle Size', vld: 8.2, vue3: 33.5, react18: 42.1, solid: 6.5, unit: 'KB gzip' },
     ]
 
-    console.log('\n' + chalk.cyan('📊 Framework Comparison:') + ' (Lower is better for Memory/Size)')
+    console.log(
+      '\n' + chalk.cyan('📊 Framework Comparison:') + ' (Lower is better for Memory/Size)'
+    )
     console.log(chalk.gray('─'.repeat(90)))
 
     const comparisonTable = new Table({
@@ -288,18 +300,18 @@ class BenchmarkRunner {
         chalk.bold('Vue 3'),
         chalk.bold('React 18'),
         chalk.bold('Solid'),
-        chalk.bold('Unit')
+        chalk.bold('Unit'),
       ],
       colWidths: [20, 15, 15, 15, 15, 10],
-      style: { head: ['cyan'] }
+      style: { head: ['cyan'] },
     })
 
     this.comparisons.forEach(comp => {
       const isBetter = (value: number, others: (number | undefined)[]) => {
         if (comp.name.includes('Memory') || comp.name.includes('Size')) {
-          return value < Math.min(...others.filter(Boolean) as number[])
+          return value < Math.min(...(others.filter(Boolean) as number[]))
         }
-        return value > Math.max(...others.filter(Boolean) as number[])
+        return value > Math.max(...(others.filter(Boolean) as number[]))
       }
 
       const formatValue = (value: number | undefined) => {
@@ -315,7 +327,10 @@ class BenchmarkRunner {
       const reactValue = formatValue(comp.react18)
       const solidValue = formatValue(comp.solid)
 
-      const highlight = isBetter(comp.vld, [comp.vue3, comp.react18, comp.solid].filter(Boolean) as number[])
+      const highlight = isBetter(
+        comp.vld,
+        [comp.vue3, comp.react18, comp.solid].filter(Boolean) as number[]
+      )
         ? chalk.green
         : (text: string) => text
 
@@ -325,7 +340,7 @@ class BenchmarkRunner {
         vueValue,
         reactValue,
         solidValue,
-        comp.unit
+        comp.unit,
       ])
     })
 

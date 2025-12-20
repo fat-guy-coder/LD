@@ -1,0 +1,99 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+      /* 基础选项 */
+      "target": "ES2022",
+      "lib": ["ES2022", "DOM", "DOM.Iterable"],
+      "module": "ESNext",
+      "moduleResolution": "bundler",
+      "resolveJsonModule": true,
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      
+      /* 类型检查选项 */
+      "strict": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "strictBindCallApply": true,
+      "strictPropertyInitialization": true,
+      "noImplicitThis": true,
+      "useUnknownInCatchVariables": true,
+      "alwaysStrict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "exactOptionalPropertyTypes": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "noUncheckedIndexedAccess": true,
+      "noImplicitOverride": true,
+      "allowUnusedLabels": false,
+      "allowUnreachableCode": false,
+      
+      /* 模块解析选项 */
+      "baseUrl": ".",
+      "paths": {
+        "@vld/*": ["packages/@vld/*/src"],
+        "@test-utils": ["packages/@vld/test-utils/src"],
+        "@shared": ["packages/@vld/shared/src"]
+      },
+      "rootDir": ".",
+      
+      /* 源码映射选项 */
+      "sourceMap": true,
+      "declaration": true,
+      "declarationMap": true,
+      "inlineSources": false,
+      "sourceRoot": "",
+      
+      /* 实验性选项 */
+      "experimentalDecorators": false,
+      "emitDecoratorMetadata": false,
+      "useDefineForClassFields": true,
+      
+      /* 高级选项 */
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "verbatimModuleSyntax": true,
+      "isolatedModules": true,
+      "allowImportingTsExtensions": false,
+      "noEmit": true,
+      
+      /* 性能选项 */
+      "incremental": true,
+      "tsBuildInfoFile": "node_modules/.tsbuildinfo",
+      
+      /* 语言和环境 */
+      "jsx": "preserve",
+      "jsxImportSource": "vue"
+    },
+    "ts-node": {
+      "transpileOnly": true,
+      "compilerOptions": {
+        "module": "CommonJS"
+      }
+    },
+    "exclude": [
+      "node_modules",
+      "dist",
+      "coverage",
+      "*.test.ts",
+      "*.spec.ts",
+      "*.bench.ts",
+      "**/__tests__/**",
+      "**/__mocks__/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.bench.*",
+      "**/test-utils/**",
+      "**/fixtures/**"
+    ],
+    "references": [
+      { "path": "./packages/@vld/reactivity" },
+      { "path": "./packages/@vld/runtime" },
+      { "path": "./packages/@vld/compiler" },
+      { "path": "./packages/@vld/core" },
+      { "path": "./packages/@vld/shared" },
+      { "path": "./packages/@vld/cli" }
+    ]
+  }

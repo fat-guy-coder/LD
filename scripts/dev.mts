@@ -4,7 +4,7 @@ import { spawn, ChildProcess } from 'child_process'
 import chokidar from 'chokidar'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { createServer, ViteDevServer } from 'vite'
+import { createServer, type ViteDevServer } from 'vite'
 import chalk from 'chalk'
 import ora from 'ora'
 
