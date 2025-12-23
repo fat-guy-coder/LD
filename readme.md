@@ -158,6 +158,14 @@ vld/
 - `pnpm test:ui`
 - `pnpm test:bench`
 
+### AI 辅助测试
+- `pnpm test:ai`：运行为 AI 设计的测试套件，输出 JSON 格式的结果。
+- `pnpm test:ai:watch`：在监听模式下运行 AI 测试。
+- `pnpm test:ai:coverage`：运行 AI 测试并生成覆盖率报告。
+- `pnpm test:ai:results`：读取并显示上一次 AI 测试的结果。
+- `pnpm test:ai:clean`：清理 AI 测试结果缓存。
+- `pnpm test:ai:filter=<keyword>`：运行包含特定关键词的 AI 测试。
+
 ### 性能基准
 - `pnpm bench`
 - `pnpm bench:reactivity`

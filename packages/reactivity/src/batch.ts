@@ -36,6 +36,7 @@ function scheduleFlush() {
  * @internal
  */
 function flushJobs() {
+  globalState.isFlushing = true;
   try {
     globalState.queue.forEach(job => job.run());
   } finally {
@@ -65,7 +66,6 @@ export function batch(fn: () => void) {
   } finally {
     if (!wasBatching) {
       globalState.isBatching = false;
-      // 在批处理结束后，立即刷新队列
       flushJobs();
     }
   }

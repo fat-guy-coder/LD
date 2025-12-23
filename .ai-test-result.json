@@ -3,7 +3,7 @@
   "totalTests": 28,
   "passedTests": 27,
   "failedTests": 1,
-  "duration": 537,
+  "duration": 561,
   "failures": [
     {
       "name": " batch should batch multiple signal updates into a single effect run",
@@ -12,5 +12,5 @@
     }
   ],
   "summary": "1 个测试失败",
-  "timestamp": "2025-12-23T18:03:30.149Z"
+  "timestamp": "2025-12-23T18:16:52.132Z"
 }
