@@ -22,7 +22,7 @@ interface BenchmarkResult {
 
 interface ComparisonResult {
   name: string
-  vld: number
+  ld: number
   vue3?: number
   react18?: number
   solid?: number
@@ -34,7 +34,7 @@ class BenchmarkRunner {
   private comparisons: ComparisonResult[] = []
 
   async run(): Promise<void> {
-    console.log(chalk.cyan('🏎️  Running VLD Performance Benchmarks\n'))
+    console.log(chalk.cyan('🏎️  Running LD Performance Benchmarks\n'))
 
     const args = process.argv.slice(2)
     const benchmarkType = args[0] || 'all'
@@ -270,7 +270,7 @@ class BenchmarkRunner {
     this.comparisons = [
       {
         name: 'Signal Creation',
-        vld: 1500000,
+        ld: 1500000,
         vue3: 800000,
         react18: 500000,
         solid: 1200000,
@@ -278,14 +278,14 @@ class BenchmarkRunner {
       },
       {
         name: 'DOM Update',
-        vld: 120000,
+        ld: 120000,
         vue3: 45000,
         react18: 35000,
         solid: 100000,
         unit: 'ops/sec',
       },
-      { name: 'Memory Usage', vld: 2.1, vue3: 4.5, react18: 6.2, solid: 2.8, unit: 'MB' },
-      { name: 'Bundle Size', vld: 8.2, vue3: 33.5, react18: 42.1, solid: 6.5, unit: 'KB gzip' },
+      { name: 'Memory Usage', ld: 2.1, vue3: 4.5, react18: 6.2, solid: 2.8, unit: 'MB' },
+      { name: 'Bundle Size', ld: 8.2, vue3: 33.5, react18: 42.1, solid: 6.5, unit: 'KB gzip' },
     ]
 
     console.log(
@@ -296,7 +296,7 @@ class BenchmarkRunner {
     const comparisonTable = new Table({
       head: [
         chalk.bold('Metric'),
-        chalk.bold('VLD'),
+        chalk.bold('LD'),
         chalk.bold('Vue 3'),
         chalk.bold('React 18'),
         chalk.bold('Solid'),
@@ -322,13 +322,13 @@ class BenchmarkRunner {
         return value.toFixed(1)
       }
 
-      const vldValue = formatValue(comp.vld)
+      const ldValue = formatValue(comp.ld)
       const vueValue = formatValue(comp.vue3)
       const reactValue = formatValue(comp.react18)
       const solidValue = formatValue(comp.solid)
 
       const highlight = isBetter(
-        comp.vld,
+        comp.ld,
         [comp.vue3, comp.react18, comp.solid].filter(Boolean) as number[]
       )
         ? chalk.green
@@ -336,7 +336,7 @@ class BenchmarkRunner {
 
       comparisonTable.push([
         chalk.bold(comp.name),
-        highlight(vldValue),
+        highlight(ldValue),
         vueValue,
         reactValue,
         solidValue,

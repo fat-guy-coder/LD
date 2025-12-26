@@ -1,7 +1,7 @@
 import typescript from '@rollup/plugin-typescript';
 import { dts } from 'rollup-plugin-dts';
 
-const packageName = 'vld-reactivity';
+const packageName = 'ld-reactivity';
 
 export default [
   {

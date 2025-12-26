@@ -18,7 +18,7 @@ class CliDevManager {
   private restarting = false
 
   async start(): Promise<void> {
-    console.log(chalk.cyan('💻 VLD CLI Development Mode\n'))
+    console.log(chalk.cyan('💻 LD CLI Development Mode\n'))
 
     if (!existsSync(cliDir)) {
       console.error(chalk.red('❌ CLI package not found'))

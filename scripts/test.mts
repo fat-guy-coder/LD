@@ -19,7 +19,7 @@ const isBench = args.includes('--bench')
 
 // 根据参数构建 Vitest 命令
 async function runTests() {
-    console.log('🚀 正在启动 VLD 测试套件...')
+    console.log('🚀 正在启动 LD 测试套件...')
 
     // 工作区配置文件路径
     const workspaceConfig = resolve(rootDir, 'vitest.workspace.ts')

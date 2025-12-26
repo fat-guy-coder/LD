@@ -46,7 +46,7 @@ class BundleAnalyzer {
   private startTime: number = 0
 
   async run(): Promise<void> {
-    console.log(chalk.cyan.bold('📦 VLD Bundle Size Analysis\n'))
+    console.log(chalk.cyan.bold('📦 LD Bundle Size Analysis\n'))
     this.startTime = Date.now()
 
     const args = process.argv.slice(2)
@@ -88,7 +88,7 @@ class BundleAnalyzer {
       'compiler-sfc',
       'runtime-core',
       'runtime-dom',
-      'vld',
+      'ld',
       'vite-plugin',
     ]
 
@@ -253,8 +253,8 @@ class BundleAnalyzer {
     const analysis: DependencyAnalysis[] = []
 
     for (const [dep] of Object.entries(dependencies)) {
-      if (dep.startsWith('@vld/')) {
-        const depPkgDir = join(packagesDir, dep.replace('@vld/', ''))
+      if (dep.startsWith('@ld/')) {
+        const depPkgDir = join(packagesDir, dep.replace('@ld/', ''))
         const depPkgJsonPath = join(depPkgDir, 'package.json')
 
         if (existsSync(depPkgJsonPath)) {
@@ -436,7 +436,7 @@ class BundleAnalyzer {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>VLD Bundle Analysis</title>
+  <title>LD Bundle Analysis</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; }
@@ -450,7 +450,7 @@ class BundleAnalyzer {
   </style>
 </head>
 <body>
-  <h1>VLD Bundle Analysis</h1>
+  <h1>LD Bundle Analysis</h1>
   <p>Generated: ${new Date().toLocaleString()}</p>
   
   <div class="chart-container">

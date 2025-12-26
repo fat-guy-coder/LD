@@ -1,10 +1,10 @@
-# VLD - 极致性能前端框架
+# LD - 极致性能前端框架
 
 ## 🚀 项目概述
 
-VLD（Vue Light & Fast）是一个追求极致性能的前端框架，旨在提供比现有方案更快的响应式系统和渲染性能。框架完全兼容 Vue3 语法和生态系统，同时实现了零虚拟DOM的细粒度更新系统。
+LD（Vue & React Light & Fast）是一个追求极致性能的前端框架，旨在提供比现有方案更快的响应式系统和渲染性能。框架完全兼容Vue3语法和生态系统React(Hooks)语法和生态系统，同时实现了零虚拟DOM的细粒度更新系统。
 
-核心理念: light! fast! performance! typescript! vue!
+核心理念: light! fast! performance! typescript! vue! react!
 
 ## 🎯 性能目标
 
@@ -35,7 +35,7 @@ packages/
 ├── compiler-core/ # 模板编译器
 ├── compiler-sfc/ # 单文件组件编译
 ├── router/ # 路由系统
-├── vld/ # 框架主入口
+├── ld/ # 框架主入口
 ├── vite-plugin/ # Vite插件
 ├── cli/ # 命令行工具
 └── devtools/ # 开发者工具
@@ -103,7 +103,7 @@ packages/
 ### 第四阶段：生态工具
 
 - ⏳ router - 路由系统
-- ⏳ vld-main - 框架主入口
+- ⏳ ld-main - 框架主入口
 - ⏳ vite-plugin - Vite 集成
 - ⏳ cli - 命令行工具
 - ⏳ devtools - 开发者工具
@@ -218,7 +218,7 @@ reactivity (独立)
 │ └── compiler-core
 │ └── compiler-sfc
 └── router
-└── vld-main
+└── ld-main
 ├── vite-plugin
 ├── cli
 └── devtools
@@ -289,4 +289,4 @@ MIT License - 详见 LICENSE 文件
 
 ---
 
-VLD 框架 - 重新定义前端框架的性能极限，为下一代 Web 应用提供极致性能的解决方案。
+LD 框架 - 重新定义前端框架的性能极限，为下一代 Web 应用提供极致性能的解决方案。

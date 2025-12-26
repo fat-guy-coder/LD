@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
 
 // 全局测试设置
-vi.mock('@vld/reactivity', () => import('./packages/reactivity/src'))
+vi.mock('@ld/reactivity', () => import('./packages/reactivity/src'))
 
 // 设置全局测试超时
 vi.setConfig({ testTimeout: 10000 })

@@ -1,6 +1,12 @@
 import { type VNode, VNodeTypes, createTextVNode } from '../vnode';
 import { createComponentInstance, type ComponentInstance } from '../component';
-import { createEffect, ReactiveEffect } from '@vld/reactivity';
+import { ReactiveEffect } from '@ld/reactivity';
+
+// Placeholder for the scheduler function
+function queueJob(job: any) {
+  // TODO: Implement a proper scheduler
+  job();
+}
 
 // ==================================================================================================
 // 渲染器选项 (Renderer Options)
@@ -109,7 +115,7 @@ export function createVdomRenderer(options: RendererOptions) {
       // 更新文本内容
       const el = (n2.el = n1.el);
       if (n2.tag !== n1.tag) {
-        setElementText(el, n2.tag as string);
+        setElementText(el!, n2.tag as string);
       }
     }
   };
@@ -154,7 +160,7 @@ export function createVdomRenderer(options: RendererOptions) {
   const mountComponent = (initialVNode: VNode, container: any, anchor: any) => {
     const instance = (initialVNode.component = createComponentInstance(
       initialVNode.tag as any,
-      initialVNode.props
+      initialVNode.props as Record<string, any>
     ));
 
     // 设置渲染 effect
@@ -169,28 +175,30 @@ export function createVdomRenderer(options: RendererOptions) {
     const el = (n2.el = n1.el!);
 
     // 更新 props
-    const oldProps = n1.props || {};
-    const newProps = n2.props || {};
+    const oldProps = n1.props;
+    const newProps = n2.props;
     patchProps(el, oldProps, newProps);
 
     // 更新 children
     patchChildren(n1, n2, el);
   };
 
-  const patchProps = (el: any, oldProps: Record<string, any>, newProps: Record<string, any>) => {
-    if (oldProps !== newProps) {
+  const patchProps = (el: any, oldProps: Record<string, any> | null | undefined, newProps: Record<string, any> | null | undefined) => {
+    const _oldProps = oldProps || {};
+    const _newProps = newProps || {};
+    if (_oldProps !== _newProps) {
       // 更新或添加新属性
-      for (const key in newProps) {
-        const prev = oldProps[key];
-        const next = newProps[key];
+      for (const key in _newProps) {
+        const prev = _oldProps[key];
+        const next = _newProps[key];
         if (prev !== next) {
           patchProp(el, key, prev, next);
         }
       }
       // 移除旧属性
-      for (const key in oldProps) {
-        if (!(key in newProps)) {
-          patchProp(el, key, oldProps[key], null);
+      for (const key in _oldProps) {
+        if (!(key in _newProps)) {
+          patchProp(el, key, _oldProps[key], null);
         }
       }
     }
@@ -246,7 +254,7 @@ export function createVdomRenderer(options: RendererOptions) {
       if (!instance.isMounted) {
         // 挂载
         // TODO: 调用 beforeMount 钩子
-        const subTree = (instance.subTree = instance.component.setup(instance.props, {}));
+        const subTree = (instance.subTree = instance.component.setup(instance.props, {}) as VNode);
         patch(null, subTree, container, anchor);
         initialVNode.el = subTree.el;
         // 调用 onMount 钩子
@@ -256,7 +264,7 @@ export function createVdomRenderer(options: RendererOptions) {
         // 更新
         // TODO: 调用 beforeUpdate 钩子
         const prevSubTree = instance.subTree;
-        const nextSubTree = (instance.subTree = instance.component.setup(instance.props, {}));
+        const nextSubTree = (instance.subTree = instance.component.setup(instance.props, {}) as VNode);
         patch(prevSubTree, nextSubTree, container, anchor);
         initialVNode.el = nextSubTree.el;
         // 调用 onUpdate 钩子
@@ -276,4 +284,3 @@ export function createVdomRenderer(options: RendererOptions) {
 
   return { render };
 }
-

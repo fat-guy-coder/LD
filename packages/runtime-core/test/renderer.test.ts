@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createVdomRenderer, type VdomRendererOptions } from '../src/renderer/vdomRenderer';
 import { createVNode, createTextVNode, VNodeTypes } from '../src/vnode';
-import { createSignal } from '@vld/reactivity';
+import { createSignal } from '@ld/reactivity';
 import { onMount } from '../src/component';
 
 describe('VDOM Renderer', () => {

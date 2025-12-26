@@ -1,6 +1,6 @@
 // 复杂度: create: O(1), push/replace: O(1), 优化: 使用 Signal 实现响应式位置
 
-import { createSignal, type Signal } from '@vld/reactivity';
+import { createSignal, type Signal } from '@ld/reactivity';
 
 /**
  * 路由历史记录的通用接口

@@ -24,7 +24,7 @@ class BuildAllManager {
   private startTime: number = 0
 
   async run(): Promise<void> {
-    console.log(chalk.cyan.bold('🚀 Building All VLD Packages\n'))
+    console.log(chalk.cyan.bold('🚀 Building All LD Packages\n'))
     this.startTime = Date.now()
 
     const args = process.argv.slice(2)
@@ -87,7 +87,7 @@ class BuildAllManager {
       'compiler-sfc',
       'runtime-core',
       'runtime-dom',
-      'vld',
+      'ld',
       'vite-plugin',
       'cli',
       'devtools'
@@ -108,7 +108,7 @@ class BuildAllManager {
       'compiler-sfc',
       'runtime-core',
       'runtime-dom',
-      'vld',
+      'ld',
       'vite-plugin',
       'cli',
       'devtools'

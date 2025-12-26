@@ -56,7 +56,7 @@ class ReleaseManager {
       'compiler-sfc',
       'runtime-core',
       'runtime-dom',
-      'vld',
+      'ld',
       'vite-plugin',
       'cli',
       'devtools',
@@ -212,7 +212,7 @@ class ReleaseManager {
 
         if (pkgJson.dependencies) {
           for (const dep in pkgJson.dependencies) {
-            if (dep.startsWith('@vld/')) {
+            if (dep.startsWith('@ld/')) {
               pkgJson.dependencies[dep] = newVersion
             }
           }
@@ -300,7 +300,7 @@ class ReleaseManager {
   }
 
   public async release(): Promise<void> {
-    console.log(chalk.cyan.bold('🚀 VLD Release Manager\n'))
+    console.log(chalk.cyan.bold('🚀 LD Release Manager\n'))
 
     const version = this.options.version || (await this.promptVersion())
 
@@ -342,9 +342,9 @@ class ReleaseManager {
 
       console.log(chalk.green.bold(`\n🎉 Successfully released v${version}!`))
       console.log(chalk.gray('─'.repeat(50)))
-      console.log(`  ${chalk.bold('npm:')} https://www.npmjs.com/package/@vld/vld`)
+      console.log(`  ${chalk.bold('npm:')} https://www.npmjs.com/package/@ld/ld`)
       console.log(
-        `  ${chalk.bold('GitHub:')} https://github.com/username/vld/releases/tag/v${version}`
+        `  ${chalk.bold('GitHub:')} https://github.com/username/ld/releases/tag/v${version}`
       )
       console.log(chalk.gray('─'.repeat(50)))
     } catch (error) {

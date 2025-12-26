@@ -1,9 +1,9 @@
 {
-  "name": "@vld/cli",
+  "name": "@ld/cli",
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "vld": "./bin/vld"
+    "ld": "./bin/ld"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

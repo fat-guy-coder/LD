@@ -19,7 +19,7 @@ class DevManager {
   private fileWatchers: chokidar.FSWatcher[] = []
 
   async start(): Promise<void> {
-    console.log(chalk.cyan('🚀 Starting VLD development environment...\n'))
+    console.log(chalk.cyan('🚀 Starting LD development environment...\n'))
 
     const args = process.argv.slice(2)
     const mode = args[0] || 'all'
@@ -61,7 +61,7 @@ class DevManager {
           }
         },
         optimizeDeps: {
-          include: ['@vld/reactivity', '@vld/router']
+          include: ['@ld/reactivity', '@ld/router']
         }
       })
 

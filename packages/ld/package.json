@@ -1,10 +1,10 @@
 {
-  "name": "@vld/vld",
+  "name": "@ld/ld",
   "version": "0.1.0",
-  "description": "Optional Virtual DOM renderer for VLD framework.",
+  "description": "Optional Virtual DOM renderer for LD framework.",
   "type": "module",
-  "main": "dist/vld-vdom.cjs.js",
-  "module": "dist/vld-vdom.esm.js",
+  "main": "dist/ld-vdom.cjs.js",
+  "module": "dist/ld-vdom.esm.js",
   "types": "dist/types/index.d.ts",
   "files": [
     "dist",
@@ -15,8 +15,8 @@
     "build": "tsc && rollup -c"
   },
   "dependencies": {
-    "@vld/reactivity": "workspace:*",
-    "@vld/runtime-core": "workspace:*"
+    "@ld/reactivity": "workspace:*",
+    "@ld/runtime-core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

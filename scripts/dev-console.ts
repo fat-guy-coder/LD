@@ -1,5 +1,5 @@
 /**
- * VLD 开发控制台
+ * LD 开发控制台
  * @description 监听并执行包的 index.ts 文件，console.log 输出到浏览器控制台
  */
 

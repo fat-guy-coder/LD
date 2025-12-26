@@ -1,0 +1,24 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#42d392" />
+      <stop offset="100%" stop-color="#61dafb" />
+    </linearGradient>
+  </defs>
+
+  <!-- Final position adjustment for geometric balance -->
+  <g transform="translate(85, 115) rotate(45)">
+    <!-- Sabot pieces scaled down and moved out for better composition -->
+    <g transform="translate(-25, 0) rotate(-10) scale(0.95)">
+      <path d="M -15 -80 L -40 -60 C -35 0, -35 30, -20 60 Z" fill="#A0AEC0"/>
+    </g>
+    <g transform="translate(25, 0) rotate(10) scale(0.95)">
+      <path d="M 15 -80 L 40 -60 C 35 0, 35 30, 20 60 Z" fill="#CBD5E0"/>
+    </g>
+
+    <!-- Penetrator Core and Fins, shifted slightly relative to the sabot -->
+    <g transform="translate(0, 5)">
+      <path d="M 0,-135 L 8,-110 L 8,40 L 25,50 L 25,70 L 8,70 L 8,80 L -8,80 L -8,70 L -25,70 L -25,50 L -8,40 L -8,-110 Z" fill="url(#brandGradient)"/>
+    </g>
+  </g>
+</svg>

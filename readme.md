@@ -1,6 +1,6 @@
-# VLD - 极致性能前端框架
+# LD - 极致性能前端框架
 
-VLD（Very Light & Fast）是一个面向极致性能的现代前端框架，专为追求高性能、小体积和快速渲染的现代 Web 应用而设计。框架采用模块化架构，结合信号（Signals）响应式系统和先进的编译器技术，提供卓越的开发体验和运行时性能。
+LD（Very Light & Fast）是一个面向极致性能的现代前端框架，专为追求高性能、小体积和快速渲染的现代 Web 应用而设计。框架采用模块化架构，结合信号（Signals）响应式系统和先进的编译器技术，提供卓越的开发体验和运行时性能。
 
 ## 核心特性
 
@@ -24,11 +24,11 @@ VLD（Very Light & Fast）是一个面向极致性能的现代前端框架，专
 ## 项目结构
 
 ```text
-vld/
+ld/
 ├── packages/           # 核心模块包
-│   ├── @vld/reactivity # 响应式系统核心
-│   ├── @vld/runtime    # 运行时核心
-│   ├── @vld/compiler   # 模板编译器
+│   ├── @ld/reactivity # 响应式系统核心
+│   ├── @ld/runtime    # 运行时核心
+│   ├── @ld/compiler   # 模板编译器
 │   └── ...             # 其他模块
 ├── scripts/            # 构建和开发脚本
 └── tools/              # 开发工具
@@ -36,7 +36,7 @@ vld/
 
 ## 核心模块介绍
 
-### 1. @vld/reactivity - 响应式系统
+### 1. @ld/reactivity - 响应式系统
 基于信号的响应式引擎，提供比传统响应式系统更高的性能和更精确的更新机制。
 
 特点：
@@ -46,7 +46,7 @@ vld/
 - 批量更新优化
 - 内存泄漏防护
 
-### 2. @vld/runtime - 运行时核心
+### 2. @ld/runtime - 运行时核心
 框架的核心运行时，处理组件生命周期、虚拟 DOM、渲染调度等核心功能。
 
 特点：
@@ -56,7 +56,7 @@ vld/
 - 渲染调度器
 - 错误边界处理
 
-### 3. @vld/compiler - 模板编译器
+### 3. @ld/compiler - 模板编译器
 将模板编译为高性能的渲染函数，支持多种优化策略。
 
 特点：
@@ -66,7 +66,7 @@ vld/
 - 树结构扁平化
 - 体积感知编译
 
-### 4. @vld/cli - 命令行工具
+### 4. @ld/cli - 命令行工具
 项目脚手架和开发工具，提供开发、构建、测试等一站式解决方案。
 
 特点：
@@ -79,7 +79,7 @@ vld/
 ## package.json 详解
 
 ### 基础信息
-- name: vld
+- name: ld
 - version: 0.1.0
 - type: module
 - license: MIT
@@ -133,7 +133,7 @@ vld/
 
 ### 开发相关
 - `pnpm dev`：使用 tsx 运行开发脚本
-- `pnpm dev:reactivity`：针对 @vld/reactivity 包开发
+- `pnpm dev:reactivity`：针对 @ld/reactivity 包开发
 - `pnpm dev:cli`：CLI 开发模式
 - `pnpm dev:watch`：TypeScript 监视类型检查
 - `pnpm dev:all`：并行启动多个开发服务
@@ -245,8 +245,8 @@ vld/
 
 ```bash
 # 克隆项目
-git clone https://github.com/fat-guy-coder/vld.git
-cd vld
+git clone https://github.com/fat-guy-coder/ld.git
+cd ld
 
 # 安装依赖
 pnpm install
@@ -273,4 +273,4 @@ pnpm build:prod
 ## 许可证
 本项目基于 MIT License 开源。
 
-> VLD - 为极致性能而生的前端框架，让每一次渲染都更快、更轻、更好！
+> LD - 为极致性能而生的前端框架，让每一次渲染都更快、更轻、更好！

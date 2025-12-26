@@ -1,15 +1,17 @@
 {
   "config": {
     "version": "3.2.8",
-    "description": "VLD框架AI代码生成指南 - 智能依赖分析版",
+    "description": "LD框架AI代码生成指南 - 智能依赖分析版",
     "lastUpdated": "2025-12-25T18:30:00.000Z",
-    "aiInstruction": "本文件包含VLD框架代码生成的所有规则。请严格遵循以下工作流程：1.读取配置→2.分析现有文件→3.设计代码→4.生成代码→5.更新状态→6.验证质量。特别注意：每次生成代码前必须分析现有模块导出，识别依赖关系，然后生成代码，最后更新测试文件并运行测试。"
+    "aiInstruction": "本文件包含LD框架代码生成的所有规则。请严格遵循以下工作流程：1.读取配置→2.分析现有文件→3.设计代码→4.生成代码→5.更新状态→6.验证质量。特别注意：每次生成代码前必须分析现有模块导出，识别依赖关系，然后生成代码，最后更新测试文件并运行测试。"
   },
   "project": {
-    "name": "vld",
+    "name": "ld",
+    "description": "LD(L:light D:author's lastName)框架是一个追求极致性能的前端框架，旨在提供比现有方案更快的响应式系统和渲染性能。框架完全兼容Vue3语法和生态系统和React(Hooks)语法和生态系统，同时实现了零虚拟DOM的细粒度更新系统。",
     "version": "0.1.0",
     "slogan": "极致性能前端框架",
-    "goal": "light!fast!performance!typescript!vue!",
+    "goal": "light!fast!performance!typescript!vue!react!",
+    "reactCompatibility": "React(Hooks)语法/生态完全兼容",
     "vueCompatibility": "Vue3语法/生态完全兼容",
     "performanceTargets": {
       "signalCreate": "<0.01ms",
@@ -40,126 +42,66 @@
       "reactivity",
       "runtime-core",
       "runtime-dom",
+      "runtime-jsx",
+      "react",
+      "vue",
       "compiler-core",
       "compiler-sfc",
       "router",
-      "vld",
+      "ld",
       "vite-plugin",
       "cli",
-      "devtools"
+      "devtools",
+      "babel-plugin-ld"
     ],
     "detailed": {
       "reactivity": {
         "status": "completed",
         "mission": "实现零虚拟DOM的细粒度更新系统，性能超越所有现有方案",
         "dependencies": [],
-        "files": {
-          "signal.ts": {
-            "core": "Signal工厂，依赖收集，批量更新标记",
-            "perfTarget": "create<0.01ms, get<0.001ms, set<0.005ms",
-            "dependencies": [],
-            "rules": [
-              "自定义相等函数",
-              "内存池复用Signal实例",
-              "WeakMap缓存依赖",
-              "生产环境去调试代码"
-            ]
-          },
-          "effect.ts": {
-            "core": "副作用追踪，自动依赖收集，清理机制",
-            "dependencies": [
-              "signal.ts"
-            ],
-            "rules": [
-              "嵌套effect",
-              "清理函数",
-              "优先级调度",
-              "effect去重",
-              "批量执行",
-              "错误边界"
-            ]
-          },
-          "computed.ts": {
-            "core": "计算属性，惰性求值+缓存，脏标记机制",
-            "dependencies": [
-              "signal.ts",
-              "effect.ts"
-            ],
-            "rules": [
-              "依赖自动追踪",
-              "脏标记",
-              "缓存未变值",
-              "惰性求值",
-              "循环计算检测"
-            ]
-          },
-          "reactive.ts": {
-            "core": "Proxy响应式对象，深层/数组拦截",
-            "dependencies": [
-              "signal.ts",
-              "effect.ts"
-            ],
-            "rules": [
-              "深层响应式",
-              "数组方法拦截",
-              "WeakMap缓存代理",
-              "性能优化拦截器"
-            ]
-          },
-          "batch.ts": {
-            "core": "批量更新，微任务调度，effect去重",
-            "dependencies": [
-              "signal.ts",
-              "effect.ts"
-            ],
-            "rules": [
-              "嵌套batch",
-              "微任务调度",
-              "effect去重",
-              "性能统计"
-            ]
-          }
-        }
+        "files": {}
       },
       "runtime-core": {
         "status": "active",
-        "mission": "提供组件模型和渲染引擎的核心逻辑",
+        "mission": "定义一个通用的组件中间表示（IR），并将此IR编译成一个高度优化的JavaScript文件。此输出文件将包含直接的DOM操作、事件处理和状态逻辑，形成一个独立的‘DOM组件’。",
         "dependencies": [
           "reactivity"
         ],
-        "files": {
-          "component/index.ts": {
-            "core": "组件实例的创建和管理",
-            "dependencies": [
-              "@vld/reactivity"
-            ],
-            "rules": [
-              "定义组件接口",
-              "实现组件生命周期钩子"
-            ]
-          },
-          "renderer/vdomRenderer.ts": {
-            "core": "一个可选的、基于虚拟DOM的渲染器，用于需要V-DOM的平台或场景。",
-            "dependencies": [
-              "component/index.ts",
-              "vnode/index.ts",
-              "@vld/reactivity"
-            ],
-            "rules": [
-              "提供平台无关的渲染API",
-              "处理VNode的挂载、更新和卸载",
-              "这是一个可选模块，不应作为默认渲染路径"
-            ]
-          },
-          "vnode/index.ts": {
-            "core": "定义虚拟节点（VNode）的数据结构",
-            "dependencies": [],
-            "rules": [
-              "轻量级",
-              "包含渲染所需的所有信息"
-            ]
-          }
-        }
+        "files": {}
+      },
+      "runtime-jsx": {
+        "status": "pending",
+        "mission": "提供TSX/JSX的运行时支持，将JSX调用直接转换为原生DOM操作，绕过Virtual DOM。",
+        "dependencies": [
+          "@ld/runtime-core"
+        ],
+        "files": {}
+      },
+      "react": {
+        "status": "pending",
+        "mission": "提供与React Hooks API完全兼容的适配层，底层实现基于@ld/reactivity。",
+        "dependencies": [
+          "@ld/reactivity"
+        ],
+        "files": {}
+      },
+      "vue": {
+        "status": "pending",
+        "mission": "提供与Vue Composition API完全兼容的适配层，底层实现基于@ld/reactivity。",
+        "dependencies": ["@ld/reactivity"],
+        "files": {}
+      },
+      "ld": {
+        "status": "pending",
+        "mission": "作为框架的统一入口（Facade），智能地重新导出@ld/reactivity、@ld/vue、@ld/react等核心模块的API。",
+        "dependencies": ["@ld/reactivity", "@ld/vue", "@ld/react"],
+        "files": {}
+      },
+      "babel-plugin-ld": {
+        "status": "pending",
+        "mission": "创建一个Babel插件，用于在编译时将TSX/JSX转换为对@ld/runtime-jsx的调用。",
+        "dependencies": [],
+        "files": {}
       }
     },
     "rule": "只对current.module.id指定的模块生成详细的files配置。切换到新模块时，才为其填充详细配置。"
@@ -179,7 +121,12 @@
       "treeShakable": true,
       "esModules": true,
       "centralizedState": "框架范围内的共享状态（如响应式代理缓存、调度器相关的状态，包括调度队列、刷新标志 `isFlushing` 和 `isFlushPending`、以及批处理标志 `isBatching`）必须集中在专用的 `store.ts` 模块的 `globalState` 对象中管理，禁止在功能模块中使用文件作用域的局部变量来存储全局状态。",
-      "globalVsInstanceStore": "必须严格区分全局状态和实例状态。全局状态（`globalState`）仅用于管理整个框架共享的调度器（如队列、刷新标志）和全局缓存（如响应式代理缓存）。所有与特定上下文（如组件实例）相关的状态，都必须通过 `createInstanceStore` 工厂函数创建和管理，以确保状态隔离和框架的可扩展性。"
+      "globalVsInstanceStore": "必须严格区分全局状态和实例状态。全局状态（`globalState`）仅用于管理整个框架共享的调度器（如队列、刷新标志）和全局缓存（如响应式代理缓存）。所有与特定上下文（如组件实例）相关的状态，都必须通过 `createInstanceStore` 工厂函数创建和管理，以确保状态隔离和框架的可扩展性。",
+      "jsxTransformation": "TSX/JSX 必须通过编译时插件（如@ld/babel-plugin-ld）直接转换为对@ld/runtime-jsx 的原生DOM操作调用，严禁引入或依赖任何Virtual DOM实现。",
+      "hooksCompatibilityLayer": "@ld/react 模块必须作为一个纯粹的兼容层存在。所有Hooks的实现都必须基于@ld/reactivity 的核心原语（createSignal, createEffect等），以保证框架响应式系统的一致性和性能优势。",
+      "adapterSeparation": "框架的API适配层必须分离到独立的包中（如@ld/vue, @ld/react），以确保用户可以按需加载，实现最小打包体积。",
+      "unifiedEntryPoint": "主包 'ld' 必须作为一个统一入口（Facade）存在，它负责重新导出核心和适配器模块的常用API，为用户提供'开箱即用'的便利性，同时允许从特定子包直接导入。",
+      "compilationStrategy": "框架必须采用混合编译策略：利用官方或成熟的解析器（如@vue/compiler-sfc, Babel）将.vue和.tsx文件解析为AST，但必须使用自研的代码生成器将AST直接编译为不依赖Virtual DOM的、基于Signal的细粒度原生DOM操作。"
     },
     "qualityGates": {
       "correctness": "函数必须注释Pre/Post-conditions，错误必须是特定类型，资源必须自动清理",
@@ -273,7 +220,7 @@
         {
           "action": "bundleModule",
           "description": "根据模块的 rollup.config.js 文件，使用 Rollup 对该模块进行打包。",
-          "command": "pnpm --filter @vld/[module] build"
+          "command": "pnpm --filter @ld/[module] build"
         }
       ]
     }
@@ -306,7 +253,7 @@
           "@note",
           "@since"
         ],
-        "example": "/**\\n * 创建响应式信号\\n * @description 创建一个可追踪变化的响应式值容器...\\n * @param initial - 初始值\\n * @returns [getter, setter]元组\\n * @example\\n * const [count, setCount] = createSignal(0);\\n * @performance 创建<0.01ms, 读取<0.001ms\\n * @since v0.1.0\\n */"
+        "example": "/**\n * 创建响应式信号\n * @description 创建一个可追踪变化的响应式值容器...\n * @param initial - 初始值\n * @returns [getter, setter]元组\n * @example\n * const [count, setCount] = createSignal(0);\n * @performance 创建<0.01ms, 读取<0.001ms\n * @since v0.1.0\n */"
       },
       "type": {
         "required": [
@@ -314,14 +261,14 @@
           "@example",
           "@since"
         ],
-        "example": "/**\\n * 信号类型定义\\n * @description Signal的类型定义...\\n * @template T - 信号值类型\\n * @since v0.1.0\\n */"
+        "example": "/**\n * 信号类型定义\n * @description Signal的类型定义...\n * @template T - 信号值类型\n * @since v0.1.0\n */"
       }
     },
     "exports": {
       "indexTs": {
         "purpose": "模块API出口，所有外部导入必须通过此文件",
         "rule": "按来源文件分组导出，不要混合不同文件的导出",
-        "example": "// ===== signal.ts =====\\nexport { createSignal } from './signal';\\nexport type { Signal } from './signal';"
+        "example": "// ===== signal.ts =====\nexport { createSignal } from './signal';\nexport type { Signal } from './signal';"
       },
       "moduleTs": {
         "purpose": "框架主入口，聚合所有模块导出",
@@ -331,15 +278,15 @@
     },
     "codeStyle": {
       "imports": {
-        "external": "import xxx from '@vld/模块名'",
+        "external": "import xxx from '@ld/模块名'",
         "internal": "import xxx from './index.ts'",
-        "typeOnly": "import type { TypeName } from '@vld/模块名'",
+        "typeOnly": "import type { TypeName } from '@ld/模块名'",
         "analysisRule": "导入前必须检查目标模块的index.ts是否已导出所需API"
       },
       "exports": {
-        "value": "export { functionName } from '@vld/module';",
-        "type": "export type { TypeName } from '@vld/module';",
-        "aliasing": "仅命名冲突时: export { originalName as aliasName } from '@vld/module';"
+        "value": "export { functionName } from '@ld/module';",
+        "type": "export type { TypeName } from '@ld/module';",
+        "aliasing": "仅命名冲突时: export { originalName as aliasName } from '@ld/module';"
       },
       "naming": {
         "functions": "camelCase: createSignal, createEffect",
@@ -376,7 +323,9 @@
       "所有代码注释、JSDoc和说明性文本必须使用中文。",
       "必须明确区分全局状态和实例状态，并使用 `store.ts` 进行管理。",
       "为一个新模块首次成功生成测试文件后，必须立即更新 vitest.workspace.ts 文件，将该新模块的配置添加到列表中。",
-      "为一个新模块首次成功生成测试文件后，必须立即更新 vitest.workspace.ts 文件，将该新模块的配置添加到列表中。"
+      "为一个新模块首次成功生成测试文件后，必须立即更新 vitest.workspace.ts 文件，将该新模块的配置添加到列表中。",
+      "在处理.tsx文件时，必须假设@ld/babel-plugin-ld已生效，并将JSX语法视为对@ld/runtime-jsx中h函数的调用。",
+      "在@ld/react模块中实现任何React Hook时，必须使用@ld/reactivity的核心API（如createSignal, createEffect）作为其底层实现。"
     ],
     "prohibited": [
       "禁止跳过验证步骤，特别是依赖分析步骤",
@@ -452,7 +401,7 @@
       "packages/compiler-core/src/index.ts",
       "packages/compiler-sfc/src/index.ts",
       "packages/router/src/index.ts",
-      "packages/vld/src/index.ts",
+      "packages/ld/src/index.ts",
       "packages/vite-plugin/src/index.ts",
       "packages/cli/src/index.ts",
       "packages/devtools/src/index.ts"
@@ -466,12 +415,12 @@
     ],
     "importPatterns": {
       "sameModule": "从'./index.ts'导入当前模块的其他API",
-      "differentModule": "从'@vld/[module]'导入其他模块的API",
+      "differentModule": "从'@ld/[module]'导入其他模块的API",
       "typesOnly": "使用import type导入类型"
     }
   },
   "generationTemplates": {
     "preGenerationTemplate": "// AI代码生成预处理模板\n// 在生成任何代码前，执行以下步骤：\n// 1. 读取并分析关键文件\nconst moduleExports = readAndAnalyzeModuleExports();\nconst targetModuleIndex = readAndAnalyzeModuleIndex(currentModule);\n// 2. 识别依赖关系\nconst dependencies = identifyDependencies(targetFile, moduleExports);\n// 3. 设计导入语句\nconst imports = designImports(dependencies, targetModuleIndex);\n// 4. 生成代码主体\nconst codeBody = generateCodeBody(targetFile, imports);\n// 5. 更新导出文件\nupdateIndexTs(targetModule, newExports);\nupdateModuleTs(targetModule, newExports);\n// 6. 生成测试\ngenerateTestFile(targetFile, testCases);\n",
-    "importStatementTemplate": "// 导入语句生成规则：\n// 1. 同一模块内的导入：从'./index.ts'导入\n// 2. 其他模块的导入：从'@vld/[module]'导入\n// 3. 类型导入：使用import type\n// 示例：\nimport { createSignal, type Signal } from './index';\nimport type { Component } from '@vld/runtime-core';\n"
+    "importStatementTemplate": "// 导入语句生成规则：\n// 1. 同一模块内的导入：从'./index.ts'导入\n// 2. 其他模块的导入：从'@ld/[module]'导入\n// 3. 类型导入：使用import type\n// 示例：\nimport { createSignal, type Signal } from './index';\nimport type { Component } from '@ld/runtime-core';\n"
   }
 }

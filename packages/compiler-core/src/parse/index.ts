@@ -8,7 +8,7 @@
  * @returns 一个代表模板结构的 AST 对象。
  * @internal
  */
-export function parse(template: string) {
+export function parse(_template: string) {
   // TODO: 实现模板解析逻辑
   // 1. 创建解析上下文
   // 2. 逐字符解析模板

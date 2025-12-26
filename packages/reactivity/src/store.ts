@@ -5,7 +5,7 @@ import type { ReactiveEffect } from './effect';
 // ==================================================================================================
 
 /**
- * @description VLD 框架的内部全局状态存储。
+ * @description LD 框架的内部全局状态存储。
  * @internal
  * @remarks
  * `globalState` 是框架唯一的全局状态源，主要负责两件事：

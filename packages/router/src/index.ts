@@ -1,5 +1,5 @@
 /**
- * @module @vld/router
+ * @module @ld/router
  * @description 极致性能的路由系统
  */
 

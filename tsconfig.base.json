@@ -30,10 +30,10 @@
       
       "baseUrl": ".",
       "paths": {
-        "@vld/*": ["packages/*/src"],
-        "vld": ["packages/vld/src"],
-        "@test-utils": ["packages/@vld/test-utils/src"],
-        "@shared": ["packages/@vld/shared/src"]
+        "@ld/*": ["packages/*/src"],
+        "ld": ["packages/ld/src"],
+        "@test-utils": ["packages/@ld/test-utils/src"],
+        "@shared": ["packages/@ld/shared/src"]
       },
       "rootDir": ".",
       
@@ -86,9 +86,13 @@
       { "path": "./packages/compiler-core" },
       { "path": "./packages/compiler-sfc" },
       { "path": "./packages/router" },
-      { "path": "./packages/vld" },
+      { "path": "./packages/ld" },
       { "path": "./packages/vite-plugin" },
       { "path": "./packages/cli" },
-      { "path": "./packages/devtools" }
+      { "path": "./packages/devtools" },
+      { "path": "./packages/runtime-jsx" },
+      { "path": "./packages/react" },
+      { "path": "./packages/vue" },
+      { "path": "./packages/babel-plugin-ld" }
     ]
   }

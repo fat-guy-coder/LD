@@ -1,5 +1,5 @@
 {
-  "name": "@vld/runtime-dom",
+  "name": "@ld/runtime-dom",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",

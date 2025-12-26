@@ -4,7 +4,7 @@
     "commit": false,
     "fixed": [],
     "linked": [
-      ["@vld/reactivity", "@vld/router", "@vld/compiler-core", "@vld/compiler-sfc", "@vld/runtime-core", "@vld/runtime-dom", "@vld/vld", "@vld/vite-plugin", "@vld/cli", "@vld/devtools"]
+      ["@ld/reactivity", "@ld/router", "@ld/compiler-core", "@ld/compiler-sfc", "@ld/runtime-core", "@ld/runtime-dom", "@ld/ld", "@ld/vite-plugin", "@ld/cli", "@ld/devtools"]
     ],
     "access": "public",
     "baseBranch": "main",

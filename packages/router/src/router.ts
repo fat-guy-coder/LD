@@ -1,7 +1,7 @@
 // 复杂度: create: O(N) (N为路由数), push/replace: O(M) (M为匹配器复杂度), 优化: 响应式集成
 
 import { type App } from 'vue'; // 假设与Vue集成, 这里用类型
-import { createSignal, type Signal, createEffect } from '@vld/reactivity';
+import { createSignal, type Signal, createEffect } from '@ld/reactivity';
 import { createRouterMatcher, type RouteRecordRaw, type ResolvedMatcherLocation } from './matcher';
 import { type RouterHistory } from './history';
 

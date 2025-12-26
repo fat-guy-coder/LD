@@ -1,6 +1,6 @@
-# @vld/reactivity
+# @ld/reactivity
 
-`@vld/reactivity` 是 VLD 框架的核心响应式系统。它实现了一个零虚拟 DOM、基于 Signal 的细粒度更新机制，旨在提供极致的性能。
+`@ld/reactivity` 是 LD 框架的核心响应式系统。它实现了一个零虚拟 DOM、基于 Signal 的细粒度更新机制，旨在提供极致的性能。
 
 ## 核心理念
 
@@ -11,7 +11,7 @@
 ## 安装
 
 ```bash
-npm install @vld/reactivity
+npm install @ld/reactivity
 ```
 
 ## API 参考
@@ -39,7 +39,7 @@ function createSignal<T>(
 
 **示例**
 ```typescript
-import { createSignal, createEffect } from '@vld/reactivity';
+import { createSignal, createEffect } from '@ld/reactivity';
 
 const [count, setCount] = createSignal(0);
 
@@ -69,7 +69,7 @@ function createEffect(fn: () => void): ReactiveEffect;
 
 **示例**
 ```typescript
-import { createSignal, createEffect } from '@vld/reactivity';
+import { createSignal, createEffect } from '@ld/reactivity';
 
 const [count, setCount] = createSignal(0);
 
@@ -101,7 +101,7 @@ function createComputed<T>(getter: () => T): { readonly value: T };
 
 **示例**
 ```typescript
-import { createSignal, createComputed } from '@vld/reactivity';
+import { createSignal, createComputed } from '@ld/reactivity';
 
 const [count, setCount] = createSignal(1);
 const double = createComputed(() => count() * 2);
@@ -129,7 +129,7 @@ function createReactive<T extends object>(obj: T): T;
 
 **示例**
 ```typescript
-import { createReactive, createEffect } from '@vld/reactivity';
+import { createReactive, createEffect } from '@ld/reactivity';
 
 const state = createReactive({ count: 0, user: { name: 'John' } });
 
@@ -158,7 +158,7 @@ function batch(fn: () => void): void;
 
 **示例**
 ```typescript
-import { createSignal, createEffect, batch } from '@vld/reactivity';
+import { createSignal, createEffect, batch } from '@ld/reactivity';
 
 const [firstName, setFirstName] = createSignal('John');
 const [lastName, setLastName] = createSignal('Doe');

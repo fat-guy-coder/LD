@@ -42,7 +42,7 @@ class BuildManager {
   private loadPackageConfigs(): void {
     // Reactivity 包配置
     this.packages.set('reactivity', {
-      name: '@vld/reactivity',
+      name: '@ld/reactivity',
       entryPoints: [
         'src/index.ts',
         'src/signal.ts',
@@ -62,9 +62,9 @@ class BuildManager {
 
     // 其他包配置将在后续添加
     this.packages.set('router', {
-      name: '@vld/router',
+      name: '@ld/router',
       entryPoints: ['src/index.ts'],
-      external: ['@vld/reactivity'],
+      external: ['@ld/reactivity'],
       format: 'esm',
       outdir: 'dist',
       platform: 'browser',
@@ -198,7 +198,7 @@ class BuildManager {
         'compiler-sfc',
         'runtime-core',
         'runtime-dom',
-        'vld',
+        'ld',
         'vite-plugin',
       ]
 

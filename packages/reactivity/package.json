@@ -1,20 +1,20 @@
 {
-  "name": "@vld/reactivity",
+  "name": "@ld/reactivity",
   "version": "0.1.0",
   "description": "极致性能的Signal响应式系统，更新延迟<1ms",
   "type": "module",
-  "main": "dist/vld-reactivity.cjs.js",
-  "module": "dist/vld-reactivity.esm.js",
+  "main": "dist/ld-reactivity.cjs.js",
+  "module": "dist/ld-reactivity.esm.js",
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/types/index.d.ts",
-        "default": "./dist/vld-reactivity.esm.js"
+        "default": "./dist/ld-reactivity.esm.js"
       },
       "require": {
         "types": "./dist/types/index.d.ts",
-        "default": "./dist/vld-reactivity.cjs.js"
+        "default": "./dist/ld-reactivity.cjs.js"
       }
     },
     "./signal": {
@@ -72,7 +72,7 @@
     "README.md"
   ],
   "keywords": [
-    "vld",
+    "ld",
     "reactivity",
     "signal",
     "vue",
@@ -82,13 +82,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/username/vld",
+    "url": "https://github.com/username/ld",
     "directory": "packages/reactivity"
   },
   "bugs": {
-    "url": "https://github.com/username/vld/issues"
+    "url": "https://github.com/username/ld/issues"
   },
-  "homepage": "https://github.com/username/vld#readme",
+  "homepage": "https://github.com/username/ld#readme",
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc && rollup -c",

@@ -1,5 +1,5 @@
 {
-  "name": "vld",
+  "name": "ld",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -14,13 +14,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/username/vld"
+    "url": "https://github.com/username/ld"
   },
   "license": "MIT",
-  "author": "Your Name",
+  "author": "jason deng",
   "scripts": {
     "dev": "tsx scripts/dev.mts",
-    "dev:reactivity": "pnpm --filter @vld/reactivity run dev",
+    "dev:reactivity": "pnpm --filter @ld/reactivity run dev",
     "dev:cli": "tsx scripts/cli-dev.mts",
     "dev:watch": "tsc --build --watch",
     "dev:all": "concurrently \"pnpm dev:reactivity\" \"pnpm dev:watch\" \"pnpm dev:cli\"",
@@ -79,11 +79,8 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
-    "@types/chalk": "^2.2.0",
-    "@types/chokidar": "^2.1.3",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^20.11.5",
-    "@types/ora": "^3.2.0",
     "@types/semver": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",

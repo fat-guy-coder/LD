@@ -26,7 +26,7 @@ class QualityChecker {
   private startTime: number = 0
 
   async run(): Promise<void> {
-    console.log(chalk.cyan.bold('🔍 VLD Code Quality Check\n'))
+    console.log(chalk.cyan.bold('🔍 LD Code Quality Check\n'))
     this.startTime = Date.now()
 
     const args = process.argv.slice(2)
@@ -48,7 +48,7 @@ class QualityChecker {
   }
 
   private async checkAllPackages(): Promise<void> {
-    const packages = ['reactivity', 'router', 'compiler-core', 'compiler-sfc', 'runtime-core', 'runtime-dom', 'vld', 'vite-plugin']
+    const packages = ['reactivity', 'router', 'compiler-core', 'compiler-sfc', 'runtime-core', 'runtime-dom', 'ld', 'vite-plugin']
     
     for (const pkgName of packages) {
       const pkgDir = join(packagesDir, pkgName)

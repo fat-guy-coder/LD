@@ -24,7 +24,7 @@ describe('VNode', () => {
   });
 
   it('should create a text VNode', () => {
-    const textContent = 'Hello, VLD!';
+    const textContent = 'Hello, LD!';
     const vnode = createTextVNode(textContent);
 
     expect(vnode.type).toBe(VNodeTypes.TEXT);

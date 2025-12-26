@@ -32,11 +32,11 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@vld/*": [
+      "@ld/*": [
         "packages/*/src"
         
       ],
-      "vld": ["packages/vld/src"],
+      "ld": ["packages/ld/src"],
       "@scripts/*": [
         "scripts/*"
       ]

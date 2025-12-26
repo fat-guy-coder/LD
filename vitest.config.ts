@@ -46,16 +46,16 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@vld/reactivity': resolve(__dirname, 'packages/reactivity/src'),
-      '@vld/router': resolve(__dirname, 'packages/router/src'),
-      '@vld/compiler-core': resolve(__dirname, 'packages/compiler-core/src'),
-      '@vld/compiler-sfc': resolve(__dirname, 'packages/compiler-sfc/src'),
-      '@vld/runtime-core': resolve(__dirname, 'packages/runtime-core/src'),
-      '@vld/runtime-dom': resolve(__dirname, 'packages/runtime-dom/src'),
-      '@vld/vld': resolve(__dirname, 'packages/vld/src'),
-      '@vld/vite-plugin': resolve(__dirname, 'packages/vite-plugin/src'),
-      '@vld/cli': resolve(__dirname, 'packages/cli/src'),
-      '@vld/devtools': resolve(__dirname, 'packages/devtools/src')
+      '@ld/reactivity': resolve(__dirname, 'packages/reactivity/src'),
+      '@ld/router': resolve(__dirname, 'packages/router/src'),
+      '@ld/compiler-core': resolve(__dirname, 'packages/compiler-core/src'),
+      '@ld/compiler-sfc': resolve(__dirname, 'packages/compiler-sfc/src'),
+      '@ld/runtime-core': resolve(__dirname, 'packages/runtime-core/src'),
+      '@ld/runtime-dom': resolve(__dirname, 'packages/runtime-dom/src'),
+      '@ld/ld': resolve(__dirname, 'packages/ld/src'),
+      '@ld/vite-plugin': resolve(__dirname, 'packages/vite-plugin/src'),
+      '@ld/cli': resolve(__dirname, 'packages/cli/src'),
+      '@ld/devtools': resolve(__dirname, 'packages/devtools/src')
     }
   }
 })

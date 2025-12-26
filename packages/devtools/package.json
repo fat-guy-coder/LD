@@ -1,5 +1,5 @@
 {
-  "name": "@vld/devtools",
+  "name": "@ld/devtools",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",

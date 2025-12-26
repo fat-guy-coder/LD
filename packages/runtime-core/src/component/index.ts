@@ -1,5 +1,5 @@
-import { createInstanceStore } from '@vld/reactivity';
-import type { ReactiveEffect } from '@vld/reactivity';
+import { createInstanceStore } from '@ld/reactivity';
+import type { ReactiveEffect } from '@ld/reactivity';
 
 // ==================================================================================================
 // 类型定义 (Type Definitions)

@@ -8,7 +8,7 @@ const rootDir = __dirname
 const packagesDir = resolve(rootDir, 'packages')
 
 /**
- * VLD 框架开发服务器配置
+ * LD 框架开发服务器配置
  * @description 提供开发环境的热更新、路径别名和模块解析
  */
 export default defineConfig({
@@ -30,24 +30,24 @@ export default defineConfig({
   // 路径别名配置
   resolve: {
     alias: {
-      '@vld/reactivity': resolve(packagesDir, 'reactivity/src'),
-      '@vld/runtime-core': resolve(packagesDir, 'runtime-core/src'),
-      '@vld/runtime-dom': resolve(packagesDir, 'runtime-dom/src'),
-      '@vld/compiler-core': resolve(packagesDir, 'compiler-core/src'),
-      '@vld/compiler-sfc': resolve(packagesDir, 'compiler-sfc/src'),
-      '@vld/router': resolve(packagesDir, 'router/src'),
-      '@vld/vld': resolve(packagesDir, 'vld/src'),
-      '@vld/vite-plugin': resolve(packagesDir, 'vite-plugin/src'),
-      '@vld/cli': resolve(packagesDir, 'cli/src'),
-      '@vld/devtools': resolve(packagesDir, 'devtools/src'),
-      // 通用别名，匹配所有 @vld/* 模块
-      '@vld': resolve(packagesDir),
+      '@ld/reactivity': resolve(packagesDir, 'reactivity/src'),
+      '@ld/runtime-core': resolve(packagesDir, 'runtime-core/src'),
+      '@ld/runtime-dom': resolve(packagesDir, 'runtime-dom/src'),
+      '@ld/compiler-core': resolve(packagesDir, 'compiler-core/src'),
+      '@ld/compiler-sfc': resolve(packagesDir, 'compiler-sfc/src'),
+      '@ld/router': resolve(packagesDir, 'router/src'),
+      '@ld/ld': resolve(packagesDir, 'ld/src'),
+      '@ld/vite-plugin': resolve(packagesDir, 'vite-plugin/src'),
+      '@ld/cli': resolve(packagesDir, 'cli/src'),
+      '@ld/devtools': resolve(packagesDir, 'devtools/src'),
+      // 通用别名，匹配所有 @ld/* 模块
+      '@ld': resolve(packagesDir),
     },
   },
 
   // 依赖优化
   optimizeDeps: {
-    include: ['@vld/reactivity', '@vld/router'],
+    include: ['@ld/reactivity', '@ld/router'],
     exclude: [],
   },
 
