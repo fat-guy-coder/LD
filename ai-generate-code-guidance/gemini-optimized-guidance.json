@@ -1,8 +1,8 @@
 {
   "_meta": {
     "purpose": "AI guidance for LD framework generation. Prioritizes clarity, speed, and strict adherence to goals.",
-    "version": "1.7.2-final-restored",
-    "lastUpdated": "2025-12-29T15:05:00.000Z"
+    "version": "1.7.3-final-restored",
+    "lastUpdated": "2025-12-29T15:10:00.000Z"
   },
   "project": {
     "name": "ld",
@@ -31,6 +31,7 @@
       "MUST_READ_PACKAGE_JSON_FIRST",
       "MUST_TREAT_MODULE_TS_AS_SINGLE_SOURCE_OF_TRUTH",
       "MUST_LINT_AFTER_EDIT",
+      "MUST_SUGGEST_GUIDANCE_IMPROVEMENTS",
       "MUST_FOLLOW_WORKFLOW_SEQUENCE",
       "MUST_ANALYZE_EXISTING_CODE_BEFORE_GENERATION",
       "MUST_VALIDATE_EACH_STEP_WITH_TESTS",
@@ -45,6 +46,7 @@
       "NO_PROCEED_IF_TESTS_FAIL",
       "NO_FILE_SCOPED_STATE_VARIABLES"
     ],
+    "continuousImprovement": "If optimization opportunities are discovered that should be standardized, you MUST suggest updating this guidance file.",
     "codeGenerationRules": {
       "NO_UNUSED_VARIABLES": "All declared variables and imports MUST be used or removed.",
       "OPTIMAL_LOOPS": "Use reverse for-loops for unordered iteration in hot paths; cache array length for ordered iteration.",
@@ -175,20 +177,8 @@
   },
   "modules": {
     "generationOrder": [
-      "reactivity",
-      "runtime-core",
-      "runtime-dom",
-      "runtime-jsx",
-      "react",
-      "vue",
-      "compiler-core",
-      "compiler-sfc",
-      "router",
-      "ld",
-      "vite-plugin",
-      "cli",
-      "devtools",
-      "babel-plugin-ld"
+      "reactivity", "runtime-core", "runtime-dom", "runtime-jsx", "react", "vue", 
+      "compiler-core", "compiler-sfc", "router", "ld", "vite-plugin", "cli", "devtools", "babel-plugin-ld"
     ]
   },
   "codeStyle": {
@@ -209,14 +199,7 @@
   "templates": {
     "jsdoc": {
       "function": {
-        "required": [
-          "@description",
-          "@param",
-          "@returns",
-          "@example",
-          "@performance",
-          "@since"
-        ],
+        "required": ["@description", "@param", "@returns", "@example", "@performance", "@since"],
         "example": "/**\n * @description ...\n * @param ...\n * @returns ...\n * @example ...\n * @performance ...\n * @since v0.1.0\n */"
       }
     }

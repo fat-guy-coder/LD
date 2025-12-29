@@ -14,86 +14,70 @@ export function queueJob(effect: ReactiveEffect): void {
 }
 
 /**
- * @description 安排刷新队列。当前实现保持同步刷新模型，以获得最低延迟。
- * 对于基准和测试场景，这意味着 `flushJobs` 会立即执行。
+ * @description 安排一个微任务来执行队列刷新。
+ * @internal
  */
 function scheduleFlush(): void {
-  // 任何时候只创建一次 Promise，用于外部 await（基准脚本 / 测试）
-  if (!globalState.jobDonePromise) {
-    globalState.jobDonePromise = new Promise(resolve => {
-      globalState.resolveJobDone = resolve;
-    });
-  }
-
   if (!globalState.isFlushing && !globalState.isBatching) {
-    flushJobs();
+    globalState.isFlushPending = true;
+    Promise.resolve().then(flushJobs);
   }
 }
 
 /**
  * @description 刷新并执行队列中的所有 effect。
- * 采用“快照 + while 循环”策略，确保在 flush 过程中新入队的 effect 将在下一轮执行，避免无限循环。
+ * @internal
  */
 function flushJobs(): void {
+  if (!globalState.isFlushPending) {
+    return;
+  }
   globalState.isFlushPending = false;
   globalState.isFlushing = true;
 
   try {
-    let safeguard = 0; // 防御性上限，避免逻辑错误导致死循环
-    const MAX_FLUSH_ROUNDS = 10_000;
-
+    let safeguard = 0;
     while (globalState.queue.size) {
-      if (++safeguard > MAX_FLUSH_ROUNDS) {
-        console.error('[LD] flushJobs exceeded max rounds, possible infinite loop');
-        break;
+      if (++safeguard > 10000) {
+        throw new Error('[LD] flushJobs exceeded max rounds (10000), possible infinite loop');
       }
-
-      // 快照当前队列并立即清空，防止运行过程中再次 track 进入的 effect 被本轮重复执行
       const effects = Array.from(globalState.queue);
       globalState.queue.clear();
-
       for (const effect of effects) {
         effect.run();
       }
     }
   } finally {
     globalState.isFlushing = false;
-    if (globalState.resolveJobDone) {
-      globalState.resolveJobDone();
-      globalState.jobDonePromise = null;
-      globalState.resolveJobDone = null;
-    }
   }
 }
 
 /**
- * @description 批量更新：把多次 state 更新合并为一次 flush。
+ * @description 将多个状态变更组合成一个“批处理”。
+ * @param fn - 包含多个状态变更的函数。
+ * @since v0.1.0
  */
 export function batch(fn: () => void): void {
   if (globalState.isBatching) {
     fn();
     return;
   }
-
   globalState.isBatching = true;
   try {
     fn();
   } finally {
     globalState.isBatching = false;
+    // 在 batch 结束后，如果队列中有待处理的 effect，则安排一次刷新。
     if (globalState.queue.size > 0) {
-      flushJobs();
+      scheduleFlush();
     }
   }
 }
 
 /**
- * @description 在非浏览器环境等待所有调度任务完成（基准 / 测试专用）。
+ * @description 在非浏览器环境等待所有调度任务完成。
+ * 返回一个 resolved 的 Promise，相当于等待下一个微任务 tick。
  */
 export async function waitForJobs(): Promise<void> {
-  if (globalState.isFlushing) {
-    await Promise.resolve();
-  }
-  if (globalState.jobDonePromise) {
-    await globalState.jobDonePromise;
-  }
+  return Promise.resolve();
 }

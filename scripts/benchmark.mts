@@ -1,12 +1,6 @@
 #!/usr/bin/env node
 /*
  * Dynamic benchmark runner for LD framework.
- * Accepts an optional second argument to filter benchmark files.
- * Usage:
- *   tsx scripts/benchmark.mts <module> [file_pattern]
- * Example:
- *   tsx scripts/benchmark.mts reactivity signal-creation
- *   tsx scripts/benchmark.mts reactivity 'signal-*'
  */
 
 import { join, dirname, resolve } from 'path';
@@ -105,7 +99,7 @@ if (!dynamicBenchFns.length) {
 
 // --- Benchmark Runner ---
 class BenchmarkRunner {
-  private bench = new Bench({ time: 100 });
+  private bench = new Bench({ time: 500 });
 
   async run(): Promise<void> {
     this.addTasks();
@@ -153,3 +147,6 @@ class BenchmarkRunner {
 
 // --- Execution ---
 await new BenchmarkRunner().run();
+
+// Force exit the process, as tinybench appears to keep handles open in this environment.
+process.exit(0);

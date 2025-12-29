@@ -1,0 +1,493 @@
+{
+    "tinybench": {
+        "version": "6.0.0",
+        "description": "轻量级、高性能的JavaScript基准测试库，适用于Node.js和浏览器环境。提供精确的性能测量功能，支持异步测试、热身运行和统计计算。",
+        "import": {
+            "esm": "import { Benchmark, Task, Result, Suite } from 'tinybench';",
+            "cjs": "const { Benchmark, Task, Result, Suite } = require('tinybench');"
+        },
+        "installation": "npm install tinybench 或 yarn add tinybench",
+        "coreClasses": {
+            "Benchmark": {
+                "description": "基准测试主类，用于创建和管理测试套件",
+                "constructor": {
+                    "signature": "new Benchmark(options?: BenchmarkOptions)",
+                    "parameters": {
+                        "options": {
+                            "type": "BenchmarkOptions",
+                            "optional": true,
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "基准测试名称",
+                                    "optional": true
+                                },
+                                "iterations": {
+                                    "type": "number",
+                                    "default": 1,
+                                    "description": "每次任务运行的迭代次数"
+                                },
+                                "time": {
+                                    "type": "number",
+                                    "default": 10,
+                                    "description": "每个任务运行的时间（毫秒）"
+                                },
+                                "warmupTime": {
+                                    "type": "number",
+                                    "default": 100,
+                                    "description": "热身时间（毫秒）"
+                                },
+                                "warmupIterations": {
+                                    "type": "number",
+                                    "default": 5,
+                                    "description": "热身迭代次数"
+                                },
+                                "setup": {
+                                    "type": "(task: Task, mode: 'warmup' | 'run') => void | Promise<void>",
+                                    "optional": true,
+                                    "description": "运行前的设置函数"
+                                },
+                                "teardown": {
+                                    "type": "(task: Task, mode: 'warmup' | 'run') => void | Promise<void>",
+                                    "optional": true,
+                                    "description": "运行后的清理函数"
+                                },
+                                "timeout": {
+                                    "type": "number",
+                                    "default": 0,
+                                    "description": "超时时间（毫秒），0表示无限制"
+                                },
+                                "throwOnError": {
+                                    "type": "boolean",
+                                    "default": false,
+                                    "description": "出错时是否抛出异常"
+                                },
+                                "signal": {
+                                    "type": "AbortSignal",
+                                    "optional": true,
+                                    "description": "用于停止测试的信号量"
+                                }
+                            }
+                        }
+                    },
+                    "example": "const bench = new Benchmark({ name: 'MyBenchmark', time: 100, warmupTime: 50 });"
+                },
+                "methods": {
+                    "add": [
+                        {
+                            "signature": "add(name: string, fn: Function, options?: TaskOptions): Task",
+                            "description": "添加命名测试任务",
+                            "parameters": {
+                                "name": "任务名称",
+                                "fn": "测试函数（支持异步）",
+                                "options": {
+                                    "type": "TaskOptions",
+                                    "optional": true,
+                                    "properties": {
+                                        "name": "覆盖的任务名称",
+                                        "fn": "覆盖的测试函数",
+                                        "beforeAll": "任务开始前的钩子函数",
+                                        "beforeEach": "每次迭代前的钩子函数",
+                                        "afterEach": "每次迭代后的钩子函数",
+                                        "afterAll": "任务结束后的钩子函数"
+                                    }
+                                }
+                            },
+                            "returns": "Task实例",
+                            "example": "bench.add('arrayMap', () => [1,2,3].map(x => x*2));"
+                        },
+                        {
+                            "signature": "add(fn: Function, options?: TaskOptions): Task",
+                            "description": "添加匿名测试任务",
+                            "parameters": {
+                                "fn": "测试函数",
+                                "options": "任务选项，可包含name属性来命名"
+                            },
+                            "returns": "Task实例",
+                            "example": "bench.add(() => { /* code */ }, { name: 'anonymous' });"
+                        }
+                    ],
+                    "remove": {
+                        "signature": "remove(nameOrTask: string | Task): boolean",
+                        "description": "移除任务",
+                        "parameters": {
+                            "nameOrTask": "任务名称或Task实例"
+                        },
+                        "returns": "是否成功移除",
+                        "example": "bench.remove('taskName'); 或 bench.remove(taskInstance);"
+                    },
+                    "run": {
+                        "signature": "run(options?: RunOptions): Promise<Task[]>",
+                        "description": "运行所有测试任务",
+                        "parameters": {
+                            "options": {
+                                "type": "RunOptions",
+                                "optional": true,
+                                "description": "可覆盖Benchmark构造函数中的选项"
+                            }
+                        },
+                        "returns": "包含所有任务的Promise",
+                        "example": "const results = await bench.run({ time: 200 });",
+                        "notes": [
+                            "运行前会自动执行warmup（如果尚未执行）",
+                            "可传递signal选项用于取消运行",
+                            "结果存储在bench.results和每个task.result中"
+                        ]
+                    },
+                    "warmup": {
+                        "signature": "warmup(): Promise<void>",
+                        "description": "执行热身运行，准备JIT编译优化",
+                        "returns": "Promise<void>",
+                        "example": "await bench.warmup();",
+                        "notes": [
+                            "热身运行不计入最终结果",
+                            "对于稳定的性能测量很重要"
+                        ]
+                    },
+                    "reset": {
+                        "signature": "reset(): void",
+                        "description": "重置基准测试状态，清除所有结果",
+                        "example": "bench.reset();"
+                    },
+                    "getTasks": {
+                        "signature": "getTasks(): Task[]",
+                        "description": "获取所有任务",
+                        "returns": "Task数组",
+                        "example": "const tasks = bench.getTasks();"
+                    },
+                    "getResults": {
+                        "signature": "getResults(): Result[]",
+                        "description": "获取所有结果",
+                        "returns": "Result数组",
+                        "example": "const results = bench.getResults();"
+                    },
+                    "table": {
+                        "signature": "table(): Table",
+                        "description": "生成格式化的结果表格",
+                        "returns": "表格对象，适合console.table输出",
+                        "example": "console.table(bench.table());"
+                    }
+                },
+                "properties": {
+                    "tasks": {
+                        "type": "Task[]",
+                        "description": "所有任务的数组"
+                    },
+                    "results": {
+                        "type": "Result[]",
+                        "description": "所有结果的数组"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "基准测试名称"
+                    }
+                }
+            },
+            "Task": {
+                "description": "表示单个测试任务",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "任务名称"
+                    },
+                    "fn": {
+                        "type": "Function",
+                        "description": "测试函数"
+                    },
+                    "benchmark": {
+                        "type": "Benchmark",
+                        "description": "所属的Benchmark实例"
+                    },
+                    "beforeAll": {
+                        "type": "() => void | Promise<void>",
+                        "optional": true,
+                        "description": "任务开始前的钩子"
+                    },
+                    "beforeEach": {
+                        "type": "() => void | Promise<void>",
+                        "optional": true,
+                        "description": "每次迭代前的钩子"
+                    },
+                    "afterEach": {
+                        "type": "() => void | Promise<void>",
+                        "optional": true,
+                        "description": "每次迭代后的钩子"
+                    },
+                    "afterAll": {
+                        "type": "() => void | Promise<void>",
+                        "optional": true,
+                        "description": "任务结束后的钩子"
+                    },
+                    "iterations": {
+                        "type": "number",
+                        "optional": true,
+                        "description": "覆盖基准测试的迭代次数"
+                    },
+                    "time": {
+                        "type": "number",
+                        "optional": true,
+                        "description": "覆盖基准测试的运行时间"
+                    }
+                },
+                "methods": {
+                    "run": {
+                        "signature": "run(options?: RunOptions): Promise<Result>",
+                        "description": "运行单个任务",
+                        "parameters": {
+                            "options": "运行选项，可覆盖任务和基准测试的配置"
+                        },
+                        "returns": "包含结果的Promise",
+                        "example": "const result = await task.run({ iterations: 1000 });"
+                    },
+                    "warmup": {
+                        "signature": "warmup(): Promise<void>",
+                        "description": "对单个任务进行热身",
+                        "returns": "Promise<void>",
+                        "example": "await task.warmup();"
+                    }
+                }
+            },
+            "Result": {
+                "description": "测试任务的结果统计",
+                "properties": {
+                    "task": {
+                        "type": "Task",
+                        "description": "关联的任务实例"
+                    },
+                    "samples": {
+                        "type": "number[]",
+                        "description": "所有样本（每次迭代的耗时，纳秒）"
+                    },
+                    "sampleCount": {
+                        "type": "number",
+                        "description": "样本数量"
+                    },
+                    "totalTime": {
+                        "type": "number",
+                        "description": "总时间（纳秒）"
+                    },
+                    "min": {
+                        "type": "number",
+                        "description": "最小耗时（纳秒）"
+                    },
+                    "max": {
+                        "type": "number",
+                        "description": "最大耗时（纳秒）"
+                    },
+                    "mean": {
+                        "type": "number",
+                        "description": "平均耗时（纳秒）"
+                    },
+                    "median": {
+                        "type": "number",
+                        "description": "中位数耗时（纳秒）"
+                    },
+                    "hz": {
+                        "type": "number",
+                        "description": "每秒操作次数（越高越好）"
+                    },
+                    "hertz": {
+                        "type": "number",
+                        "description": "同hz"
+                    },
+                    "variance": {
+                        "type": "number",
+                        "description": "方差"
+                    },
+                    "sd": {
+                        "type": "number",
+                        "description": "标准差"
+                    },
+                    "sem": {
+                        "type": "number",
+                        "description": "标准误差"
+                    },
+                    "marginOfError": {
+                        "type": "number",
+                        "description": "误差范围"
+                    },
+                    "relativeMarginOfError": {
+                        "type": "number",
+                        "description": "相对误差范围（百分比）"
+                    },
+                    "p75": {
+                        "type": "number",
+                        "description": "第75百分位数"
+                    },
+                    "p99": {
+                        "type": "number",
+                        "description": "第99百分位数"
+                    },
+                    "p999": {
+                        "type": "number",
+                        "description": "第99.9百分位数"
+                    },
+                    "cycles": {
+                        "type": "number",
+                        "description": "循环次数"
+                    },
+                    "error": {
+                        "type": "Error",
+                        "optional": true,
+                        "description": "运行错误（如果throwOnError为false）"
+                    }
+                },
+                "methods": {
+                    "compute": {
+                        "signature": "compute(): void",
+                        "description": "计算统计信息",
+                        "notes": "通常在run()后自动调用，但可以手动重新计算"
+                    },
+                    "toJSON": {
+                        "signature": "toJSON(): object",
+                        "description": "转换为JSON序列化对象",
+                        "returns": "包含所有属性的普通对象"
+                    }
+                }
+            },
+            "Suite": {
+                "description": "用于组织多个基准测试的套件类（可选功能）",
+                "constructor": {
+                    "signature": "new Suite(name?: string)",
+                    "parameters": {
+                        "name": "套件名称（可选）"
+                    },
+                    "example": "const suite = new Suite('My Suite');"
+                },
+                "methods": {
+                    "add": {
+                        "signature": "add(name: string, benchFn: () => Benchmark): void",
+                        "description": "向套件添加基准测试",
+                        "parameters": {
+                            "name": "基准测试名称",
+                            "benchFn": "返回Benchmark实例的函数"
+                        }
+                    },
+                    "run": {
+                        "signature": "run(): Promise<void>",
+                        "description": "运行套件中的所有基准测试"
+                    },
+                    "table": {
+                        "signature": "table(): Table",
+                        "description": "获取套件结果表格"
+                    }
+                }
+            }
+        },
+        "commonPatterns": {
+            "basicUsage": {
+                "description": "基本使用模式",
+                "code": "import { Benchmark } from 'tinybench';\nconst bench = new Benchmark({ time: 100 });\nbench.add('task1', () => { /* 测试代码 */ });\nbench.add('task2', () => { /* 测试代码 */ });\nawait bench.warmup();\nconst results = await bench.run();\nconsole.table(bench.table());\n"
+            },
+            "asyncTask": {
+                "description": "测试异步函数",
+                "code": "bench.add('async task', async () => { await someAsyncOperation(); /* 异步测试代码 */ });"
+            },
+            "lifecycleHooks": {
+                "description": "使用生命周期钩子",
+                "code": "bench.add('task with hooks', () => { /* 测试代码 */ }, { beforeAll: () => console.log('开始任务'), beforeEach: () => setup(), afterEach: () => cleanup(), afterAll: () => console.log('结束任务') });"
+            },
+            "comparisonTest": {
+                "description": "比较多个实现",
+                "code": "const bench = new Benchmark();\nbench.add('implementation A', () => methodA());\nbench.add('implementation B', () => methodB());\nconst results = await bench.run();\nconst sorted = results.sort((a, b) => b.hz - a.hz);\nconsole.log('最快的:', sorted[0].task.name);"
+            },
+            "errorHandling": {
+                "description": "错误处理",
+                "code": "const bench = new Benchmark({ throwOnError: false });\nbench.add('error prone', () => { throw new Error('test'); });\nconst results = await bench.run();\nif (results[0].error) { console.error('任务出错:', results[0].error.message); }"
+            }
+        },
+        "bestPractices": [
+            {
+                "title": "热身运行",
+                "description": "始终调用warmup()以确保JIT编译器优化代码",
+                "code": "await bench.warmup();"
+            },
+            {
+                "title": "足够的运行时间",
+                "description": "设置足够的time或iterations以获得稳定结果",
+                "code": "new Benchmark({ time: 100, iterations: 1000 });"
+            },
+            {
+                "title": "避免副作用",
+                "description": "测试函数应避免修改外部状态，确保测试可重复",
+                "badExample": "let counter = 0; bench.add(() => counter++);",
+                "goodExample": "bench.add(() => { const local = 0; return local + 1; });"
+            },
+            {
+                "title": "检查误差范围",
+                "description": "关注relativeMarginOfError，过大表示需要更多样本",
+                "code": "if (result.relativeMarginOfError > 5) { /* 需要更多测试 */ }"
+            }
+        ],
+        "troubleshooting": {
+            "unstableResults": {
+                "description": "结果不稳定",
+                "solutions": [
+                    "增加time或iterations参数",
+                    "确保调用warmup()",
+                    "关闭其他应用程序，减少系统干扰",
+                    "在相同的环境下多次运行取平均"
+                ]
+            },
+            "highMemoryUsage": {
+                "description": "内存使用过高",
+                "solutions": [
+                    "检查测试函数中的内存分配",
+                    "使用teardown钩子清理资源",
+                    "减少iterations参数",
+                    "避免在循环中创建大型对象"
+                ]
+            },
+            "timeoutErrors": {
+                "description": "超时错误",
+                "solutions": [
+                    "增加timeout选项值",
+                    "优化测试函数性能",
+                    "将大型测试拆分为多个小型测试"
+                ]
+            },
+            "asyncErrors": {
+                "description": "异步错误未捕获",
+                "solutions": [
+                    "确保异步函数正确处理Promise拒绝",
+                    "使用try-catch包装异步代码",
+                    "检查result.error属性"
+                ]
+            }
+        },
+        "environmentSpecific": {
+            "nodejs": {
+                "notes": [
+                    "可使用--expose-gc标志手动控制垃圾回收",
+                    "避免同步操作阻塞事件循环",
+                    "考虑使用setImmediate进行异步测试"
+                ]
+            },
+            "browser": {
+                "notes": [
+                    "使用requestAnimationFrame进行视觉相关测试",
+                    "注意垃圾回收对结果的影响",
+                    "避免测试影响用户体验",
+                    "考虑使用Web Workers进行CPU密集型测试"
+                ]
+            }
+        },
+        "performanceTips": [
+            "对于微基准测试，增加iterations而不是time",
+            "使用setup/teardown处理昂贵的初始化",
+            "避免在测试函数中使用console.log",
+            "在Node.js中使用--no-optimizations标志测试未优化代码",
+            "对于IO密集型测试，增加time参数"
+        ],
+        "migration": {
+            "fromV5": {
+                "changes": [
+                    "构造函数选项规范化",
+                    "结果属性命名更一致",
+                    "改进了异步处理",
+                    "TypeScript类型定义更完善"
+                ]
+            }
+        }
+    }
+}

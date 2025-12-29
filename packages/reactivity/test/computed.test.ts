@@ -1,7 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createSignal } from '../src/signal';
-import { createComputed } from '../src/computed';
-import { createEffect } from '../src/effect';
+import { createSignal, createComputed, createEffect, waitForJobs } from '../src';
 
 describe('createComputed', () => {
   it('should return a readonly value property', () => {
@@ -49,7 +47,7 @@ describe('createComputed', () => {
     expect(getter).toHaveBeenCalledTimes(1);
   });
 
-  it('should trigger effects when its value changes', () => {
+  it('should trigger effects when its value changes', async () => {
     const [count, setCount] = createSignal(1);
     const double = createComputed(() => count() * 2);
     const effectFn = vi.fn(() => double.value);
@@ -60,6 +58,7 @@ describe('createComputed', () => {
     expect(double.value).toBe(2);
 
     setCount(2);
+    await waitForJobs(); // Wait for the effect to run
     expect(effectFn).toHaveBeenCalledTimes(2);
     expect(double.value).toBe(4);
   });
@@ -75,4 +74,3 @@ describe('createComputed', () => {
     expect(quadruple.value).toBe(8);
   });
 });
-
