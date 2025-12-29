@@ -5,6 +5,9 @@
     "outDir": "./dist",
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
+  "references": [
+    { "path": "../../packages/reactivity" }
+  ],
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist"]
 }

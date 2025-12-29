@@ -128,7 +128,7 @@ export function createRouterMatcher(routes: RouteRecordRaw[]): RouterMatcher {
 function normalizeRouteRecord(record: RouteRecordRaw): RouteRecordNormalized {
   return {
     path: record.path,
-    name: record.name,
+    name: record.name || '',
     components: { default: record.component },
     children: [],
     meta: record.meta || {},
