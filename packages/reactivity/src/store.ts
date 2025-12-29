@@ -50,6 +50,16 @@ export const globalState = {
  * @type {ReactiveEffect[]}
  */
   effectStack: [] as ReactiveEffect[],
+
+  /**
+   * @description Promise used by the scheduler to notify when all pending jobs are flushed.
+   */
+  jobDonePromise: null as Promise<void> | null,
+
+  /**
+   * @description Resolver for `jobDonePromise`.
+   */
+  resolveJobDone: null as (() => void) | null,
 };
 
 // ==================================================================================================

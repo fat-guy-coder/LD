@@ -13,7 +13,7 @@ export { createComputed } from './computed';
 export { createReactive } from './reactive';
 
 // ===== batch.ts =====
-export { batch, queueJob } from './batch';
+export { batch, queueJob, waitForJobs } from './batch';
 
 // ===== store.ts =====
 export { globalState, createInstanceStore } from './store';

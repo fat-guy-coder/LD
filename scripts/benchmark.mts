@@ -1,21 +1,12 @@
 #!/usr/bin/env node
 /*
- * Dynamic benchmark runner
- * Usage:
- *   tsx scripts/benchmark.mts <module>
- * Examples:
- *   pnpm run bench:reactivity  (package.json already maps to this)
- *   pnpm run bench -- runtime-core
- *
- * The script will discover all `*.bench.ts` files inside
- *   packages/<module>/benchmarks/
- * dynamically import them, and execute every default-exported
- * function (signature: (bench: Bench) => void).
+ * Dynamic benchmark runner for LD framework.
  */
 
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { glob } from 'glob';
+import { existsSync } from 'fs';
 import chalk from 'chalk';
 import Table from 'cli-table3';
 import { Bench } from 'tinybench';
@@ -23,11 +14,13 @@ import { Bench } from 'tinybench';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, '..');
 
-// ---------------------- CLI args ----------------------
-const [, , targetModule = 'reactivity'] = process.argv;
+// --- CLI Argument Parsing ---
+const [, , targetModule] = process.argv;
+if (!targetModule) {
+  console.error(chalk.red('❌ Module name is required. Usage: tsx scripts/benchmark.mts <module>'));
+  process.exit(1);
+}
 
-// Validate the module path exists
-import { existsSync } from 'fs';
 const moduleBenchDir = join(rootDir, 'packages', targetModule, 'benchmarks');
 if (!existsSync(moduleBenchDir)) {
   console.error(
@@ -38,25 +31,17 @@ if (!existsSync(moduleBenchDir)) {
   process.exit(1);
 }
 
-// ------------------- Discover benchmarks --------------
+// --- Benchmark Discovery ---
 console.log(
   chalk.cyan(
     `🏎️  Running LD Performance Benchmarks for module "${targetModule}"\n`
   )
 );
 
-const benchFilePattern = join(
-  'packages',
-  targetModule,
-  'benchmarks',
-  '**',
-  '*.bench.ts'
-);
-
-const benchFilePaths = await glob(benchFilePattern, {
-  cwd: rootDir,
+// Use cwd option for glob for better cross-platform compatibility
+const benchFilePaths = await glob('**/*.bench.ts', {
+  cwd: moduleBenchDir,
   absolute: true,
-  windowsPathsNoEscape: true,
 });
 
 if (!benchFilePaths.length) {
@@ -68,9 +53,8 @@ if (!benchFilePaths.length) {
   process.exit(0);
 }
 
-// ------------------- Load benchmarks ------------------
+// --- Benchmark Loading ---
 const dynamicBenchFns: Array<(bench: Bench) => void> = [];
-
 for (const filePath of benchFilePaths) {
   try {
     const mod = await import(pathToFileURL(filePath).href);
@@ -85,25 +69,22 @@ for (const filePath of benchFilePaths) {
       );
     }
   } catch (e) {
-    console.error(chalk.red(`Failed to import ${filePath}`));
-    console.error(e);
+    console.error(chalk.red(`Failed to import ${filePath}`), e);
   }
 }
 
 if (!dynamicBenchFns.length) {
-  console.error(chalk.red('❌ No valid benchmark functions found.'));
+  console.error(chalk.red('❌ No valid benchmark functions were loaded.'));
   process.exit(1);
 }
 
-// ------------------- Run benchmarks -------------------
+// --- Benchmark Runner ---
 class BenchmarkRunner {
-  private bench = new Bench({ time: 100 }); // 100ms per task for quicker feedback
+  private bench = new Bench({ time: 100 });
 
   async run() {
     this.addTasks();
-
     await this.bench.run();
-
     this.printResults();
   }
 
@@ -120,10 +101,45 @@ class BenchmarkRunner {
   }
 
   private printResults() {
+    const table = new Table({
+      head: [
+        chalk.bold('Task Name'),
+        chalk.bold('ops/sec'),
+        chalk.bold('Avg. Time (ms)'),
+        chalk.bold('Margin of Error'),
+      ],
+      colWidths: [30, 20, 20, 20],
+    });
+
+    for (const task of this.bench.tasks) {
+      const res = task.result;
+      // A robust type guard to ensure all necessary properties exist.
+      if (res && 'hz' in res && 'mean' in res && 'rme' in res) {
+        table.push([
+          task.name,
+          (res.hz as number).toLocaleString('en-US', { maximumFractionDigits: 0 }),
+          ((res.mean as number) * 1000).toFixed(3),
+          `±${(res.rme as number).toFixed(2)}%`,
+        ]);
+      }
+    }
     console.log('\n' + chalk.cyan('📈 LD Live Benchmark Results:'));
-    console.table(this.bench.table());
-    // Optionally, integrate comparison logic here as needed per module
+    console.log(table.toString());
   }
 }
 
+// --- Execution ---
 await new BenchmarkRunner().run();
+
+// Ensure all queued reactive jobs are flushed before exiting
+try {
+  const modPath = pathToFileURL(
+    join(rootDir, 'packages', targetModule, 'src', 'index.ts')
+  ).href;
+  const maybeMod = await import(modPath);
+  if (typeof maybeMod.waitForJobs === 'function') {
+    await maybeMod.waitForJobs();
+  }
+} catch (e) {
+  // If module doesn't export waitForJobs, it's fine.
+}

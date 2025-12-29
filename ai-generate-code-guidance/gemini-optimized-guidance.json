@@ -1,9 +1,8 @@
 {
   "_meta": {
-    "purpose": "Optimized AI guidance for LD framework generation. Prioritizes machine readability, speed, and strict adherence to core goals. To be used by Gemini.",
-    "version": "1.1.0-gemini",
-    "sourceVersion": "3.2.8",
-    "lastUpdated": "2025-12-29T13:28:43.089Z"
+    "purpose": "AI guidance for LD framework generation. Prioritizes clarity, speed, and strict adherence to goals.",
+    "version": "1.6.0-final-refined",
+    "lastUpdated": "2025-12-29T14:50:00.000Z"
   },
   "project": {
     "name": "ld",
@@ -17,7 +16,7 @@
       "bundleSize": "<10KB gzipped",
       "componentMount": "<0.1ms",
       "componentUpdate": "<0.05ms",
-      "benchmarkGoal": "Metrics (FCP, LCP, Memory) must aim to surpass the best values from competing frameworks listed in benchmarks/frameworks-data.json."
+      "benchmarkGoal": "Metrics must aim to surpass competing frameworks in benchmarks/frameworks-data.json."
     }
   },
   "currentState": {
@@ -29,6 +28,8 @@
   "aiDirectives": {
     "corePrinciples": [
       "MUST_READ_THIS_FILE_FIRST",
+      "MUST_READ_PACKAGE_JSON_FIRST",
+      "MUST_TREAT_MODULE_TS_AS_SINGLE_SOURCE_OF_TRUTH",
       "MUST_FOLLOW_WORKFLOW_SEQUENCE",
       "MUST_ANALYZE_EXISTING_CODE_BEFORE_GENERATION",
       "MUST_VALIDATE_EACH_STEP_WITH_TESTS",
@@ -40,18 +41,24 @@
       "NO_MODIFY_THIS_GUIDANCE_FILE",
       "NO_CODE_THAT_VIOLATES_`architecture`_PRINCIPLES",
       "NO_GENERATE_CODE_WITHOUT_ANALYZING_EXPORTS",
-      "NO_PROCEED_IF_TESTS_FAIL"
+      "NO_PROCEED_IF_TESTS_FAIL",
+      "NO_FILE_SCOPED_STATE_VARIABLES"
     ],
     "codeGenerationRules": {
-      "NO_UNUSED_VARIABLES": "All declared variables and imports MUST be used or removed. Predicted future use is temporarily acceptable.",
-      "OPTIMAL_LOOPS": "In performance-critical hot paths, reverse for-loops (`for (let i = arr.length; i--;)`) MUST be used for unordered iteration. For ordered iteration, array length MUST be cached (`for (let i = 0, len = arr.length; i < len; i++)`). Direct use of `.length` in loop conditions is strictly forbidden in hot paths.",
-      "OPTIMAL_ALGORITHMS": "All core algorithms MUST be implemented with the lowest possible time and space complexity."
+      "NO_UNUSED_VARIABLES": "All declared variables and imports MUST be used or removed.",
+      "OPTIMAL_LOOPS": "Use reverse for-loops for unordered iteration in hot paths; cache array length for ordered iteration.",
+      "OPTIMAL_ALGORITHMS": "Core algorithms MUST have the lowest possible time and space complexity."
     },
     "stateManagementProtocol": {
       "sourceOfTruth": "All state MUST be managed via `packages/reactivity/src/store.ts`.",
-      "global": "All cross-module shared state (e.g., scheduler, caches) MUST be managed within the `globalState` object.",
-      "instance": "All component-specific state (e.g., lifecycle hooks, effects) MUST be managed via `createInstanceStore` to ensure isolation. Mocking is acceptable before full component implementation.",
-      "noFileScopeVars": "Do NOT use file-scoped variables for state management."
+      "global": "All cross-module shared state MUST be in the `globalState` object.",
+      "instance": "All component-specific state MUST use `createInstanceStore` for isolation.",
+      "noFileScopeVars": "STRICTLY FORBIDDEN: Do NOT use file-scoped variables for state."
+    },
+    "startupChecklist": {
+      "step1": "Read this guidance file (gemini-optimized-guidance.json).",
+      "step2": "Read package.json to understand available scripts and dependencies.",
+      "step3": "Optionally, read context files from workflow.details as needed."
     }
   },
   "workflow": {
@@ -69,14 +76,14 @@
     ],
     "details": {
       "1_ANALYZE_CODEBASE": {
-        "description": "Analyze existing code to understand context, dependencies, and available APIs. Read `packages/module.ts` and the current module's `src/index.ts` to identify all existing exports and prevent conflicts.",
+        "description": "Analyze context. Priority 1: Read `packages/module.ts`, the Single Source of Truth for all public APIs.",
         "filesToAnalyze": [
           "packages/module.ts",
           "packages/{currentState.module}/src/index.ts"
         ]
       },
       "3_GENERATE_CODE": {
-        "description": "Generate the TypeScript code for the target file.",
+        "description": "Generate TypeScript code for the target file.",
         "rules": [
           "Adhere strictly to `codeStyle` and `templates`.",
           "Ensure all `qualityGates` are met.",
@@ -84,14 +91,18 @@
         ]
       },
       "4_UPDATE_MODULE_EXPORTS": {
-        "description": "Update the module's `index.ts` and the main `module.ts` to export new APIs.",
+        "description": "Update the module's `index.ts` and then the main `packages/module.ts`.",
         "filesToUpdate": [
           "packages/{currentState.module}/src/index.ts",
           "packages/module.ts"
+        ],
+        "rules": [
+          "`packages/module.ts` MUST fully re-export all public APIs from every module's `index.ts`.",
+          "Every export block in `packages/module.ts` MUST have a JSDoc comment indicating its source module (e.g., `// from @ld/reactivity`)."
         ]
       },
       "5_GENERATE_OR_UPDATE_TESTS": {
-        "description": "Create or update the test file corresponding to the generated code.",
+        "description": "Create or update the test file for the generated code.",
         "pathTemplate": "packages/{currentState.module}/test/{filename}.test.ts",
         "requiredCoverage": [
           "normalCase",
@@ -101,11 +112,11 @@
         ]
       },
       "6_EXECUTE_TESTS": {
-        "description": "Run tests for the modified file. Ensure 100% pass rate. If tests fail, you MUST fix the code and re-run tests until they all pass.",
+        "description": "Run tests for the modified file and ensure 100% pass rate. Fix any failures before proceeding.",
         "command": "pnpm test:ai -- packages/{currentState.module}/test/{filename}.test.ts"
       },
       "7_PERFORMANCE_TUNING": {
-        "description": "After unit tests pass, conduct performance analysis and optimization. This step can be skipped for modules that do not impact runtime performance (e.g., `cli`).",
+        "description": "Conduct performance analysis and optimization. Skippable for non-runtime modules (e.g., `cli`).",
         "steps": [
           "1_CREATE_OR_UPDATE_BENCHMARKS",
           "2_RUN_BENCHMARKS",
@@ -113,22 +124,22 @@
           "4_IMPLEMENT_OPTIMIZATIONS",
           "5_VALIDATE_PERFORMANCE_GAINS"
         ],
-        "qualityGate": "Performance must meet or exceed targets defined in `project.performanceTargets` and be competitive with benchmarks from `benchmarks/frameworks-data.json`."
+        "qualityGate": "Performance must meet targets and be competitive with `benchmarks/frameworks-data.json`."
       },
       "8_BUILD_MODULE": {
-        "description": "Package the current module for distribution. This involves generating a `rollup.config.js` if one does not exist and then running the build command.",
+        "description": "Package the current module for distribution.",
         "tool": "Rollup/tsup",
         "rules": [
-          "Do not include test files (`*.test.ts`) or benchmark files (`*.bench.ts`) in the final bundle."
+          "Do not include test or benchmark files in the final bundle."
         ]
       },
       "9_ANALYZE_BUNDLE": {
-        "description": "Analyze the final bundle size and its dependencies using `pnpm analyze`. If the size or dependencies are not as expected, optimizations are required.",
+        "description": "Analyze the final bundle size and dependencies. Optimize if not as expected.",
         "command": "pnpm analyze",
-        "qualityGate": "Bundle size must align with `project.performanceTargets`. Dependency graph must be clean with no unexpected additions."
+        "qualityGate": "Bundle size must align with performance targets. No unexpected dependencies."
       },
       "10_UPDATE_CURRENT_STATE": {
-        "description": "Update the `currentState` object in this file to reflect the completion of the module and prepare for the next one."
+        "description": "Update the `currentState` object in this file to prepare for the next module."
       }
     }
   },
@@ -143,7 +154,7 @@
     ],
     "lazyLoading": {
       "components": "All components and routes MUST support code-splitting via dynamic import().",
-      "styles": "Compiler MUST output separate CSS files. Runtime MUST dynamically inject styles (via <link> or <style>) on first component mount, ensuring scoped isolation.",
+      "styles": "Compiler MUST output separate CSS files. Runtime MUST dynamically inject styles on first component mount.",
       "fetchStrategy": "Runtime MUST allow custom fetch logic, defaulting to native browser import() or fetch()."
     },
     "compilation": {
@@ -191,7 +202,7 @@
       "typeOnly": "import type { ... }"
     },
     "exports": {
-      "rule": "Group exports by source file in `index.ts`. List exports individually in `module.ts`."
+      "rule": "In a module's `index.ts`, group exports by source file. In `packages/module.ts`, create a dedicated block for each module and re-export all its public APIs with a clear comment indicating the source (e.g., `// from @ld/reactivity`)."
     }
   },
   "templates": {
@@ -211,12 +222,12 @@
   },
   "testing": {
     "strategy": "Intelligent Selective Testing",
-    "description": "Test runners (`test.mts`, `test-ai.mts`) dynamically select which packages to test based on their status in the main `generate-code-guidance.json` file.",
+    "description": "Test runners (`test.mts`, `test-ai.mts`) dynamically select packages to test based on `generate-code-guidance.json` status.",
     "logic": {
       "sourceOfTruth": "ai-generate-code-guidance/generate-code-guidance.json",
       "helperScript": "scripts/utils/get-active-packages.mts",
       "criteria": "Only packages with status 'completed' or 'active' are tested.",
-      "fallback": "If the guidance file is unreadable, all packages (`packages/*`) are tested as a fallback."
+      "fallback": "If guidance file is unreadable, all packages are tested."
     },
     "commands": {
       "ai_runner": "pnpm test:ai",
@@ -233,6 +244,7 @@
     "performance": "All code must be JIT-friendly with minimal GC overhead.",
     "dependencies": "Dependency graph must be a DAG (no circular dependencies).",
     "types": "`any` type is strictly forbidden.",
+    "typescriptValidation": "All TypeScript files (*.ts, *.mts), including source code, tests, and scripts, MUST have zero TypeScript errors.",
     "testing": "Every new feature or fix must be accompanied by a passing test."
   }
 }
