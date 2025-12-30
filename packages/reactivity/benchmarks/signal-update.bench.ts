@@ -8,6 +8,8 @@ export default (bench: Bench): void => {
   createEffect(() => count());
 
   bench.add('LD Signal Update', () => {
-    setCount(c => c + 1);
+    for (let i = 0; i < 1000; i++) {
+      setCount(c => c + 1);
+    }
   });
 };

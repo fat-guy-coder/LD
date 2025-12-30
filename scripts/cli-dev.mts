@@ -62,16 +62,16 @@ class CliDevManager {
       cwd: cliDir,
       stdio: 'inherit',
       shell: true,
-      env: { ...process.env, NODE_ENV: 'development', FORCE_COLOR: '1' }
+      env: { ...process.env, NODE_ENV: 'development', FORCE_COLOR: '1' },
     })
 
-    this.cliProcess.on('exit', (code) => {
+    this.cliProcess.on('exit', code => {
       if (code !== 0 && !this.restarting) {
         console.log(chalk.yellow(`CLI exited with code ${code}, waiting for changes...`))
       }
     })
 
-    this.cliProcess.on('error', (error) => {
+    this.cliProcess.on('error', error => {
       console.error(chalk.red('CLI process error:'), error)
     })
   }
@@ -81,7 +81,7 @@ class CliDevManager {
       join(cliDir, 'src/**/*.ts'),
       join(cliDir, 'src/**/*.js'),
       join(cliDir, 'templates/**/*'),
-      join(cliDir, '*.json')
+      join(cliDir, '*.json'),
     ]
 
     this.watcher = chokidar.watch(watchPaths, {
@@ -90,12 +90,12 @@ class CliDevManager {
       ignoreInitial: true,
       awaitWriteFinish: {
         stabilityThreshold: 200,
-        pollInterval: 100
-      }
+        pollInterval: 100,
+      },
     })
 
     this.watcher
-      .on('change', async (path) => {
+      .on('change', async path => {
         const relativePath = relative(cliDir, path)
         console.log(chalk.gray(`📝 ${relativePath} changed`))
 
@@ -103,11 +103,11 @@ class CliDevManager {
           await this.restartCli()
         }
       })
-      .on('add', (path) => {
+      .on('add', path => {
         const relativePath = relative(cliDir, path)
         console.log(chalk.green(`➕ ${relativePath} added`))
       })
-      .on('unlink', (path) => {
+      .on('unlink', path => {
         const relativePath = relative(cliDir, path)
         console.log(chalk.red(`➖ ${relativePath} removed`))
       })
@@ -147,14 +147,14 @@ class CliDevManager {
       const process = spawn(cmd, {
         cwd,
         stdio: showOutput ? 'inherit' : 'pipe',
-        shell: true
+        shell: true,
       })
 
       let output = ''
-      process.stdout?.on('data', (data) => output += data.toString())
-      process.stderr?.on('data', (data) => output += data.toString())
+      process.stdout?.on('data', data => (output += data.toString()))
+      process.stderr?.on('data', data => (output += data.toString()))
 
-      process.on('exit', (code) => {
+      process.on('exit', code => {
         if (code === 0) {
           resolve()
         } else {
@@ -177,12 +177,12 @@ class CliDevManager {
       })
     })
 
-    process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', error => {
       console.error(chalk.red('❌ Uncaught exception:'), error)
       this.cleanup().finally(() => process.exit(1))
     })
 
-    process.on('unhandledRejection', (reason) => {
+    process.on('unhandledRejection', reason => {
       console.error(chalk.red('❌ Unhandled rejection:'), reason)
     })
   }

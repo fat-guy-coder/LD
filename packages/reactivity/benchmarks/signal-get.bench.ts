@@ -5,7 +5,8 @@ export default (bench: Bench) => {
   const [count] = createSignal(0);
 
   bench.add('LD Signal Get', () => {
-    count();
+    for (let i = 0; i < 1000; i++) {
+      count();
+    }
   });
 };
-

@@ -6,7 +6,8 @@ export default (bench: Bench) => {
   const double = createComputed(() => count() * 2);
 
   bench.add('LD Computed Get', () => {
-    double.value;
+    for (let i = 0; i < 1000; i++) {
+      double.value;
+    }
   });
 };
-

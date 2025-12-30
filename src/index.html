@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LD 开发面板</title>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- 左侧菜单 -->
+    <aside class="sidebar">
+      <h1 class="title">LD Dev Panel</h1>
+      <nav class="menu">
+        <a href="#" class="menu-item active" data-view="dev-console">开发控制台</a>
+        <a href="#" class="menu-item" data-view="data-stats">数据统计</a>
+      </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 视图：开发控制台 -->
+      <div id="view-dev-console" class="view active console-view-grid">
+        <div class="console-sidebar">
+          <h2>监听模块</h2>
+          <div class="module-item" id="allModules">
+            <input type="checkbox" id="allCheckbox">
+            <label for="allCheckbox">全部监听</label>
+          </div>
+          <div id="moduleList"></div>
+        </div>
+        <div class="console-main">
+          <div class="console-toolbar">
+            <div class="status-bar">
+              <div class="status-indicator"></div>
+              <span id="statusText">就绪</span>
+            </div>
+            <button id="clear-log-btn" class="console-button">Clear</button>
+          </div>
+          <div id="log-container" class="log-container"></div>
+        </div>
+      </div>
+
+      <!-- 视图：数据统计 -->
+      <div id="view-data-stats" class="view">
+        <div class="tabs">
+          <button class="tab-button active" data-tab="framework-comparison">框架对比</button>
+          <button class="tab-button" data-tab="bundle-size">模块包体积</button>
+          <button class="tab-button" data-tab="module-benchmarks">模块Benchmark</button>
+        </div>
+        <div class="tab-content">
+          <!-- Tab: 框架对比 -->
+          <div id="tab-framework-comparison" class="tab-pane active">
+            <h2>框架性能对比</h2>
+            <div class="chart-container" id="framework-chart"></div>
+            <div class="table-container" id="framework-table"></div>
+          </div>
+          <!-- Tab: 模块包体积 -->
+          <div id="tab-bundle-size" class="tab-pane">
+            <h2>模块包体积分析</h2>
+            <div class="chart-container" id="bundle-chart"></div>
+            <div class="table-container" id="bundle-table"></div>
+          </div>
+          <!-- Tab: 模块Benchmark -->
+          <div id="tab-module-benchmarks" class="tab-pane">
+            <div class="sub-tabs" id="benchmark-sub-tabs"></div>
+            <div id="benchmark-content"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <script type="module" src="main.ts"></script>
+</body>
+</html>

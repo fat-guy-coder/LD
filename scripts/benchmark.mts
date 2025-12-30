@@ -15,14 +15,18 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, '..');
 
 // --- Type Definitions and Guards ---
-type BenchmarkResult = TaskResult & {
-  hz: number;
+interface LatencyLike {
   mean: number;
   rme: number;
-};
+}
+interface ThroughputLike {
+  mean: number;
+}
 
-function isBenchmarkResult(result: TaskResult | undefined): result is BenchmarkResult {
-  return result != null && 'hz' in result;
+function hasResultData(
+  result: TaskResult | undefined
+): result is TaskResult & { latency: LatencyLike; throughput: ThroughputLike } {
+  return result != null && result.latency != null && result.throughput != null;
 }
 
 // --- CLI Argument Parsing ---
@@ -72,71 +76,59 @@ if (!benchFilePaths.length) {
   process.exit(0);
 }
 
-// --- Benchmark Loading ---
-const dynamicBenchFns: Array<(bench: Bench) => void> = [];
-for (const filePath of benchFilePaths) {
-  try {
-    const mod = await import(pathToFileURL(filePath).href);
-    const benchFn = mod.default ?? mod;
-    if (typeof benchFn === 'function') {
-      dynamicBenchFns.push(benchFn);
-    } else {
-      console.warn(
-        chalk.yellow(
-          `⚠️  Benchmark file ${filePath} does not export a default function. Skipped.`
-        )
-      );
-    }
-  } catch (e) {
-    console.error(chalk.red(`Failed to import ${filePath}`), e);
-  }
-}
-
-if (!dynamicBenchFns.length) {
-  console.error(chalk.red('❌ No valid benchmark functions were loaded.'));
-  process.exit(1);
-}
-
 // --- Benchmark Runner ---
 class BenchmarkRunner {
-  private bench = new Bench({ time: 500 });
-
   async run(): Promise<void> {
-    this.addTasks();
-    await this.bench.run();
-    this.printResults();
-  }
-
-  private addTasks(): void {
-    console.log(chalk.blue('Adding benchmark tasks...'));
-    for (const fn of dynamicBenchFns) {
+    for (const filePath of benchFilePaths) {
+      console.log(chalk.blue(`\n--- Running benchmark for: ${filePath.replace(rootDir, '')} ---`));
       try {
-        fn(this.bench);
-      } catch (err) {
-        console.error(chalk.red('Error while adding benchmark task:'), err);
+        const bench = new Bench({ time: 500 });
+        const mod = await import(pathToFileURL(filePath).href);
+        const benchFn = mod.default ?? mod;
+
+        if (typeof benchFn === 'function') {
+          benchFn(bench);
+          if (bench.tasks.length > 0) {
+            await bench.run();
+            this.printResults(bench);
+          } else {
+            console.warn(chalk.yellow(`⚠️  No tasks were added from ${filePath}. Skipped.`));
+          }
+        } else {
+          console.warn(
+            chalk.yellow(
+              `⚠️  Benchmark file ${filePath} does not export a default function. Skipped.`
+            )
+          );
+        }
+      } catch (e) {
+        console.error(chalk.red(`Failed to run benchmark for ${filePath}`), e);
       }
     }
-    console.log(chalk.blue(`Added ${dynamicBenchFns.length} benchmark suite(s) with a total of ${this.bench.tasks.length} tasks.`));
   }
 
-  private printResults(): void {
+  private printResults(bench: Bench): void {
     const table = new Table({
       head: [
         chalk.bold('Task Name'),
         chalk.bold('ops/sec'),
-        chalk.bold('Avg. Time (ms)'),
+        chalk.bold('Avg. Time (ns)'),
         chalk.bold('Margin of Error'),
       ],
       colWidths: [30, 20, 20, 20],
     });
 
-    for (const task of this.bench.tasks) {
-      if (isBenchmarkResult(task.result)) {
+    for (const task of bench.tasks) {
+      if (hasResultData(task.result)) {
+        const opsPerSec = task.result.throughput.mean;
+        const avgTimeNs = task.result.latency.mean * 1_000_000; // Convert ms to ns
+        const marginOfError = task.result.latency.rme;
+
         table.push([
           task.name,
-          task.result.hz.toLocaleString('en-US', { maximumFractionDigits: 0 }),
-          (task.result.mean * 1000).toFixed(3),
-          `±${task.result.rme.toFixed(2)}%`,
+          opsPerSec.toLocaleString('en-US', { maximumFractionDigits: 0 }),
+          avgTimeNs.toFixed(3),
+          `±${marginOfError.toFixed(2)}%`,
         ]);
       }
     }
@@ -148,5 +140,4 @@ class BenchmarkRunner {
 // --- Execution ---
 await new BenchmarkRunner().run();
 
-// Force exit the process, as tinybench appears to keep handles open in this environment.
-process.exit(0);
+console.log(chalk.green('\n✅ All benchmarks completed successfully.'));

@@ -27,3 +27,6 @@ export {
   type ResolvedMatcherLocation,
   type RouterMatcher,
 } from './matcher';
+
+
+console.log('bbbb')

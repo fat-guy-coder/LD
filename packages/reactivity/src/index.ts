@@ -20,3 +20,4 @@ export { globalState, createInstanceStore } from './store';
 
 
 
+console.log('aaaa')

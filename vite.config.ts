@@ -4,26 +4,27 @@ import { fileURLToPath } from 'url'
 import { vitePluginDevConsole } from './scripts/vite-plugin-dev-console.mts'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const rootDir = __dirname
-const packagesDir = resolve(rootDir, 'packages')
+const projectRoot = __dirname
+const srcDir = resolve(projectRoot, 'src')
+const packagesDir = resolve(projectRoot, 'packages')
 
 /**
  * LD 框架开发服务器配置
  * @description 提供开发环境的热更新、路径别名和模块解析
  */
 export default defineConfig({
-  // 根目录设置为项目根目录，以便访问所有包
-  root: rootDir,
-  
+  // 1. 将 root 设置为 src 目录
+  root: srcDir,
+
   // 服务器配置
   server: {
     port: 3000,
     host: true,
-    open: true,
+    open: false, // 禁用自动打开
     cors: true,
     fs: {
-      // 允许访问项目根目录和所有包目录
-      allow: [rootDir, packagesDir],
+      // 2. 允许 Vite 服务器从 src 目录访问到项目根目录
+      allow: [projectRoot],
     },
   },
 
@@ -37,10 +38,9 @@ export default defineConfig({
       '@ld/compiler-sfc': resolve(packagesDir, 'compiler-sfc/src'),
       '@ld/router': resolve(packagesDir, 'router/src'),
       '@ld/ld': resolve(packagesDir, 'ld/src'),
-      '@ld/vite-plugin': resolve(packagesDir, 'vite-plugin/src'),
+      '@ld/vite-plugin': resolve(packagesDir, 'vite-plugin/src/'),
       '@ld/cli': resolve(packagesDir, 'cli/src'),
       '@ld/devtools': resolve(packagesDir, 'devtools/src'),
-      // 通用别名，匹配所有 @ld/* 模块
       '@ld': resolve(packagesDir),
     },
   },
@@ -48,7 +48,6 @@ export default defineConfig({
   // 依赖优化
   optimizeDeps: {
     include: ['@ld/reactivity', '@ld/router'],
-    exclude: [],
   },
 
   // 构建配置
@@ -65,8 +64,5 @@ export default defineConfig({
   },
 
   // 插件配置
-  plugins: [
-    vitePluginDevConsole(),
-  ],
+  plugins: [vitePluginDevConsole()],
 })
-

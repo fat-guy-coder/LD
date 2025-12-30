@@ -3,6 +3,8 @@ import { createSignal } from '../src';
 
 export default (bench: Bench) => {
   bench.add('LD Signal Creation', () => {
-    createSignal(0);
+    for (let i = 0; i < 1000; i++) {
+      createSignal(i);
+    }
   });
 };

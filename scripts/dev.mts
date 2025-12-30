@@ -49,32 +49,20 @@ class DevManager {
     const spinner = ora('Starting Vite development server...').start()
 
     try {
+      // Vite 会自动加载 vite.config.ts，我们不再覆盖任何配置
       this.viteServer = await createServer({
         configFile: join(rootDir, 'vite.config.ts'),
-        server: {
-          port: 3000,
-          host: true,
-          open: true,
-          cors: true,
-          fs: {
-            allow: ['..', rootDir]
-          }
-        },
-        optimizeDeps: {
-          include: ['@ld/reactivity', '@ld/router']
-        }
+        logLevel: 'info',
       })
 
       await this.viteServer.listen()
-      spinner.succeed(`Vite server running at ${chalk.cyan(`http://localhost:${this.viteServer.config.server.port}`)}`)
+
+      const port = this.viteServer.config.server.port || 3000;
+      spinner.succeed(`Vite server running at ${chalk.cyan(`http://localhost:${port}`)}`)
+      console.log(chalk.blue(`  ➜ Main Panel: http://localhost:${port}/`));
       
-      // 监听配置变化
-      this.viteServer.watcher.on('change', (path) => {
-        if (path.includes('vite.config')) {
-          console.log(chalk.yellow('🔄 Vite config changed, restarting...'))
-          this.restartDevServer()
-        }
-      })
+      // 关键：移除所有手动重启逻辑，完全依赖 Vite 的内置机制
+
     } catch (error) {
       spinner.fail('Failed to start Vite server')
       throw error
@@ -109,7 +97,6 @@ class DevManager {
       }
     }
 
-    // 监听文件变化，自动重启
     this.setupFileWatchers()
   }
 
@@ -132,11 +119,6 @@ class DevManager {
       .on('change', (path) => {
         const relativePath = path.replace(rootDir + '/', '')
         console.log(chalk.gray(`📝 ${relativePath} changed`))
-        
-        // 如果是重要文件，可以触发特定操作
-        if (path.includes('package.json')) {
-          console.log(chalk.yellow('🔄 Package.json changed, dependencies may need update'))
-        }
       })
       .on('add', (path) => {
         const relativePath = path.replace(rootDir + '/', '')
@@ -175,13 +157,6 @@ class DevManager {
     }
   }
 
-  private async restartDevServer(): Promise<void> {
-    if (this.viteServer) {
-      await this.viteServer.close()
-      await this.startDevServer()
-    }
-  }
-
   private isPackageExists(pkgDir: string): boolean {
     try {
       return existsSync(pkgDir) && existsSync(join(pkgDir, 'package.json'))
@@ -201,7 +176,6 @@ class DevManager {
       })
     })
 
-    // 处理未捕获的异常
     process.on('uncaughtException', (error) => {
       console.error(chalk.red('❌ Uncaught exception:'), error)
       this.cleanup().finally(() => process.exit(1))
@@ -215,13 +189,11 @@ class DevManager {
   private async cleanup(): Promise<void> {
     console.log(chalk.gray('\n🛑 Cleaning up...'))
 
-    // 关闭 Vite 服务器
     if (this.viteServer) {
       await this.viteServer.close()
       console.log(chalk.gray('  ✓ Vite server stopped'))
     }
 
-    // 停止所有监视器
     this.watchers.forEach((process, pkg) => {
       if (!process.killed) {
         process.kill('SIGTERM')
@@ -229,7 +201,6 @@ class DevManager {
       }
     })
 
-    // 关闭文件监视器
     this.fileWatchers.forEach(watcher => {
       watcher.close()
     })
@@ -238,6 +209,5 @@ class DevManager {
   }
 }
 
-// 启动开发环境
 const devManager = new DevManager()
 devManager.start()

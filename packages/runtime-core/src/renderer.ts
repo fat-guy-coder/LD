@@ -152,7 +152,14 @@ export function createRenderer(options: RendererOptions) {
         // This assumes the container is the element itself for text content.
         // In a real scenario, you'd handle text nodes differently.
         // We will mock `setText` to work with the element directly.
-        setText(container, c2);
+        // In a real implementation, we would find the actual text node.
+        // For this test case, we assume the element's first child is the text node.
+        const textNode = n1.textNode ?? (container as any).firstChild;
+        if (textNode) {
+          setText(textNode, c2);
+          // Ensure we keep reference for next patch
+          n2.textNode = textNode;
+        }
       }
     } else {
       // TODO: Handle array of children (more complex diffing)
@@ -173,7 +180,9 @@ export function createRenderer(options: RendererOptions) {
 
     // Children (only handles string for now)
     if (typeof children === 'string') {
-      insert(createText(children), el);
+      const textNode = createText(children);
+      vnode.textNode = textNode; // Save the text node reference
+      insert(textNode, el);
     }
     // TODO: Handle array of children
 
