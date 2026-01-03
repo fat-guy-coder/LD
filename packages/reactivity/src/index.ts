@@ -2,7 +2,7 @@
 export { createSignal } from './signal';
 
 // ===== types.ts =====
-export type { Signal, EqualityFn } from './types';
+export { type Signal, type EqualityFn } from './types';
 
 // ===== effect.ts =====
 export { createEffect, track, trigger, getActiveEffect, ReactiveEffect } from './effect';

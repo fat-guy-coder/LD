@@ -1,12 +1,33 @@
 {
-  "createdAt": "2026-01-02T22:31:00.978Z",
+  "createdAt": "2026-01-03T18:13:20.740Z",
   "results": [
     {
-      "file": "signal.mem.ts",
-      "scenario": "Create 10000 signals",
-      "heapUsedBytes": 5143512,
-      "count": 10000,
-      "bytesPerItem": 514.3512
+      "file": "packages\\reactivity\\memory\\signal.mem.ts",
+      "scenario": "Execution of packages\\reactivity\\memory\\signal.mem.ts",
+      "heapUsedBytes": 545332,
+      "count": 1000,
+      "bytesPerItem": 545.332
+    },
+    {
+      "file": "packages\\reactivity\\memory\\reactive.mem.ts",
+      "scenario": "Execution of packages\\reactivity\\memory\\reactive.mem.ts",
+      "heapUsedBytes": 1296248,
+      "count": 1000,
+      "bytesPerItem": 1296.248
+    },
+    {
+      "file": "packages\\reactivity\\memory\\effect.mem.ts",
+      "scenario": "Execution of packages\\reactivity\\memory\\effect.mem.ts",
+      "heapUsedBytes": 545332,
+      "count": 1000,
+      "bytesPerItem": 545.332
+    },
+    {
+      "file": "packages\\reactivity\\memory\\computed.mem.ts",
+      "scenario": "Execution of packages\\reactivity\\memory\\computed.mem.ts",
+      "heapUsedBytes": 459800,
+      "count": 1000,
+      "bytesPerItem": 459.8
     }
   ]
 }

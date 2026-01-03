@@ -1,151 +1,216 @@
 #!/usr/bin/env node
-/*
- * Browser-based memory usage runner for LD framework.
+/**
+ * @description Automated, browser-based memory usage runner for the LD framework.
+ * Discovers and runs all `*.mem.ts` files within the `packages` directory.
  */
 
-import { join, dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
-import { spawn, ChildProcess } from 'child_process';
-import { promises as fs } from 'fs';
-import puppeteer, { Browser, Page } from 'puppeteer';
-import chalk from 'chalk';
-import ora from 'ora';
-import Table from 'cli-table3';
+import { dirname, resolve, relative } from 'path'
+import { fileURLToPath } from 'url'
+import { promises as fs } from 'fs'
+import puppeteer, { type Browser, type Page } from 'puppeteer'
+import chalk from 'chalk'
+import ora from 'ora'
+import Table from 'cli-table3'
+import { createServer, type ViteDevServer } from 'vite'
+import { glob } from 'glob'
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = resolve(__dirname, '..');
-const appDir = resolve(rootDir, 'src');
-const PORT = 5174; // Use a different port than the main dev server
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const rootDir = resolve(__dirname, '..')
 
-interface MemoryUsage {
-  JSHeapUsedSize: number;
-}
-
-interface FrameworkData {
-  frameworks: {
-    [key: string]: {
-      memory_usage_mb: number;
-    };
-  };
+interface TestResult {
+  file: string
+  scenario: string
+  heapUsedBytes: number
+  bytesPerItem?: number
+  count?: number
 }
 
 class MemoryRunner {
-  private serverProcess: ChildProcess | null = null;
-  private browser: Browser | null = null;
-  private frameworksData: FrameworkData | null = null;
+  private viteServer: ViteDevServer | null = null
+  private browser: Browser | null = null
+  private testFiles: string[] = []
 
   async run(): Promise<void> {
-    console.log(chalk.cyan.bold('🧠 LD Memory Usage Analysis (Browser Mode)\n'));
+    console.log(chalk.cyan.bold('🧠 LD Memory Usage Analysis Runner\n'))
+    const spinner = ora('Initializing...').start()
 
-    const spinner = ora('Starting test environment...').start();
     try {
-      await this.loadFrameworksData();
-      this.serverProcess = this.startStaticServer();
-      this.browser = await puppeteer.launch();
-      const page = await this.browser.newPage();
+      spinner.text = 'Discovering memory test files...'
+      this.testFiles = await this.findTestFiles()
+      if (this.testFiles.length === 0) {
+        spinner.warn('No memory test files (`.mem.ts`) found in `packages`.')
+        return
+      }
+      spinner.succeed(`Found ${this.testFiles.length} test file(s).`)
 
-      spinner.text = 'Navigating to test page...';
-      await page.goto(`http://localhost:${PORT}`);
-      await page.waitForSelector('#view-data-stats');
+      spinner.text = 'Starting Vite dev server for test compilation...'
+      this.viteServer = await this.startViteServer()
+      const port = this.viteServer.config.server.port
+      spinner.succeed(`Vite server running on port ${port}.`)
 
-      spinner.text = 'Switching to memory tab...';
-      await page.click('a[data-view="data-stats"]');
-      await page.click('button[data-tab="module-memory"]');
-      await page.waitForSelector('#run-memory-test-btn');
+      spinner.text = 'Launching Puppeteer...'
+            this.browser = await puppeteer.launch({
+        executablePath:
+          'C:\\Users\\Administrator\\.cache\\puppeteer\\chrome-headless-shell\\win64-143.0.7499.169\\chrome-headless-shell-win64\\chrome-headless-shell.exe',
+        headless: true,
+      })
+      spinner.succeed('Puppeteer launched.')
 
-      spinner.text = 'Measuring baseline memory...';
-      const baselineMemory = await this.getMemoryUsage(page);
+      const results: TestResult[] = []
+      for (const file of this.testFiles) {
+        const testName = relative(rootDir, file)
+        spinner.start(`Running test: ${chalk.yellow(testName)}`)
+        const result = await this.runTest(file, port!)
+        results.push(result)
+        spinner.succeed(`Finished test: ${chalk.yellow(testName)}`)
+      }
 
-      spinner.text = 'Running test: Creating 1,000 rows...';
-      await page.evaluate(() => (window as any).runMemoryTest());
-      await page.waitForSelector('.memory-test-row:nth-child(1000)'); // Wait for render
-
-      spinner.text = 'Measuring final memory...';
-      const finalMemory = await this.getMemoryUsage(page);
-
-      const memoryIncreaseBytes = finalMemory.JSHeapUsedSize - baselineMemory.JSHeapUsedSize;
-      const memoryIncreaseMb = memoryIncreaseBytes / 1024 / 1024;
-
-      spinner.succeed('Memory measurement completed.');
-
-      this.printResults(memoryIncreaseMb);
-      await this.writeReport(memoryIncreaseMb);
-
-    } catch (error) { 
-      spinner.fail('An error occurred during the memory test.');
-      console.error(chalk.red(error));
-      process.exit(1);
+      this.printResults(results)
+      await this.writeReport(results)
+    } catch (error) {
+      spinner.fail('An error occurred during the memory test run.')
+      console.error(chalk.red(error))
+      process.exit(1)
     } finally {
-      spinner.text = 'Cleaning up...';
-      await this.browser?.close();
-      this.serverProcess?.kill();
-      spinner.stop();
+      spinner.start('Cleaning up...')
+      await this.browser?.close()
+      await this.viteServer?.close()
+      spinner.succeed('Cleanup complete.')
     }
   }
 
-  private startStaticServer(): ChildProcess {
-    const server = spawn('npx', ['sirv-cli', appDir, '--port', String(PORT), '--dev'], {
-      shell: true,
-      stdio: 'pipe',
-    });
-    server.on('error', (err) => {
-      console.error(chalk.red('Failed to start static server.'), err);
-      process.exit(1);
-    });
-    return server;
+  private findTestFiles(): Promise<string[]> {
+    return glob('packages/**/*.mem.ts', { cwd: rootDir, absolute: true })
   }
 
-  private async getMemoryUsage(page: Page): Promise<MemoryUsage> {
-    const metrics = await page.metrics();
-    return {
-      JSHeapUsedSize: metrics.JSHeapUsedSize,
-    };
+  private async startViteServer(): Promise<ViteDevServer> {
+    const server = await createServer({
+      root: rootDir, // Run vite from project root
+      server: { port: 9527, hmr: false },
+      logLevel: 'silent',
+      // Ensure vite can resolve our workspace aliases like '@ld/reactivity'
+      resolve: {
+        alias: {
+          '@ld/reactivity': resolve(rootDir, 'packages/reactivity/src'),
+        },
+      },
+    })
+    return server.listen()
   }
 
-  private async loadFrameworksData(): Promise<void> {
-    const dataPath = resolve(rootDir, 'statistics', 'frameworks-data.json');
+  private async runTest(filePath: string, port: number): Promise<TestResult> {
+    if (!this.browser) throw new Error('Browser not initialized.')
+    const page = await this.browser.newPage()
+
+
     try {
-      const content = await fs.readFile(dataPath, 'utf-8');
-      this.frameworksData = JSON.parse(content);
-    } catch (e) {
-      console.warn(chalk.yellow('⚠️ Could not load frameworks-data.json. Comparison will be skipped.'));
+      // Generate a temporary HTML file to run the script
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head><title>Memory Test</title></head>
+        <body>
+          <script type="module" src="/${relative(rootDir, filePath)}"></script>
+        </body>
+        </html>
+      `
+      // Intercept the request to serve our dynamic HTML
+      await page.setRequestInterception(true)
+      page.on('request', request => {
+        // Only intercept the main navigation request, let others (like the script) pass through to Vite.
+        if (request.url() === `http://localhost:${port}/`) {
+          void request.respond({ status: 200, contentType: 'text/html', body: htmlContent })
+        } else {
+          void request.continue()
+        }
+      })
+
+      await page.goto(`http://localhost:${port}`, { waitUntil: 'networkidle0' })
+
+      const baselineMemory = await this.getMemoryUsage(page)
+
+      // The .mem.ts file should have a `run` function, which we'll call after dynamic import
+      const modulePath = `/${relative(rootDir, filePath)}`
+      await page.evaluate(async path => {
+        const mod = await import(path)
+        if (mod.run && typeof mod.run === 'function') {
+          mod.run()
+        } else {
+          throw new Error(`Test file at ${path} does not have an exported 'run' function.`)
+        }
+      }, modulePath)
+
+      const finalMemory = await this.getMemoryUsage(page)
+      const heapUsedBytes = finalMemory.JSHeapUsedSize - baselineMemory.JSHeapUsedSize
+
+      // Extract scenario details from the test file if available
+      const retainedObjects = await page.evaluate(() => (window as any).__retainedObjects)
+      const count = Array.isArray(retainedObjects) ? retainedObjects.length : undefined
+
+      const result: TestResult = {
+        file: relative(rootDir, filePath),
+        scenario: `Execution of ${relative(rootDir, filePath)}`,
+        heapUsedBytes,
+      }
+
+      if (count !== undefined) {
+        result.count = count
+        result.bytesPerItem = heapUsedBytes / count
+      }
+
+      return result
+    } finally {
+      await page.close()
     }
   }
 
-  private printResults(memoryMb: number): void {
-    const table = new Table({
-      head: [chalk.bold('Metric'), chalk.bold('Result'), chalk.bold('Target'), chalk.bold('Status')],
-      colWidths: [30, 20, 20, 15],
-    });
-
-    const targetMb = this.frameworksData?.frameworks.solidjs.memory_usage_mb ?? 30;
-    const isSuccess = memoryMb <= targetMb;
-    const status = isSuccess ? chalk.green('PASS') : chalk.red('FAIL');
-
-    table.push([
-      'Memory Usage (1k rows)',
-      `${memoryMb.toFixed(2)} MB`,
-      `<= ${targetMb.toFixed(2)} MB (SolidJS)`,
-      status,
-    ]);
-
-    console.log('\n' + chalk.cyan('📈 LD Memory Usage Results:'));
-    console.log(table.toString());
+  private async getMemoryUsage(page: Page): Promise<{ JSHeapUsedSize: number }> {
+    const metrics = await page.metrics()
+    return {
+      JSHeapUsedSize: metrics.JSHeapUsedSize ?? 0,
+    }
   }
 
-  private async writeReport(memoryMb: number): Promise<void> {
+  private printResults(results: TestResult[]): void {
+    const table = new Table({
+      head: [
+        chalk.bold('File'),
+        chalk.bold('Heap Increase (Bytes)'),
+        chalk.bold('Items'),
+        chalk.bold('Bytes/Item'),
+      ],
+      colWidths: [50, 25, 15, 15],
+    })
+
+    results.forEach(r => {
+      table.push([
+        r.file,
+        r.heapUsedBytes.toLocaleString(),
+        r.count?.toLocaleString() ?? 'N/A',
+        r.bytesPerItem?.toFixed(2) ?? 'N/A',
+      ])
+    })
+
+    console.log('\n' + chalk.cyan('📈 Memory Test Results:') + '\n')
+    console.log(table.toString())
+  }
+
+  private async writeReport(results: TestResult[]): Promise<void> {
     const report = {
       createdAt: new Date().toISOString(),
-      results: {
-        scenario: 'Create 1,000 rows in browser',
-        memoryUsageMb: memoryMb,
-      },
-    };
-    const reportPath = resolve(rootDir, 'statistics', 'memory-analysis.json');
-    await fs.mkdir(dirname(reportPath), { recursive: true });
-    await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
-    console.log(chalk.green(`\n📄 Memory analysis report saved to: ${reportPath}`));
+      results: results.map(r => ({
+        file: r.file,
+        scenario: r.scenario,
+        heapUsedBytes: r.heapUsedBytes,
+        count: r.count,
+        bytesPerItem: r.bytesPerItem,
+      })),
+    }
+    const reportPath = resolve(rootDir, 'statistics', 'memory-analysis.json')
+    await fs.mkdir(dirname(reportPath), { recursive: true })
+    await fs.writeFile(reportPath, JSON.stringify(report, null, 2))
+    console.log(chalk.green(`\n📄 Memory analysis report saved to: ${reportPath}`))
   }
 }
 
-new MemoryRunner().run();
+void new MemoryRunner().run()

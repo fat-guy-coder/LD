@@ -58,6 +58,32 @@
             <h2>框架性能对比</h2>
             <div class="chart-container" id="framework-chart"></div>
             <div class="table-container" id="framework-table"></div>
+
+            <div class="metrics-definitions">
+              <h3>指标说明</h3>
+              <dl>
+                <dt>包体积 (KB)</dt>
+                <dd>框架核心包的 Gzip 压缩后大小。</dd>
+                <dt>速度评分</dt>
+                <dd>基于 Keyed 算法 benchmark 的综合速度评分 (1-5分，5分最快)。</dd>
+                <dt>内存 (MB)</dt>
+                <dd>创建1000行数据后，浏览器占用的堆内存大小。</dd>
+                <dt>FCP (ms)</dt>
+                <dd>First Contentful Paint (首次内容绘制): 浏览器渲染出第一个 DOM 元素所需的时间 (越低越好)。</dd>
+                <dt>LCP (ms)</dt>
+                <dd>Largest Contentful Paint (最大内容绘制): 视口中最大可见内容元素渲染完成所需的时间 (越低越好)。</dd>
+                <dt>INP (ms)</dt>
+                <dd>Interaction to Next Paint (下次绘制交互):衡量用户交互（如点击）到屏幕上出现视觉反馈的总时长，是核心的响应性指标 (越低越好)。</dd>
+                <dt>Signal Create (ops/s)</dt>
+                <dd>每秒可创建的响应式信号数量 (越高越好)。</dd>
+                <dt>Signal Update (ops/s)</dt>
+                <dd>每秒可更新的响应式信号数量 (越高越好)。</dd>
+                <dt>TBT (ms)</dt>
+                <dd>Total Blocking Time (总阻塞时间): 主线程被长任务阻塞的总时间，影响页面响应性 (越低越好)。</dd>
+                <dt>Hydration (ms)</dt>
+                <dd>将服务器端渲染的静态HTML转化为可交互应用所需的时间 (越低越好)。</dd>
+              </dl>
+            </div>
           </div>
           <!-- Tab: 模块包体积 -->
           <div id="tab-bundle-size" class="tab-pane">
@@ -86,7 +112,6 @@
     </main>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
   <script type="module" src="main.ts"></script>
 </body>
 

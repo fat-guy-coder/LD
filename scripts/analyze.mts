@@ -39,10 +39,10 @@ class BundleAnalyzer {
 
     const args = process.argv.slice(2);
     const filterIndex = args.indexOf('--filter');
-    const packageNames = filterIndex !== -1 && args[filterIndex + 1] ? [args[filterIndex + 1].replace('@ld/', '')] : await this.getAllPackageNames();
+    const packageNames = filterIndex !== -1 && args[filterIndex + 1] ? [args[filterIndex + 1]!.replace('@ld/', '')] : await this.getAllPackageNames();
 
     const jsonOutputIndex = args.indexOf('--json');
-    const jsonOutputPath = jsonOutputIndex !== -1 && args[jsonOutputIndex + 1] ? resolve(rootDir, args[jsonOutputIndex + 1]) : null;
+    const jsonOutputPath = jsonOutputIndex !== -1 && args[jsonOutputIndex + 1] ? resolve(rootDir, args[jsonOutputIndex + 1]!) : null;
 
     try {
       await Promise.all(packageNames.map(pkgName => this.analyzePackage(pkgName)));

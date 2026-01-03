@@ -2,6 +2,8 @@ import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { vitePluginDevConsole } from './scripts/vite-plugin-dev-console.mts'
+import fs from 'fs'
+import path from 'path'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = __dirname
@@ -64,5 +66,25 @@ export default defineConfig({
   },
 
   // 插件配置
-  plugins: [vitePluginDevConsole()],
+  plugins: [
+    vitePluginDevConsole(),
+    {
+      name: 'serve-statistics-json',
+      configureServer(server) {
+        server.middlewares.use('/statistics', (req, res, next) => {
+          if (!req.url) {
+            return next();
+          }
+          const filePath = path.join(projectRoot, 'statistics', req.url);
+
+          if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            fs.createReadStream(filePath).pipe(res);
+          } else {
+            next();
+          }
+        });
+      },
+    },
+  ],
 })

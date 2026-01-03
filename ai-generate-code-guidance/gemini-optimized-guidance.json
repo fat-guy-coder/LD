@@ -163,7 +163,9 @@
       "fullVue3AndReactCompatibility",
       "absoluteTypeSafety",
       "extremePerformance",
-      "minimalFinalAppBundleSize"
+      "minimalFinalAppBundleSize",
+      "minimalAotMemoryFootprint",
+      "typeFileIsolationForCircularDependencies"
     ],
     "lazyLoading": {
       "components": "All components and routes MUST support code-splitting via dynamic import().",
