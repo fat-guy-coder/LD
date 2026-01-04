@@ -1,16 +1,10 @@
 {
-  "success": false,
+  "success": true,
   "totalTests": 15,
-  "passedTests": 14,
-  "failedTests": 1,
-  "duration": 1841,
-  "failures": [
-    {
-      "name": "测试套件失败: C:/Users/Administrator/Desktop/LD/packages/compiler-ld/test/script-compiler.test.ts",
-      "error": "未知套件错误",
-      "file": "C:/Users/Administrator/Desktop/LD/packages/compiler-ld/test/script-compiler.test.ts"
-    }
-  ],
-  "summary": "1 个测试失败",
-  "timestamp": "2026-01-04T16:37:20.129Z"
+  "passedTests": 15,
+  "failedTests": 0,
+  "duration": 1907,
+  "failures": [],
+  "summary": "所有测试通过 (15/15)",
+  "timestamp": "2026-01-04T16:39:40.426Z"
 }

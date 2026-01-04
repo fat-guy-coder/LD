@@ -18,6 +18,7 @@ export function compileScript(
       .map(m => m.name)
   );
 
+  // First pass: transform macros.
   traverse(scriptAst, {
     LabeledStatement(path: NodePath<t.LabeledStatement>) {
       const macro = macros.find(
@@ -34,7 +35,6 @@ export function compileScript(
         } else {
           path.replaceWith(computedTemplate({ NAME: t.identifier(macro.name), VALUE: macro.value }));
         }
-        path.skip(); // Prevent re-visiting the newly created node
       }
     },
     ExpressionStatement(path: NodePath<t.ExpressionStatement>) {
@@ -45,42 +45,46 @@ export function compileScript(
         );
         if (effectMacro) {
           path.replaceWith(effectTemplate({ EFFECT_FN: effectMacro.effectFn, DEPS: effectMacro.deps ?? t.arrayExpression([]) }));
-          path.skip();
         }
       }
     },
   });
 
+  // Second pass: handle signal unwrapping with scope analysis.
   traverse(scriptAst, {
     Identifier(path: NodePath<t.Identifier>) {
       const name = path.node.name;
       if (!reactiveVarNames.has(name)) return;
 
-      const parent = path.parent;
-      if (t.isCallExpression(parent) && parent.callee === path.node) {
-        return; // This is already a call, so it's a read. Do nothing.
+      // Check if this identifier is shadowed by a local binding (e.g., a function parameter).
+      const binding = path.scope.getBinding(name);
+      const topLevelBinding = path.scope.getProgramParent().getBinding(name);
+      if (binding !== topLevelBinding) {
+        return;
       }
-      if (t.isMemberExpression(parent) && parent.property === path.node) {
-        return; // This is a property access, not a variable read.
-      }
-      if (t.isObjectProperty(parent) && parent.key === path.node) {
-        return; // This is an object key.
-      }
-      if (t.isFunctionDeclaration(parent) && parent.id === path.node) {
-        return; // This is a function declaration name.
-      }
-      if (t.isVariableDeclarator(parent) && parent.id === path.node) {
-        return; // This is a variable declaration.
-      }
-      if (t.isAssignmentExpression(parent) && parent.left === path.node) {
-        return; // This is a write operation, handled by AssignmentExpression visitor.
+
+      // Check context to avoid transforming declarations, keys, or function calls.
+      const { parentPath } = path;
+      if (
+        (parentPath.isVariableDeclarator() && path.key === 'id') ||
+        (parentPath.isFunction() && parentPath.node.params.includes(path.node)) ||
+        (parentPath.isObjectProperty() && path.key === 'key') ||
+        (parentPath.isMemberExpression() && path.key === 'property') ||
+        (parentPath.isCallExpression() && path.key === 'callee') ||
+        (parentPath.isAssignmentExpression() && path.key === 'left')
+      ) {
+        return;
       }
 
       path.replaceWith(t.callExpression(path.node, []));
     },
     AssignmentExpression(path: NodePath<t.AssignmentExpression>) {
       if (t.isIdentifier(path.node.left) && reactiveVarNames.has(path.node.left.name)) {
-        path.replaceWith(t.callExpression(path.node.left, [path.node.right]));
+        const binding = path.scope.getBinding(path.node.left.name);
+        const topLevelBinding = path.scope.getProgramParent().getBinding(path.node.left.name);
+        if (binding === topLevelBinding) {
+          path.replaceWith(t.callExpression(path.node.left, [path.node.right]));
+        }
       }
     },
   });
