@@ -106,7 +106,8 @@
         ],
         "rules": [
           "`packages/module.ts` MUST fully re-export all public APIs from every module's `index.ts`.",
-          "Every export block in `packages/module.ts` MUST have a JSDoc comment indicating its source module (e.g., `// from @ld/reactivity`)."
+          "Every export block in `packages/module.ts` MUST have a JSDoc comment indicating its source module (e.g., `// from @ld/reactivity`).",
+          "Any changes to a module's exported variables or functions MUST be immediately synchronized with the module's `index.ts` and subsequently with the main `packages/module.ts`, including any necessary updates to JSDoc comments."
         ]
       },
       "5_GENERATE_OR_UPDATE_TESTS": {
@@ -139,7 +140,8 @@
         },
         "qualityGate": "Performance and memory usage must meet targets and be competitive with data in `statistics/frameworks-data.json`.",
         "rules": [
-          "If API changes are made during optimization, corresponding unit tests MUST be updated before re-running `6_EXECUTE_TESTS` to ensure correctness."
+          "If API changes are made during optimization, corresponding unit tests MUST be updated before re-running `6_EXECUTE_TESTS` to ensure correctness.",
+          "Any refactoring of a core API (e.g., in @ld/reactivity) for performance or other reasons MUST trigger a review and update of ALL dependent files, including unit tests, benchmark tests, and memory tests across ALL modules."
         ]
       },
       "8_BUILD_MODULE": {
@@ -199,8 +201,20 @@
   },
   "modules": {
     "generationOrder": [
-      "reactivity", "runtime-core", "runtime-dom", "runtime-jsx", "react", "vue", 
-      "compiler-core", "compiler-sfc", "router", "ld", "vite-plugin", "cli", "devtools", "babel-plugin-ld"
+      "reactivity",
+      "runtime-core",
+      "runtime-dom",
+      "runtime-jsx",
+      "react",
+      "vue",
+      "compiler-core",
+      "compiler-sfc",
+      "router",
+      "ld",
+      "vite-plugin",
+      "cli",
+      "devtools",
+      "babel-plugin-ld"
     ]
   },
   "codeStyle": {
@@ -221,7 +235,14 @@
   "templates": {
     "jsdoc": {
       "function": {
-        "required": ["@description", "@param", "@returns", "@example", "@performance", "@since"],
+        "required": [
+          "@description",
+          "@param",
+          "@returns",
+          "@example",
+          "@performance",
+          "@since"
+        ],
         "example": "/**\n * @description ...\n * @param ...\n * @returns ...\n * @example ...\n * @performance ...\n * @since v0.1.0\n */"
       }
     }

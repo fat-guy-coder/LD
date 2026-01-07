@@ -7,9 +7,12 @@
   },
   "references": [
     {
-      "path": "../runtime-core"
+      "path": "../../packages/runtime-core"
+    },
+    {
+      "path": "../../packages/reactivity"
     }
   ],
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "test", "benchmarks"]
+  "include": ["src", "test", "benchmarks"],
+  "exclude": ["node_modules", "dist"]
 }

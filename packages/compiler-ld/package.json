@@ -1,24 +1,17 @@
 {
   "name": "@ld/compiler-ld",
   "version": "0.1.0",
-  "description": "Compiler for .ld single-file components",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "private": true,
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "type-check": "tsc --noEmit"
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
-    "@ld/compiler-core": "workspace:*"
-  },
-  "devDependencies": {},
-  "license": "MIT"
+    "@vue/compiler-sfc": "^3.4.21"
+  }
 }
-

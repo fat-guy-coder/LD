@@ -1,5 +1,4 @@
-// Re-export reactivity APIs for convenience
-export * from '@ld/reactivity';
+
 
 // ===== component/index.ts =====
 export {

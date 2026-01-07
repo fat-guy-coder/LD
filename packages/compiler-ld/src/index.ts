@@ -1,24 +1,25 @@
-// LD Single-File Component Compiler
+import { parse as sfcParse, SFCDescriptor } from '@vue/compiler-sfc'
 
-import { parse as parseSFC } from './parse';
-import { parseScript } from './script-parser';
+/**
+ * @description Parses an `.ld` file's source code into a descriptor object.
+ * This is the first step in the compilation process.
+ * @param source - The source code of the `.ld` file.
+ * @param id - A unique identifier for the file, used for scoping styles.
+ * @returns An SFCDescriptor object containing the parsed blocks (template, script, styles).
+ */
+export function parse(source: string, id: string = 'anonymous'): SFCDescriptor {
+  const { descriptor, errors } = sfcParse(source, {
+    sourceMap: false, // We can enable this later if needed
+    filename: `${id}.ld`,
+  })
 
-export { parseSFC as parse };
-
-export function compile(source: string) {
-  console.log('Compiling .ld file...');
-  const descriptor = parseSFC(source);
-
-  if (descriptor.script) {
-    const { macros, ast } = parseScript(descriptor.script.content);
-    console.log('Found macros:', macros);
-    // TODO: Implement script compilation based on macros and AST
+  if (errors.length) {
+    // In a real compiler, we'd have more robust error handling
+    throw new Error(`[LD Compiler] Failed to parse ${id}.ld:\n` + errors.join('\n'))
   }
 
-  // ... more logic to come
+  // We need to manually set `id` for scoped styles to work correctly later
+  descriptor.id = id
 
-  return {
-    code: `console.log('Compiled code from .ld file');`,
-  };
+  return descriptor
 }
-

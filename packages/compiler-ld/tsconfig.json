@@ -5,20 +5,6 @@
     "outDir": "./dist",
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "references": [
-    {
-      "path": "../compiler-core"
-    }
-  ],
-  "include": [
-    "src",
-    "src/types.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test",
-    "benchmarks"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "test"]
 }
-

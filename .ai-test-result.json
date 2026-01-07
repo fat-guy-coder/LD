@@ -1,10 +1,16 @@
 {
-  "success": true,
-  "totalTests": 15,
-  "passedTests": 15,
-  "failedTests": 0,
-  "duration": 1907,
-  "failures": [],
-  "summary": "所有测试通过 (15/15)",
-  "timestamp": "2026-01-04T16:39:40.426Z"
+  "success": false,
+  "totalTests": 3,
+  "passedTests": 2,
+  "failedTests": 1,
+  "duration": 1498,
+  "failures": [
+    {
+      "name": "测试套件失败: C:/Users/Administrator/Desktop/LD/packages/compiler-ld/test/parser.test.ts",
+      "error": "未知套件错误",
+      "file": "C:/Users/Administrator/Desktop/LD/packages/compiler-ld/test/parser.test.ts"
+    }
+  ],
+  "summary": "1 个测试失败",
+  "timestamp": "2026-01-07T15:39:59.815Z"
 }
