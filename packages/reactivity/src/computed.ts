@@ -1,4 +1,5 @@
 import { ReactiveEffect, track, trigger } from './effect';
+import { globalState } from './store';
 import type { SignalNode } from './store';
 import type { EqualityFn } from './types';
 
@@ -8,35 +9,28 @@ import type { EqualityFn } from './types';
  * @internal
  */
 class ComputedImpl<T> {
-  private _value!: T;
-  private _dirty = true;
   public readonly effect: ReactiveEffect<T>;
-  private readonly node: SignalNode<void> = { value: undefined, observers: null, next: null };
+  private readonly node: SignalNode<void> = { value: undefined, observers: null, next: null, version: 0 };
+  private _value!: T;
 
   constructor(getter: () => T, private readonly equals: EqualityFn<T> | false) {
     this.effect = new ReactiveEffect(getter, () => {
-      // 当依赖项发生变化时，将计算属性标记为“脏”
-      if (!this._dirty) {
-        this._dirty = true;
-        trigger(this.node);
-      }
+      // 依赖项变化，直接触发依赖于此 computed 的 effect
+      trigger(this.node);
     });
   }
 
   /**
    * @description 获取计算属性的值。
-   * 如果是“脏”的，则重新计算；否则返回缓存的值。
+   * effect.run() 内部的版本检查会自动处理是否需要重新计算。
    */
   get value(): T {
-    // 收集依赖于此计算属性的effect
     track(this.node);
-
-    if (this._dirty) {
-      this._dirty = false;
-      const newValue = this.effect.run();
-      if (this.equals === false ? true : !this.equals(this._value, newValue)) {
+    const newValue = this.effect.run();
+    // 仅在值实际改变时才更新并递增版本号
+    if (this.node.version === 0 || (this.equals === false ? true : !this.equals(this._value, newValue))) {
         this._value = newValue;
-      }
+        this.node.version = ++globalState.signalVersion;
     }
     return this._value;
   }
@@ -49,7 +43,7 @@ class ComputedImpl<T> {
  * @param equals - 可选的自定义相等函数，用于确定值是否已更改。默认为Object.is。
  * @returns 一个包含 `value` 属性的对象，该属性为只读的计算结果。
  * @example
- * const [count, setCount] = createSignal(1);
+ * const count = createSignal(1);
  * const double = createComputed(() => count() * 2);
  * console.log(double.value); // 2
  * setCount(2);
@@ -60,4 +54,3 @@ class ComputedImpl<T> {
 export function createComputed<T>(getter: () => T, equals: EqualityFn<T> | false = Object.is): { readonly value: T } {
   return new ComputedImpl(getter, equals);
 }
-

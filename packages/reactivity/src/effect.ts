@@ -11,6 +11,8 @@ export class ReactiveEffect<T = any> {
   public id: number;
   next: ReactiveEffect | null = null;
   deps: Set<SignalNode> = new Set();
+  depVersions: Map<SignalNode, number> = new Map();
+  private _value: T | undefined;
   public isStatic: boolean;
 
   constructor(
@@ -22,31 +24,45 @@ export class ReactiveEffect<T = any> {
     this.isStatic = isStatic;
   }
 
+  private isDirty(): boolean {
+    if (this.deps.size === 0) return true;
+    for (const dep of this.deps) {
+      if (dep.version !== this.depVersions.get(dep)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   run(): T {
-    // 为静态 effect 提供零开销的“快速通道”
     if (this.isStatic) {
       return this.fn();
     }
 
-    // 动态 effect 的标准路径
     if (!globalState.effectStack.includes(this)) {
+      if (!this.isDirty()) {
+        return this._value as T;
+      }
+
       try {
         cleanupEffect(this);
         globalState.effectStack.push(this);
-        return this.fn();
+        this._value = this.fn();
+        return this._value;
       } finally {
         globalState.effectStack.pop();
       }
     }
-    return undefined as any;
+    // This path should not be taken in normal execution, but tsc needs a return path.
+    return this._value as T;
   }
 
-  stop() {
+  stop(): void {
     cleanupEffect(this);
   }
 }
 
-function cleanupEffect(effect: ReactiveEffect) {
+function cleanupEffect(effect: ReactiveEffect): void {
   for (const dep of effect.deps) {
     let current = dep.observers;
     let prev: ReactiveEffect | null = null;
@@ -70,7 +86,7 @@ export function getActiveEffect(): ReactiveEffect | undefined {
   return globalState.effectStack[globalState.effectStack.length - 1];
 }
 
-export function track(node: SignalNode) {
+export function track(node: SignalNode): void {
   const effect = getActiveEffect();
   if (effect) {
     if (!effect.deps.has(node)) {
@@ -78,10 +94,12 @@ export function track(node: SignalNode) {
       node.observers = effect;
       effect.deps.add(node);
     }
+    // 记录版本号
+    effect.depVersions.set(node, node.version);
   }
 }
 
-export function trigger(node: SignalNode) {
+export function trigger(node: SignalNode): void {
   let effect = node.observers;
   while (effect) {
     if (effect.scheduler) {
@@ -98,8 +116,6 @@ export function createEffect(fn: () => void, options?: EffectOptions): ReactiveE
   const isStatic = options?.dynamic === false;
   const effect = new ReactiveEffect(fn, scheduler, isStatic);
   
-  // 首次运行必须通过标准路径以收集依赖
-  // 因此我们临时禁用 isStatic 标志
   const originalIsStatic = effect.isStatic;
   effect.isStatic = false;
   effect.run();

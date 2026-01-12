@@ -21,19 +21,26 @@ import { globalState } from './store';
  * @since v0.1.0
  */
 export function createReactive<T extends object>(obj: T): T {
-  // 如果对象不是一个普通对象或已经是响应式的，则直接返回
-  if (typeof obj !== 'object' || obj === null || globalState.reactiveMap.has(obj)) {
-    return globalState.reactiveMap.get(obj) || obj;
+  const existingProxy = globalState.reactiveMap.get(obj);
+  if (existingProxy) {
+    return existingProxy as T;
   }
 
-  const signals = new Map<PropertyKey, Signal<any>>();
+  if (typeof obj !== 'object' || obj === null) {
+    return obj;
+  }
+
+  const signals = new Map<PropertyKey, Signal<unknown>>();
 
   const proxy = new Proxy(obj, {
     get(target, key, receiver) {
       let signal = signals.get(key);
       if (!signal) {
-        const value = Reflect.get(target, key, receiver);
-        const initialValue = typeof value === 'object' && value !== null ? createReactive(value) : value;
+        const value = Reflect.get(target, key, receiver) as unknown;
+        const initialValue =
+          typeof value === 'object' && value !== null
+            ? createReactive(value)
+            : value;
         signal = createSignal(initialValue);
         signals.set(key, signal);
       }
@@ -41,12 +48,15 @@ export function createReactive<T extends object>(obj: T): T {
     },
     set(target, key, value, receiver) {
       let signal = signals.get(key);
+      const reactiveValue =
+        typeof value === 'object' && value !== null
+          ? createReactive(value as object)
+          : value;
+
       if (!signal) {
-        const initialValue = typeof value === 'object' && value !== null ? createReactive(value) : value;
-        signal = createSignal(initialValue);
+        signal = createSignal(reactiveValue);
         signals.set(key, signal);
       } else {
-        const reactiveValue = typeof value === 'object' && value !== null ? createReactive(value) : value;
         signal.set(reactiveValue);
       }
       return Reflect.set(target, key, value, receiver);

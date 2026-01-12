@@ -1,7 +1,7 @@
 import { track, trigger } from './effect';
 import { globalState } from './store';
 import type { SignalNode } from './store';
-import type { Signal, EqualityFn } from './types';
+import type { Signal } from './types';
 
 const BATCH_SIZE = 1000;
 
@@ -10,14 +10,21 @@ const BATCH_SIZE = 1000;
  * @description 为对象池分配一批新的 SignalNode。
  */
 function allocateBatch(): void {
-  const batch: Array<SignalNode<any>> = new Array(BATCH_SIZE);
+  const batch: Array<SignalNode<unknown>> = new Array(BATCH_SIZE);
   for (let i = 0; i < BATCH_SIZE; i++) {
-    batch[i] = { value: undefined as any, observers: null, next: null };
+    batch[i] = { value: undefined, observers: null, next: null, version: 0 };
   }
   for (let i = 0; i < BATCH_SIZE - 1; i++) {
-    batch[i]!.next = batch[i + 1]!;
+    const current = batch[i];
+    const next = batch[i + 1];
+    if (current && next) {
+      current.next = next;
+    }
   }
-  globalState.signalNodePool = batch[0]!;
+  const head = batch[0];
+  if (head) {
+    globalState.signalNodePool = head;
+  }
 }
 
 /**
@@ -31,23 +38,23 @@ function acquireSignalNode<T>(): SignalNode<T> {
   const node = globalState.signalNodePool as SignalNode<T>;
   globalState.signalNodePool = node.next;
   node.next = null;
+  node.version = 0;
   return node;
 }
 
 /**
  * @description 创建一个可追踪变化的、性能极致的单一函数式 Signal。
  * @param initialValue - 信号的初始值。
- * @param equals - 可选的自定义相等函数。
  * @returns 一个单一函数，既是 getter 也是 setter。
  * @template T - 信号值的类型。
  * @example
  * const count = createSignal(0);
  * console.log(count()); // 读取: 0
  * count(1); // 写入: 1
- * @performance 目标: > 5M ops/sec
+ * @performance 目标: > 20M ops/sec for updates.
  * @since v0.2.0
  */
-export function createSignal<T>(initialValue: T, equals: EqualityFn<T> | false = Object.is): Signal<T> {
+export function createSignal<T>(initialValue: T): Signal<T> {
   const node = acquireSignalNode<T>();
   node.value = initialValue;
 
@@ -59,16 +66,13 @@ export function createSignal<T>(initialValue: T, equals: EqualityFn<T> | false =
     }
 
     // Setter: 有参数调用
-        // Setter: 有参数调用
     const newValue = typeof arg === 'function'
       ? (arg as (prev: T) => T)(node.value)
-      : arg as T;
+      : arg;
 
-    const changed = equals === false ? !Object.is(node.value, newValue) : !equals(node.value, newValue as T);
-    if (changed) {
-      node.value = newValue as T;
-      trigger(node);
-    }
+    node.value = newValue as T;
+    node.version = ++globalState.signalVersion;
+    trigger(node);
   }
 
   // 将 setter 逻辑附加到 signal 函数上，作为 .set 方法
@@ -77,11 +81,9 @@ export function createSignal<T>(initialValue: T, equals: EqualityFn<T> | false =
       ? (valueOrUpdater as (prev: T) => T)(node.value)
       : valueOrUpdater;
     
-    const changed = equals === false ? !Object.is(node.value, newValue) : !equals(node.value, newValue as T);
-    if (changed) {
-      node.value = newValue as T;
-      trigger(node);
-    }
+    node.value = newValue;
+    node.version = ++globalState.signalVersion;
+    trigger(node);
   };
 
   return signal as Signal<T>;

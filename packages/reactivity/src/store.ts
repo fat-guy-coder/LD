@@ -10,13 +10,15 @@ import type { ReactiveEffect } from './effect';
  * @remarks
  * 我们使用单向链表来管理观察者（ReactiveEffect），避免 Map/Set 带来的额外开销。
  */
-export interface SignalNode<T = any> {
+export interface SignalNode<T = unknown> {
   /** 当前信号的值 */
   value: T;
   /** 观察该信号的 effect 链表头 */
   observers: ReactiveEffect | null;
   /** 对象池中指向下一个空闲节点的指针 */
   next: SignalNode<T> | null;
+  /** 版本号，用于实现极速的 setter */
+  version: number;
 }
 
 // ==================================================================================================
@@ -37,7 +39,7 @@ export const globalState = {
   queue: new Set<ReactiveEffect>(),
 
   /** 缓存已创建的响应式代理，确保同一个对象只代理一次 */
-  reactiveMap: new WeakMap<object, any>(),
+  reactiveMap: new WeakMap<object, unknown>(),
 
   /** 调度器是否正在刷新队列的标志，防止重入 */
   isFlushing: false,
@@ -65,6 +67,9 @@ export const globalState = {
 
   /** 为 ComponentInstance 分配唯一 ID 的计数器 */
   componentUidCounter: 0,
+
+  /** 全局信号版本计数器 */
+  signalVersion: 0,
 };
 
 // ==================================================================================================
@@ -76,9 +81,9 @@ export const globalState = {
  * @internal
  * @returns 一个隔离的实例状态容器。
  */
-export function createInstanceStore() {
+export function createInstanceStore(): { scope: Map<string, unknown> } {
   return {
     /** 存储实例私有状态的 Map */
-    scope: new Map<string, any>(),
+    scope: new Map<string, unknown>(),
   };
 }

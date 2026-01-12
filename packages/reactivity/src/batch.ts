@@ -1,6 +1,9 @@
 import type { ReactiveEffect } from './effect';
 import { globalState } from './store';
 
+// 重用数组以减少 flushJobs 过程中的临时分配
+const pendingEffects: ReactiveEffect[] = [];
+
 /**
  * @description 将一个 effect 加入队列，并安排一个微任务来刷新队列。
  * @param effect - 要加入队列的 ReactiveEffect 实例。
@@ -20,7 +23,7 @@ export function queueJob(effect: ReactiveEffect): void {
 function scheduleFlush(): void {
   if (!globalState.isFlushing && !globalState.isBatching) {
     globalState.isFlushPending = true;
-    Promise.resolve().then(flushJobs);
+    void Promise.resolve().then(flushJobs);
   }
 }
 
@@ -41,11 +44,15 @@ function flushJobs(): void {
       if (++safeguard > 10000) {
         throw new Error('[LD] flushJobs exceeded max rounds (10000), possible infinite loop');
       }
-      const effects = Array.from(globalState.queue);
+      // 优化：将 effect 移至可重用数组，避免 Array.from 的开销
+      globalState.queue.forEach(effect => pendingEffects.push(effect));
       globalState.queue.clear();
-      for (const effect of effects) {
-        effect.run();
+
+      for (let i = 0; i < pendingEffects.length; i++) {
+        pendingEffects[i]?.run();
       }
+      // 清空数组以备下次使用
+      pendingEffects.length = 0;
     }
   } finally {
     globalState.isFlushing = false;

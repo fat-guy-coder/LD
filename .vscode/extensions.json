@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "ms-ceintl.vscode-language-pack-zh-hans",
+        "w88975.code-translate",
+        "adpyke.codesnap",
+        "keg1255.cursorpool",
+        "bierner.markdown-preview-github-styles",
+        "pkief.material-icon-theme",
+        "christian-kohler.npm-intellisense",
+        "zhuangtongfa.material-theme",
+        "typescriptteam.native-preview"
+    ]
+}
