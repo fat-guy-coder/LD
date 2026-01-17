@@ -1,0 +1,171 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "LD",
+  "patterns": [
+    {
+      "include": "#template"
+    },
+    {
+      "include": "#script"
+    },
+    {
+      "include": "#style"
+    }
+  ],
+  "repository": {
+    "template": {
+      "begin": "(<)(template)(\\s[^>]*?)?(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.template.html"
+        },
+        "3": {
+          "name": "entity.other.attribute-name.html"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "end": "(</)(template)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.template.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "name": "meta.tag.template.ld",
+      "patterns": [
+        {
+          "include": "text.html.basic"
+        },
+        {
+          "include": "#interpolation"
+        }
+      ]
+    },
+    "script": {
+      "begin": "(<)(script)(\\s[^>]*?)?(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.script.html"
+        },
+        "3": {
+          "name": "entity.other.attribute-name.html"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "end": "(</)(script)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.script.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "name": "meta.tag.script.ld",
+      "contentName": "source.ts",
+      "patterns": [
+        {
+          "include": "source.ts"
+        },
+        {
+          "include": "#vue3-apis"
+        },
+        {
+          "include": "#react-hooks"
+        },
+        {
+          "include": "#ld-signals"
+        }
+      ]
+    },
+    "style": {
+      "begin": "(<)(style)(\\s[^>]*?)?(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.style.html"
+        },
+        "3": {
+          "name": "entity.other.attribute-name.html"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "end": "(</)(style)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.style.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "name": "meta.tag.style.ld",
+      "contentName": "source.css",
+      "patterns": [
+        {
+          "include": "source.css"
+        }
+      ]
+    },
+    "interpolation": {
+      "begin": "\\{\\{",
+      "end": "\\}\\}",
+      "name": "meta.embedded.expression.ld",
+      "patterns": [
+        {
+          "include": "source.ts"
+        }
+      ]
+    },
+    "vue3-apis": {
+      "patterns": [
+        {
+          "match": "\\b(ref|reactive|computed|watch|watchEffect|readonly|toRef|toRefs|unref|isRef|onMounted|onUnmounted|onUpdated|onBeforeMount|onBeforeUnmount|onBeforeUpdate|provide|inject)\\b",
+          "name": "support.function.vue3.ld"
+        }
+      ]
+    },
+    "react-hooks": {
+      "patterns": [
+        {
+          "match": "\\b(useState|useEffect|useMemo|useCallback|useRef|useContext|useReducer|useLayoutEffect|useImperativeHandle|useDebugValue)\\b",
+          "name": "support.function.react.ld"
+        }
+      ]
+    },
+    "ld-signals": {
+      "patterns": [
+        {
+          "match": "\\b(createSignal|createComputed|createEffect|createReactive|signal|computed|effect)\\b",
+          "name": "support.function.ld.ld"
+        }
+      ]
+    }
+  },
+  "scopeName": "text.html.ld"
+}

@@ -12,12 +12,16 @@ class ComputedImpl<T> {
   public readonly effect: ReactiveEffect<T>;
   private readonly node: SignalNode<void> = { value: undefined, observers: null, next: null, version: 0 };
   private _value!: T;
+  private _isInitialized = false;
 
   constructor(getter: () => T, private readonly equals: EqualityFn<T> | false) {
-    this.effect = new ReactiveEffect(getter, () => {
-      // 依赖项变化，直接触发依赖于此 computed 的 effect
+    // 创建effect但不立即运行，实现真正的惰性求值
+    // 使用null scheduler避免自动加入队列，手动控制执行时机
+    this.effect = new ReactiveEffect(getter, null, false);
+    // 设置自定义scheduler，当依赖变化时触发
+    this.effect.scheduler = () => {
       trigger(this.node);
-    });
+    };
   }
 
   /**
@@ -26,9 +30,29 @@ class ComputedImpl<T> {
    */
   get value(): T {
     track(this.node);
+    
+    // 惰性初始化：第一次访问时才计算并建立依赖关系
+    if (!this._isInitialized) {
+      // 使用effect.run()来建立依赖关系
+      // 由于effect在创建时没有运行，deps.size为0，isDirty()会返回true
+      // 所以第一次会执行getter并建立依赖
+      this._value = this.effect.run();
+      this._isInitialized = true;
+      this.node.version = ++globalState.signalVersion;
+      return this._value;
+    }
+    
+    // 后续访问：检查是否需要重新计算
+    // 如果没有依赖（deps.size === 0），直接返回缓存值
+    if (this.effect.deps.size === 0) {
+      return this._value;
+    }
+    
+    // 有依赖时，使用effect.run()检查是否需要重新计算
+    // effect.run()会检查isDirty()，如果依赖没有变化，直接返回缓存值
     const newValue = this.effect.run();
     // 仅在值实际改变时才更新并递增版本号
-    if (this.node.version === 0 || (this.equals === false ? true : !this.equals(this._value, newValue))) {
+    if (this.equals === false ? true : !this.equals(this._value, newValue)) {
         this._value = newValue;
         this.node.version = ++globalState.signalVersion;
     }

@@ -9,16 +9,22 @@
     "goal": "light!fast!performance!typescript!vue!react! - Beat SolidJS on key metrics.",
     "slogan": "极致性能前端框架",
     "description": "零虚拟DOM、Signal驱动、完全兼容Vue3和React Hooks的前端框架。",
-    "performanceTargets": {
-      "signalCreate": "<0.01ms",
-      "signalGet": "<0.001ms",
-      "signalSet": "<0.005ms",
-      "libraryBundleSize": "<10KB gzipped (For individual library health check only)",
-      "finalAppBundleSize": "The final bundled size of a standard application (e.g., TodoMVC) MUST be smaller than equivalent apps built with competing frameworks. This is the primary measure of size performance.",
-      "componentMount": "<0.1ms",
-      "componentUpdate": "<0.05ms",
-      "benchmarkGoal": "Metrics must aim to surpass competing frameworks in benchmarks/frameworks-data.json."
-    }
+      "performanceTargets": {
+        "signalCreate": "<0.01ms",
+        "signalGet": "<0.001ms",
+        "signalSet": "<0.005ms",
+        "libraryBundleSize": "Framework bundle size is NOT a performance metric. The framework can be larger as long as the final compiled output is optimal.",
+        "finalAppBundleSize": "The final bundled size of a standard application (e.g., TodoMVC) MUST be smaller than equivalent apps built with competing frameworks. This is the PRIMARY and ONLY measure of size performance. Target: 50%+ smaller than React/Vue equivalents.",
+        "componentMount": "<0.1ms",
+        "componentUpdate": "<0.05ms",
+        "benchmarkGoal": "Metrics must aim to surpass competing frameworks in benchmarks/frameworks-data.json.",
+        "compiledOutput": {
+          "performance": "Final compiled JavaScript execution speed must exceed SolidJS/Svelte benchmarks",
+          "size": "Final application bundle must be 50%+ smaller than React/Vue equivalents",
+          "runtime": "ZERO runtime dependency in final output - pure native JavaScript only",
+          "memory": "Minimal memory footprint in final application"
+        }
+      }
   },
   "currentState": {
     "module": "runtime-dom",
@@ -31,6 +37,7 @@
       "MUST_PROPAGATE_CHANGES_TO_ALL_DEPENDENCIES",
       "MUST_READ_THIS_FILE_FIRST",
       "MUST_READ_PACKAGE_JSON_FIRST",
+      "MUST_READ_REFERENCE_DOCS",
       "MUST_TREAT_MODULE_TS_AS_SINGLE_SOURCE_OF_TRUTH",
       "MUST_LINT_AFTER_EDIT",
       "MUST_SUGGEST_GUIDANCE_IMPROVEMENTS",
@@ -41,8 +48,23 @@
       "MUST_UPDATE_`currentState`_AFTER_EACH_ACTION",
       "MUST_USE_CHINESE_FOR_ALL_COMMENTS_JSDOC_AND_DOCS",
       "MUST_PROPAGATE_CHANGES_TO_ALL_DEPENDENCIES",
-      "MUST_VERIFY_EXTERNAL_TOOL_DEPENDENCIES"
+      "MUST_VERIFY_EXTERNAL_TOOL_DEPENDENCIES",
+      "MUST_OPTIMIZE_FOR_FINAL_OUTPUT_NOT_FRAMEWORK_SIZE"
     ],
+    "referenceDocuments": {
+      "description": "以下MD文档包含重要的设计决策、实现方案和竞争力分析，AI在生成代码前应该阅读这些文档以理解项目全貌。",
+      "required": [
+        "ai-generate-code-guidance/ld-file-requirements.md",
+        "ai-generate-code-guidance/implementation-plan.md",
+        "ai-generate-code-guidance/competitive-features.md",
+        "ai-generate-code-guidance/roadmap.md"
+      ],
+      "whenToRead": {
+        "beforeCompilerWork": "在开发编译器相关功能前，必须阅读ld-file-requirements.md和implementation-plan.md",
+        "beforeNewFeatures": "在实现新功能前，必须阅读competitive-features.md了解市场定位和优先级",
+        "planningPhase": "在规划开发任务时，必须阅读roadmap.md了解整体路线图"
+      }
+    },
     "prohibitions": [
       "NO_SKIP_VALIDATION_OR_TESTS",
       "NO_MODIFY_THIS_GUIDANCE_FILE",
@@ -66,7 +88,9 @@
     "startupChecklist": {
       "step1": "Read this guidance file (gemini-optimized-guidance.json).",
       "step2": "Read package.json to understand available scripts and dependencies.",
-      "step3": "Optionally, read context files from workflow.details as needed."
+      "step3": "Read reference documents in aiDirectives.referenceDocuments.required based on current task.",
+      "step4": "Understand AOT compilation philosophy: framework size doesn't matter, final output quality is everything.",
+      "step5": "Optionally, read context files from workflow.details as needed."
     }
   },
   "workflow": {
@@ -180,11 +204,49 @@
     "compilation": {
       "strategy": "AOT (Ahead-of-Time) only. Development-time speed is secondary to final output quality.",
       "goal": "Generate the most optimal, performant, and smallest possible native JavaScript code for direct DOM manipulation. The final bundle's performance, size, and memory usage are the highest priorities.",
+      "aotPhilosophy": {
+        "principle": "LD框架采用AOT编译模式，最终编译产物才是衡量框架特性的标准。框架本身的包大小不重要，重要的是编译后的代码具有高性能、高执行速度和小体积。",
+        "frameworkSize": "框架包可以大一些，只要最终编译产物优秀即可。框架包大小不是性能指标。",
+        "finalOutputMetrics": {
+          "performance": "最终编译产物的执行速度必须超越竞争对手（SolidJS、Svelte等）",
+          "bundleSize": "最终应用的Bundle Size必须比使用React/Vue构建的同等应用小50%以上",
+          "memoryUsage": "最终应用的内存占用必须最小化",
+          "runtime": "最终编译产物必须零运行时依赖，纯原生JavaScript"
+        },
+        "optimizationTarget": "所有优化工作都应该针对最终编译产物，而不是框架本身的代码。编译器的复杂度可以接受，只要最终输出优秀。"
+      },
       "ld": {
-        "parser": "@ld/compiler-ld (custom, Babel-based)",
-        "transformer": "@ld/compiler-ld (custom, Babel-based)",
-        "generator": "@ld/compiler-ld (custom, Babel-based)",
-        "output": "Direct, fine-grained native DOM manipulations. Zero VDOM."
+        "parser": "@vue/compiler-sfc (for template/script/style parsing)",
+        "transformer": "@ld/compiler-core (custom, Vue3/React → LD IR)",
+        "generator": "@ld/compiler-core (custom, LD IR → native JS)",
+        "output": "Direct, fine-grained native DOM manipulations. Zero VDOM. Zero runtime.",
+        "fileFormat": {
+          "structure": "template + script + style (same as Vue SFC)",
+          "syntaxSupport": [
+            "Vue3 Composition API (ref, computed, watch, etc.)",
+            "React Hooks (useState, useEffect, etc.)",
+            "Mixed usage of both syntaxes in same file"
+          ],
+          "exportCapability": {
+            "variables": "MUST support exporting variables from .ld files",
+            "types": "MUST support exporting TypeScript types from .ld files",
+            "externalTypes": "OPTIONAL: Support importing types/variables from external .ts files",
+            "rationale": "Solve Vue SFC limitation: cannot export variables and types"
+          },
+          "compilationOutput": {
+            "javascript": "Single optimized .js file with direct DOM operations",
+            "css": "Single .css file (scoped styles extracted)",
+            "types": "Optional .d.ts file for exported types",
+            "runtime": "ZERO runtime dependency - pure native JavaScript",
+            "virtualDOM": "ZERO virtual DOM - direct DOM manipulation only"
+          },
+          "futureExtensions": {
+            "rustSupport": "Support Rust syntax via imports, compile to WebAssembly",
+            "cppSupport": "Support C++ syntax via imports, compile to WebAssembly",
+            "wasmIntegration": "Generate glue code for WebAssembly modules",
+            "canvasOptimization": "Optimize for high-performance Canvas/SVG rendering"
+          }
+        }
       },
       "sfc": {
         "parser": "@vue/compiler-sfc",
@@ -209,13 +271,48 @@
       "vue",
       "compiler-core",
       "compiler-sfc",
+      "compiler-ld",
       "router",
       "ld",
       "vite-plugin",
       "cli",
       "devtools",
-      "babel-plugin-ld"
-    ]
+      "babel-plugin-ld",
+      "canvas-renderer",
+      "wasm-bridge"
+    ],
+    "competitiveFeatures": {
+      "multiLanguageSFC": {
+        "priority": "P0",
+        "description": "支持在.ld文件中混合使用Vue3、React Hooks、Rust和C++",
+        "status": "planned",
+        "modules": ["compiler-ld", "wasm-bridge"]
+      },
+      "zeroRuntime": {
+        "priority": "P0",
+        "description": "完全零运行时，编译后纯原生JavaScript",
+        "status": "in-progress",
+        "modules": ["compiler-core", "compiler-ld"]
+      },
+      "canvasOptimization": {
+        "priority": "P0",
+        "description": "Canvas/SVG高性能渲染，WebGL/WebGPU加速",
+        "status": "planned",
+        "modules": ["canvas-renderer"]
+      },
+      "islandsArchitecture": {
+        "priority": "P1",
+        "description": "Islands架构 + SSR支持",
+        "status": "planned",
+        "modules": ["compiler-core", "runtime-core"]
+      },
+      "exportCapability": {
+        "priority": "P0",
+        "description": "支持导出变量和TypeScript类型",
+        "status": "in-progress",
+        "modules": ["compiler-ld"]
+      }
+    }
   },
   "codeStyle": {
     "naming": {

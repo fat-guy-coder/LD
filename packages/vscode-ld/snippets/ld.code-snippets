@@ -1,0 +1,128 @@
+{
+  "LD Template Block": {
+    "prefix": "template",
+    "body": [
+      "<template>",
+      "  $1",
+      "</template>"
+    ],
+    "description": "LD模板块"
+  },
+  "LD Script Setup Block": {
+    "prefix": "script",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "  $1",
+      "</script>"
+    ],
+    "description": "LD Script Setup块"
+  },
+  "LD Style Block": {
+    "prefix": "style",
+    "body": [
+      "<style scoped>",
+      "  $1",
+      "</style>"
+    ],
+    "description": "LD样式块"
+  },
+  "LD Component": {
+    "prefix": "ld-component",
+    "body": [
+      "<template>",
+      "  <div>",
+      "    $1",
+      "  </div>",
+      "</template>",
+      "",
+      "<script setup lang=\"ts\">",
+      "  $2",
+      "</script>",
+      "",
+      "<style scoped>",
+      "  $3",
+      "</style>"
+    ],
+    "description": "完整的LD组件结构"
+  },
+  "Vue3 ref": {
+    "prefix": "ref",
+    "body": "const ${1:name} = ref(${2:initialValue})",
+    "description": "Vue3: 创建响应式引用"
+  },
+  "Vue3 computed": {
+    "prefix": "computed",
+    "body": "const ${1:name} = computed(() => ${2:expression})",
+    "description": "Vue3: 创建计算属性"
+  },
+  "Vue3 watch": {
+    "prefix": "watch",
+    "body": [
+      "watch(${1:source}, (${2:newVal}, ${3:oldVal}) => {",
+      "  $4",
+      "})"
+    ],
+    "description": "Vue3: 监听响应式数据"
+  },
+  "React useState": {
+    "prefix": "useState",
+    "body": "const [${1:state}, set${1/(.*)/${1:/capitalize}/}] = useState(${2:initialValue})",
+    "description": "React: 状态管理"
+  },
+  "React useEffect": {
+    "prefix": "useEffect",
+    "body": [
+      "useEffect(() => {",
+      "  $1",
+      "  return () => {",
+      "    $2",
+      "  }",
+      "}, [${3:deps}])"
+    ],
+    "description": "React: 副作用处理"
+  },
+  "LD createSignal": {
+    "prefix": "createSignal",
+    "body": "const ${1:name} = createSignal(${2:initialValue})",
+    "description": "LD: 创建Signal"
+  },
+  "LD createComputed": {
+    "prefix": "createComputed",
+    "body": "const ${1:name} = createComputed(() => ${2:expression})",
+    "description": "LD: 创建计算值"
+  },
+  "LD createEffect": {
+    "prefix": "createEffect",
+    "body": [
+      "createEffect(() => {",
+      "  $1",
+      "})"
+    ],
+    "description": "LD: 创建副作用"
+  },
+  "Vue3 v-if": {
+    "prefix": "v-if",
+    "body": "v-if=\"${1:condition}\"",
+    "description": "Vue3: 条件渲染"
+  },
+  "Vue3 v-for": {
+    "prefix": "v-for",
+    "body": "v-for=\"(${1:item}, ${2:index}) in ${3:items}\" :key=\"${2:index}\"",
+    "description": "Vue3: 列表渲染"
+  },
+  "Vue3 v-model": {
+    "prefix": "v-model",
+    "body": "v-model=\"${1:modelValue}\"",
+    "description": "Vue3: 双向绑定"
+  },
+  "Vue3 v-bind": {
+    "prefix": "v-bind",
+    "body": ":${1:prop}=\"${2:value}\"",
+    "description": "Vue3: 属性绑定"
+  },
+  "Vue3 v-on": {
+    "prefix": "v-on",
+    "body": "@${1:event}=\"${2:handler}\"",
+    "description": "Vue3: 事件绑定"
+  }
+}

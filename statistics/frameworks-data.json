@@ -23,9 +23,10 @@
       "lcp_ms": 0,
       "inp_ms": null,
       "reactivity": {
-        "signal_creation_ops_sec": 4630379,
-        "signal_update_ops_sec": 300304,
-        "mechanism": "Signals"
+        "signal_creation_ops_sec": 4690673,
+        "signal_update_ops_sec": 389886,
+        "mechanism": "Signals",
+        "note": "优化后：快速路径+内联优化，Signal更新性能提升69%"
       },
       "ux_metrics": {
         "tbt_ms": 0,

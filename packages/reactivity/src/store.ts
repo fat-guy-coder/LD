@@ -19,6 +19,8 @@ export interface SignalNode<T = unknown> {
   next: SignalNode<T> | null;
   /** 版本号，用于实现极速的 setter */
   version: number;
+  /** 相等性比较函数，用于判断值是否改变。如果为false，则总是触发更新。如果为undefined，使用Object.is */
+  equals?: ((a: unknown, b: unknown) => boolean) | false | undefined;
 }
 
 // ==================================================================================================

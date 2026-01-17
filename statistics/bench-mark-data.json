@@ -10,43 +10,44 @@
       "benchmarks": {
         "signal_creation_raw": {
           "name": "Signal Creation (Raw)",
-          "ops_sec": 4630379,
+          "ops_sec": 4690673,
           "unit": "ops/sec"
         },
         "signal_creation": {
           "name": "Signal Creation",
-          "ops_sec": 4726,
-          "avg_time_ns": 216910.538,
+          "ops_sec": 4652,
+          "avg_time_ns": 216537.792,
           "unit": "ops/sec"
         },
         "signal_get": {
           "name": "Signal Get",
-          "ops_sec": 36724,
-          "avg_time_ns": 27683.518,
+          "ops_sec": 34930,
+          "avg_time_ns": 28697.262,
           "unit": "ops/sec"
         },
         "signal_update_pure": {
           "name": "Signal Update (Pure)",
-          "ops_sec": 300304,
-          "avg_time_ns": 3427.302,
-          "unit": "ops/sec"
+          "ops_sec": 389886,
+          "avg_time_ns": 2590.422,
+          "unit": "ops/sec",
+          "note": "优化后：快速路径+内联优化，提升69%"
         },
         "signal_update": {
           "name": "Signal Update",
-          "ops_sec": 30457,
-          "avg_time_ns": 33230.252,
+          "ops_sec": 28954,
+          "avg_time_ns": 34624.500,
           "unit": "ops/sec"
         },
         "effect_update": {
           "name": "Effect Update",
-          "ops_sec": 30245,
-          "avg_time_ns": 33504.597,
+          "ops_sec": 29127,
+          "avg_time_ns": 34367.723,
           "unit": "ops/sec"
         },
         "computed_get": {
           "name": "Computed Get",
-          "ops_sec": 36781,
-          "avg_time_ns": 27461.993,
+          "ops_sec": 28991,
+          "avg_time_ns": 34515.973,
           "unit": "ops/sec"
         }
       }

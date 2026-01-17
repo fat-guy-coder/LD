@@ -3,6 +3,8 @@ import generate from '@babel/generator';
 import * as t from '@babel/types';
 import template from '@babel/template';
 import type { parseScript, Macro, SignalMacro, ComputedMacro, EffectMacro } from './script-parser';
+import { extractExports, ensureExportsPreserved, type ExportInfo } from './export-handler';
+import { transformToLD } from '@ld/compiler-core';
 
 const signalTemplate = template.statement(`const NAME = createSignal(VALUE);`);
 const computedTemplate = template.statement(`const NAME = computed(() => VALUE);`);
@@ -11,7 +13,7 @@ const effectTemplate = template.statement(`createEffect(EFFECT_FN, DEPS);`);
 export function compileScript(
   scriptAst: t.File,
   macros: ReturnType<typeof parseScript>['macros']
-): string {
+): { code: string; exports: ExportInfo } {
   const reactiveVarNames = new Set<string>(
     macros
       .filter((m): m is SignalMacro | ComputedMacro => m.type === 'signal' || m.type === 'computed')
@@ -89,6 +91,17 @@ export function compileScript(
     },
   });
 
-  const { code } = generate(scriptAst);
-  return code;
+  // 第三步：转换Vue3/React语法到LD Signal API
+  const { ast: transformedAST } = transformToLD(scriptAst);
+
+  // 第四步：提取导出信息
+  const exports = extractExports(transformedAST);
+
+  // 第五步：生成代码
+  const { code } = generate(transformedAST);
+
+  // 第六步：确保导出语句被保留
+  const finalCode = ensureExportsPreserved(code, exports);
+
+  return { code: finalCode, exports };
 }

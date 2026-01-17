@@ -1,0 +1,121 @@
+{
+  "name": "ld-language-support",
+  "displayName": "LD Language Support",
+  "description": "完整的LD文件开发支持：语法高亮、代码格式化、智能提示、错误检测和代码片段",
+  "version": "0.2.0",
+  "publisher": "ld-framework",
+  "icon": "icons/logo.svg",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Formatters",
+    "Linters"
+  ],
+  "keywords": [
+    "ld",
+    "vue",
+    "react",
+    "typescript",
+    "syntax highlighting",
+    "formatting"
+  ],
+  "activationEvents": [
+    "onLanguage:ld"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ld.formatDocument",
+        "title": "格式化LD文档"
+      }
+    ],
+    "languages": [
+      {
+        "id": "ld",
+        "aliases": [
+          "LD",
+          "ld"
+        ],
+        "extensions": [
+          ".ld"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ld",
+        "scopeName": "text.html.ld",
+        "path": "./syntaxes/ld.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "ld",
+        "path": "./snippets/ld.code-snippets"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "ld-icons",
+        "label": "LD Icons",
+        "path": "./icons/ld-icon-theme.json"
+      }
+    ],
+    "configuration": {
+      "title": "LD Language",
+      "properties": {
+        "ld.format.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用LD文件格式化"
+        },
+        "ld.format.indentSize": {
+          "type": "number",
+          "default": 2,
+          "description": "缩进大小"
+        },
+        "ld.format.insertSpaces": {
+          "type": "boolean",
+          "default": true,
+          "description": "使用空格缩进"
+        },
+        "ld.completion.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用自动补全"
+        },
+        "ld.diagnostics.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用错误检测和诊断"
+        },
+        "ld.format.usePrettier": {
+          "type": "boolean",
+          "default": true,
+          "description": "使用Prettier进行格式化（需要安装prettier）"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.0.0",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "@ld/compiler-ld": "workspace:^",
+    "@ld/compiler-core": "workspace:^",
+    "prettier": "^3.2.4"
+  }
+}

@@ -100,6 +100,11 @@ export function track(node: SignalNode): void {
 }
 
 export function trigger(node: SignalNode): void {
+  // 快速路径：没有observers时直接返回，避免不必要的函数调用开销
+  if (!node.observers) {
+    return;
+  }
+  
   let effect = node.observers;
   while (effect) {
     if (effect.scheduler) {

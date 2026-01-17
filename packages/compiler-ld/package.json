@@ -12,6 +12,12 @@
     "lint": "eslint . --ext .ts"
   },
   "dependencies": {
-    "@vue/compiler-sfc": "^3.4.21"
+    "@vue/compiler-sfc": "^3.4.21",
+    "@ld/compiler-core": "workspace:^",
+    "@babel/generator": "^7.24.0",
+    "@babel/parser": "^7.24.0",
+    "@babel/template": "^7.24.0",
+    "@babel/traverse": "^7.24.0",
+    "@babel/types": "^7.24.0"
   }
 }
