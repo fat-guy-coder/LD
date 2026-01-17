@@ -35,8 +35,9 @@ export class LDPrettierFormatter implements vscode.DocumentFormattingEditProvide
       return [vscode.TextEdit.replace(range, formatted)];
     } catch (error) {
       console.error('Prettier格式化失败:', error);
-      // 如果Prettier失败，返回空数组，让编辑器使用默认格式化
-      return [];
+      // 如果Prettier失败，返回空数组，让基础格式化器处理
+      // 注意：这里不抛出错误，让基础格式化器作为备用
+      throw error; // 抛出错误，让基础格式化器处理
     }
   }
 

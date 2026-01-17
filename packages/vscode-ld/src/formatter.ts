@@ -14,29 +14,58 @@ export class LDFormatter implements vscode.DocumentFormattingEditProvider {
     options: vscode.FormattingOptions,
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.TextEdit[]> {
+    console.log('LD格式化器被调用');
+    
     const config = vscode.workspace.getConfiguration('ld.format');
     if (!config.get<boolean>('enable', true)) {
+      console.log('LD格式化已禁用');
+      return [];
+    }
+
+    // 检查取消令牌
+    if (token.isCancellationRequested) {
+      console.log('格式化被取消');
       return [];
     }
 
     try {
       const text = document.getText();
-      const formatted = this.formatLD(text, options);
+      console.log('开始格式化LD文件，长度:', text.length, '语言ID:', document.languageId);
       
-      // 如果格式化后的文本与原文相同，返回空数组
-      if (formatted === text) {
+      if (!text || text.length === 0) {
+        console.log('文档为空，跳过格式化');
         return [];
       }
 
+      const formatted = this.formatLD(text, options);
+      
+      if (!formatted || formatted.length === 0) {
+        console.warn('格式化返回空结果');
+        return [];
+      }
+      
+      // 如果格式化后的文本与原文相同，返回空数组
+      if (formatted === text) {
+        console.log('格式化后文本未变化');
+        return [];
+      }
+
+      console.log('格式化完成，生成编辑，原文长度:', text.length, '格式化后长度:', formatted.length);
+      
       // 返回整个文档的替换编辑
       const range = new vscode.Range(
         document.positionAt(0),
         document.positionAt(text.length)
       );
 
-      return [vscode.TextEdit.replace(range, formatted)];
+      const edit = vscode.TextEdit.replace(range, formatted);
+      console.log('返回格式化编辑');
+      return [edit];
     } catch (error) {
       console.error('格式化LD文件时出错:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('错误详情:', errorMessage, error);
+      vscode.window.showErrorMessage('LD格式化失败: ' + errorMessage);
       return [];
     }
   }
@@ -152,17 +181,47 @@ export class LDFormatter implements vscode.DocumentFormattingEditProvider {
    * 基本格式化（当解析失败时使用）
    */
   private basicFormat(text: string, options: vscode.FormattingOptions): string {
-    // 简单的行尾和缩进处理
     const indent = options.insertSpaces 
       ? ' '.repeat(options.tabSize || 2)
       : '\t';
 
     const lines = text.split('\n');
-    return lines
-      .map((line) => {
-        const trimmed = line.trim();
-        return trimmed ? indent + trimmed : '';
-      })
-      .join('\n');
+    let indentLevel = 0;
+    const formattedLines: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+      
+      // 空行保持原样
+      if (!trimmed) {
+        formattedLines.push('');
+        continue;
+      }
+      
+      // 减少缩进（闭合标签）
+      if (trimmed.startsWith('</')) {
+        indentLevel = Math.max(0, indentLevel - 1);
+      }
+      
+      // 添加缩进
+      const indented = indent.repeat(indentLevel) + trimmed;
+      formattedLines.push(indented);
+      
+      // 增加缩进（开放标签，但不是自闭合标签）
+      if (trimmed.startsWith('<') && !trimmed.startsWith('</') && !trimmed.endsWith('/>')) {
+        // 检查是否是单行标签（如 <script setup lang="ts">）
+        if (!trimmed.includes('</')) {
+          indentLevel++;
+        }
+      }
+      
+      // 减少缩进（闭合标签后的内容）
+      if (trimmed.startsWith('</')) {
+        // 已经在上面减少了
+      }
+    }
+    
+    return formattedLines.join('\n');
   }
 }

@@ -9,22 +9,22 @@
     "goal": "light!fast!performance!typescript!vue!react! - Beat SolidJS on key metrics.",
     "slogan": "极致性能前端框架",
     "description": "零虚拟DOM、Signal驱动、完全兼容Vue3和React Hooks的前端框架。",
-      "performanceTargets": {
-        "signalCreate": "<0.01ms",
-        "signalGet": "<0.001ms",
-        "signalSet": "<0.005ms",
-        "libraryBundleSize": "Framework bundle size is NOT a performance metric. The framework can be larger as long as the final compiled output is optimal.",
-        "finalAppBundleSize": "The final bundled size of a standard application (e.g., TodoMVC) MUST be smaller than equivalent apps built with competing frameworks. This is the PRIMARY and ONLY measure of size performance. Target: 50%+ smaller than React/Vue equivalents.",
-        "componentMount": "<0.1ms",
-        "componentUpdate": "<0.05ms",
-        "benchmarkGoal": "Metrics must aim to surpass competing frameworks in benchmarks/frameworks-data.json.",
-        "compiledOutput": {
-          "performance": "Final compiled JavaScript execution speed must exceed SolidJS/Svelte benchmarks",
-          "size": "Final application bundle must be 50%+ smaller than React/Vue equivalents",
-          "runtime": "ZERO runtime dependency in final output - pure native JavaScript only",
-          "memory": "Minimal memory footprint in final application"
-        }
+    "performanceTargets": {
+      "signalCreate": "<0.01ms",
+      "signalGet": "<0.001ms",
+      "signalSet": "<0.005ms",
+      "libraryBundleSize": "Framework bundle size is NOT a performance metric. The framework can be larger as long as the final compiled output is optimal.",
+      "finalAppBundleSize": "The final bundled size of a standard application (e.g., TodoMVC) MUST be smaller than equivalent apps built with competing frameworks. This is the PRIMARY and ONLY measure of size performance. Target: 50%+ smaller than React/Vue equivalents.",
+      "componentMount": "<0.1ms",
+      "componentUpdate": "<0.05ms",
+      "benchmarkGoal": "Metrics must aim to surpass competing frameworks in benchmarks/frameworks-data.json.",
+      "compiledOutput": {
+        "performance": "Final compiled JavaScript execution speed must exceed SolidJS/Svelte benchmarks",
+        "size": "Final application bundle must be 50%+ smaller than React/Vue equivalents",
+        "runtime": "ZERO runtime dependency in final output - pure native JavaScript only",
+        "memory": "Minimal memory footprint in final application"
       }
+    }
   },
   "currentState": {
     "module": "compiler-ld",
@@ -286,31 +286,44 @@
         "priority": "P0",
         "description": "支持在.ld文件中混合使用Vue3、React Hooks、Rust和C++",
         "status": "planned",
-        "modules": ["compiler-ld", "wasm-bridge"]
+        "modules": [
+          "compiler-ld",
+          "wasm-bridge"
+        ]
       },
       "zeroRuntime": {
         "priority": "P0",
         "description": "完全零运行时，编译后纯原生JavaScript",
         "status": "in-progress",
-        "modules": ["compiler-core", "compiler-ld"]
+        "modules": [
+          "compiler-core",
+          "compiler-ld"
+        ]
       },
       "canvasOptimization": {
         "priority": "P0",
         "description": "Canvas/SVG高性能渲染，WebGL/WebGPU加速",
         "status": "planned",
-        "modules": ["canvas-renderer"]
+        "modules": [
+          "canvas-renderer"
+        ]
       },
       "islandsArchitecture": {
         "priority": "P1",
         "description": "Islands架构 + SSR支持",
         "status": "planned",
-        "modules": ["compiler-core", "runtime-core"]
+        "modules": [
+          "compiler-core",
+          "runtime-core"
+        ]
       },
       "exportCapability": {
         "priority": "P0",
         "description": "支持导出变量和TypeScript类型",
         "status": "in-progress",
-        "modules": ["compiler-ld"]
+        "modules": [
+          "compiler-ld"
+        ]
       }
     }
   },

@@ -15,7 +15,7 @@
 <script setup lang="ts">
 // V5: Using shorthand macros `s:` for signal and `c:` for computed.
 s: count = 0;
-c: isEven = count % 2 === 0;
+c: isEven = count % 2  === 0;
 
 function increment() {
   // The compiler will transform this into a signal update.
@@ -31,6 +31,10 @@ effect(() => {
     console.log('Cleaning up previous effect for count:', count);
   }
 }, [count]);
+
+
+
+
 </script>
 
 <style scoped>

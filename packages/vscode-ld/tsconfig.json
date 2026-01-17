@@ -10,7 +10,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "declaration": false,
+    "isolatedModules": false
   },
-  "exclude": ["node_modules", ".vscode-test"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", ".vscode-test", "out", "dist", "tsup.config.ts", "*.config.ts"]
 }

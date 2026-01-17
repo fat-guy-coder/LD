@@ -4,17 +4,11 @@
     {
       "type": "npm",
       "script": "compile",
-      "group": {
-        "kind": "build",
-        "isDefault": true
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
       },
       "problemMatcher": "$tsc"
-    },
-    {
-      "type": "npm",
-      "script": "watch",
-      "isBackground": true,
-      "problemMatcher": "$tsc-watch"
     }
   ]
 }
