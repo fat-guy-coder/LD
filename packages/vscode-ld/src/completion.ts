@@ -168,7 +168,7 @@ export class LDCompletionProvider implements vscode.CompletionItemProvider {
     const tags = ['template', 'script', 'style', 'div', 'span', 'button', 'input', 'p', 'h1', 'h2', 'h3'];
     
     return tags.map((tag) => {
-      const item = new vscode.CompletionItem(tag, vscode.CompletionItemKind.Tag);
+      const item = new vscode.CompletionItem(tag, vscode.CompletionItemKind.Property);
       item.insertText = new vscode.SnippetString(`${tag}$1>`);
       return item;
     });

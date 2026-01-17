@@ -174,7 +174,7 @@ export class LDPrettierFormatter implements vscode.DocumentFormattingEditProvide
       useTabs: config.get<boolean>('useTabs', false),
       semi: config.get<boolean>('semi', true),
       singleQuote: config.get<boolean>('singleQuote', true),
-      trailingComma: config.get<string>('trailingComma', 'es5') as prettier.TrailingComma,
+      trailingComma: config.get<string>('trailingComma', 'es5') as any,
       printWidth: config.get<number>('printWidth', 80),
     };
   }

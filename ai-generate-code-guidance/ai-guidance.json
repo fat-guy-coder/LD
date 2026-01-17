@@ -27,10 +27,10 @@
       }
   },
   "currentState": {
-    "module": "runtime-dom",
-    "file": null,
-    "status": "pending",
-    "notes": "runtime-core模块已完成，准备开始runtime-dom模块。"
+    "module": "compiler-ld",
+    "file": "src/index.ts",
+    "status": "active",
+    "notes": "策略已转向AOT最终产物的性能与体积：当前优先推进编译链路（compiler-*）。compiler-core已有parse/transform/codegen雏形，compiler-ld目前仅实现.ld解析（@vue/compiler-sfc）。下一步聚焦：补齐compiler-ld的script编译/导出变量与类型（exportCapability P0），并串联compiler-core生成最小、零运行时的原生JS/CSS输出。"
   },
   "aiDirectives": {
     "corePrinciples": [
@@ -86,7 +86,7 @@
       "noFileScopeVars": "STRICTLY FORBIDDEN: Do NOT use file-scoped variables for state."
     },
     "startupChecklist": {
-      "step1": "Read this guidance file (gemini-optimized-guidance.json).",
+      "step1": "Read this guidance file (ai-guidance.json).",
       "step2": "Read package.json to understand available scripts and dependencies.",
       "step3": "Read reference documents in aiDirectives.referenceDocuments.required based on current task.",
       "step4": "Understand AOT compilation philosophy: framework size doesn't matter, final output quality is everything.",

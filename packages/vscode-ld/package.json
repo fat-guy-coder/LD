@@ -4,7 +4,11 @@
   "description": "完整的LD文件开发支持：语法高亮、代码格式化、智能提示、错误检测和代码片段",
   "version": "0.2.0",
   "publisher": "ld-framework",
-  "icon": "icons/logo.svg",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fat-guy-coder/LD.git"
+  },
+  "icon": "icons/logo.png",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -104,8 +108,8 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "vsce package",
-    "publish": "vsce publish"
+    "package": "npx --yes @vscode/vsce package --no-dependencies",
+    "publish": "npx --yes @vscode/vsce publish"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -114,8 +118,7 @@
     "vsce": "^2.15.0"
   },
   "dependencies": {
-    "@ld/compiler-ld": "workspace:^",
-    "@ld/compiler-core": "workspace:^",
+    "@vue/compiler-sfc": "^3.4.21",
     "prettier": "^3.2.4"
   }
 }

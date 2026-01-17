@@ -1,13 +1,10 @@
 {
   "iconDefinitions": {
     "ld-file": {
-      "iconPath": "./logo.svg"
+      "iconPath": "./logo.png"
     }
   },
   "fileExtensions": {
     "ld": "ld-file"
-  },
-  "fileNames": {
-    "*.ld": "ld-file"
   }
 }

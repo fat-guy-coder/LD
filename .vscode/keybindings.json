@@ -1,0 +1,43 @@
+// Place your key bindings in this file to override the defaults
+[
+    {
+        "key": "ctrl+i",
+        "command": "composerMode.agent"
+    },
+    {
+        "key": "ctrl+numpad6",
+        "command": "typescript.restartTsServer"
+    },
+    {
+        "key": "ctrl+numpad1",
+        "command": "editor.action.deleteLines",
+        "when": "textInputFocus && !editorReadonly"
+    },
+    {
+        "key": "ctrl+shift+k",
+        "command": "-editor.action.deleteLines",
+        "when": "textInputFocus && !editorReadonly"
+    },
+    {
+        "key": "ctrl+numpad3",
+        "command": "codesnap.start"
+    },
+    {
+        "key": "ctrl+numpad4",
+        "command": "workbench.action.reloadWindow",
+        "when": "isDevelopment"
+    },
+    {
+        "key": "ctrl+shift+r",
+        "command": "-workbench.action.reloadWindow",
+        "when": "isDevelopment"
+    },
+    {
+        "key": "ctrl+numpad5",
+        "command": "extension.varFast"
+    },
+    {
+        "key": "ctrl+alt+z",
+        "command": "-extension.varFast"
+    }
+]

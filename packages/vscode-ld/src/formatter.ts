@@ -46,35 +46,7 @@ export class LDFormatter implements vscode.DocumentFormattingEditProvider {
    */
   private formatLD(text: string, options: vscode.FormattingOptions): string {
     try {
-      // 解析LD文件
-      // 注意：这里简化处理，实际应该使用@ld/compiler-ld的parse函数
-      // const descriptor = parse(text, 'format');
-      
-      // 临时实现：直接使用基本格式化
       return this.basicFormat(text, options);
-
-      // 格式化各个部分
-      const formattedParts: string[] = [];
-
-      // 格式化template部分
-      if (descriptor.template) {
-        formattedParts.push(this.formatTemplate(descriptor.template.content, options));
-      }
-
-      // 格式化script部分
-      if (descriptor.scriptSetup || descriptor.script) {
-        const scriptContent = descriptor.scriptSetup?.content || descriptor.script?.content || '';
-        formattedParts.push(this.formatScript(scriptContent, options));
-      }
-
-      // 格式化style部分
-      if (descriptor.styles && descriptor.styles.length > 0) {
-        descriptor.styles.forEach((style) => {
-          formattedParts.push(this.formatStyle(style.content, options));
-        });
-      }
-
-      return formattedParts.join('\n\n');
     } catch (error) {
       // 如果解析失败，使用基本的格式化
       return this.basicFormat(text, options);

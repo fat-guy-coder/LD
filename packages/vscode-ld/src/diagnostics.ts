@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { parse } from '@ld/compiler-ld';
+import { parse } from '@vue/compiler-sfc';
 
 /**
  * LD文件诊断提供者
@@ -20,7 +20,16 @@ export class LDDiagnosticsProvider {
     try {
       // 解析LD文件
       const text = document.getText();
-      const descriptor = parse(text, document.fileName);
+      const { descriptor, errors } = parse(text, {
+        sourceMap: false,
+        filename: document.fileName,
+      });
+
+      if (errors.length) {
+        throw new Error(errors.map((e) => String(e)).join('\n'));
+      }
+
+      (descriptor as any).id = document.fileName;
 
       // 检查template块
       if (descriptor.template) {
@@ -37,7 +46,7 @@ export class LDDiagnosticsProvider {
 
       // 检查style块
       if (descriptor.styles && descriptor.styles.length > 0) {
-        descriptor.styles.forEach((style) => {
+        descriptor.styles.forEach((style: { content: string }) => {
           const styleDiagnostics = this.checkStyle(style.content, document);
           diagnostics.push(...styleDiagnostics);
         });

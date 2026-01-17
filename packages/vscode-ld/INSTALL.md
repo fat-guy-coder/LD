@@ -29,6 +29,8 @@ pnpm run compile
 pnpm run package
 ```
 
+> 如果你的环境缺少Python/编译工具链，建议使用当前的打包脚本（已默认 `--no-dependencies`），可避免依赖检查触发原生模块构建。
+
 这会生成一个`.vsix`文件。
 
 ### 2. 安装扩展
