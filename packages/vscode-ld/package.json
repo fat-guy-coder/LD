@@ -114,10 +114,15 @@
         "configuration": {
             "title": "LD Language",
             "properties": {
-                "ld.format.enable": {
+                "ld.highlight.enable": {
                     "type": "boolean",
                     "default": true,
-                    "description": "启用LD文件格式化"
+                    "description": "启用LD文件语法高亮（默认启用）"
+                },
+                "ld.format.enable": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "启用LD文件格式化（默认禁用，用于排查问题）"
                 },
                 "ld.format.indentSize": {
                     "type": "number",
@@ -131,13 +136,13 @@
                 },
                 "ld.completion.enable": {
                     "type": "boolean",
-                    "default": true,
-                    "description": "启用自动补全"
+                    "default": false,
+                    "description": "启用自动补全（默认禁用，用于排查问题）"
                 },
                 "ld.diagnostics.enable": {
                     "type": "boolean",
-                    "default": true,
-                    "description": "启用错误检测和诊断"
+                    "default": false,
+                    "description": "启用错误检测和诊断（默认禁用，用于排查问题）"
                 },
                 "ld.format.usePrettier": {
                     "type": "boolean",
@@ -150,14 +155,14 @@
     "scripts": {
         "compile": "tsup",
         "watch": "tsup --watch",
-        "package": "npx --yes @vscode/vsce package --no-dependencies",
-        "publish": "npx --yes @vscode/vsce publish"
+        "package": "vsce package --no-dependencies",
+        "publish": "vsce publish"
     },
     "devDependencies": {
         "@types/node": "^20.0.0",
         "@types/vscode": "^1.80.0",
-        "typescript": "^5.0.0",
-        "vsce": "^2.15.0"
+        "@vscode/vsce": "^3.7.1",
+        "typescript": "^5.0.0"
     },
     "dependencies": {
         "@vue/compiler-sfc": "^3.4.21",

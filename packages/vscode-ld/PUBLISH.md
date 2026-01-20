@@ -34,10 +34,17 @@
 }
 ```
 
-#### 2. 安装vsce
+#### 2. 安装 @vscode/vsce
 
 ```bash
-npm install -g vsce
+npm install -g @vscode/vsce
+```
+
+或者使用项目本地安装（推荐）：
+
+```bash
+cd packages/vscode-ld
+pnpm install
 ```
 
 #### 3. 登录
@@ -54,7 +61,8 @@ vsce login <publisher-id>
 ```bash
 cd packages/vscode-ld
 pnpm run compile
-vsce package
+pnpm run package
+# 或者直接使用: npx @vscode/vsce package --no-dependencies
 ```
 
 这会生成一个 `.vsix` 文件。
@@ -64,7 +72,8 @@ vsce package
 **首次发布：**
 
 ```bash
-vsce publish
+pnpm run publish
+# 或者直接使用: npx @vscode/vsce publish
 ```
 
 **更新版本：**
@@ -74,7 +83,8 @@ vsce publish
 3. 运行：
 
 ```bash
-vsce publish
+pnpm run publish
+# 或者直接使用: npx @vscode/vsce publish
 ```
 
 ### 发布到Open VSX Registry（可选）
@@ -95,7 +105,8 @@ ovsx publish -p <your-personal-access-token>
 
 ```bash
 # 打包
-vsce package
+pnpm run package
+# 或者: npx @vscode/vsce package --no-dependencies
 
 # 在VS Code中安装
 # 1. 打开命令面板 (Ctrl+Shift+P)
@@ -125,10 +136,10 @@ vsce package
 - [ ] 更新CHANGELOG.md
 - [ ] 确保README.md完整
 - [ ] 测试扩展功能
-- [ ] 打包测试（vsce package）
+- [ ] 打包测试（pnpm run package）
 - [ ] 本地安装测试
-- [ ] 登录vsce
-- [ ] 发布（vsce publish）
+- [ ] 登录（vsce login）
+- [ ] 发布（pnpm run publish）
 
 ### 常见问题
 
@@ -158,8 +169,8 @@ A: 修改package.json中的description，然后发布新版本
 # 完整流程
 cd packages/vscode-ld
 pnpm run compile
-vsce package
-vsce publish
+pnpm run package
+pnpm run publish
 ```
 
 ## 需要帮助？
@@ -167,5 +178,5 @@ vsce publish
 如果遇到问题，可以：
 
 1. 查看VS Code扩展发布文档：https://code.visualstudio.com/api/working-with-extensions/publishing-extension
-2. 查看vsce文档：https://github.com/microsoft/vscode-vsce
+2. 查看 @vscode/vsce 文档：https://github.com/microsoft/vscode-vsce
 3. 检查VS Code扩展市场FAQ

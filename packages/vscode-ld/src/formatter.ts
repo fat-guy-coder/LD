@@ -179,12 +179,134 @@ export class LDFormatter implements vscode.DocumentFormattingEditProvider {
 
   /**
    * 基本格式化（当解析失败时使用）
+   * 正确处理LD文件结构：template、script、style三个部分
    */
   private basicFormat(text: string, options: vscode.FormattingOptions): string {
     const indent = options.insertSpaces 
       ? ' '.repeat(options.tabSize || 2)
       : '\t';
 
+    // 解析LD文件结构：提取template、script、style部分
+    const templateMatch = text.match(/<template[^>]*>([\s\S]*?)<\/template>/i);
+    const scriptMatch = text.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+    const styleMatch = text.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+
+    const result: string[] = [];
+
+    // 格式化template部分
+    if (templateMatch) {
+      const templateTag = text.match(/<template[^>]*>/i)?.[0] || '<template>';
+      const templateContent = templateMatch[1].trim();
+      const formattedTemplate = this.formatSection(templateContent, 'template', indent);
+      result.push(templateTag);
+      if (formattedTemplate) {
+        result.push(formattedTemplate);
+      }
+      result.push('</template>');
+    }
+
+    // 格式化script部分
+    if (scriptMatch) {
+      const scriptTag = text.match(/<script[^>]*>/i)?.[0] || '<script setup lang="ts">';
+      const scriptContent = scriptMatch[1].trim();
+      const formattedScript = this.formatSection(scriptContent, 'script', indent);
+      result.push(scriptTag);
+      if (formattedScript) {
+        result.push(formattedScript);
+      }
+      result.push('</script>');
+    }
+
+    // 格式化style部分
+    if (styleMatch) {
+      const styleTag = text.match(/<style[^>]*>/i)?.[0] || '<style scoped>';
+      const styleContent = styleMatch[1].trim();
+      const formattedStyle = this.formatSection(styleContent, 'style', indent);
+      result.push(styleTag);
+      if (formattedStyle) {
+        result.push(formattedStyle);
+      }
+      result.push('</style>');
+    }
+
+    // 如果没有匹配到任何部分，使用原始格式化逻辑
+    if (result.length === 0) {
+      return this.formatFallback(text, indent);
+    }
+
+    return result.join('\n');
+  }
+
+  /**
+   * 格式化单个部分（template/script/style的内容）
+   */
+  private formatSection(content: string, type: 'template' | 'script' | 'style', indent: string): string {
+    if (!content.trim()) {
+      return '';
+    }
+
+    const lines = content.split('\n');
+    const formattedLines: string[] = [];
+    let indentLevel = 0;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      // 空行保持原样
+      if (!trimmed) {
+        formattedLines.push('');
+        continue;
+      }
+
+      if (type === 'template') {
+        // Template部分：HTML标签缩进
+        if (trimmed.startsWith('</')) {
+          indentLevel = Math.max(0, indentLevel - 1);
+        }
+        
+        const indented = indent.repeat(indentLevel) + trimmed;
+        formattedLines.push(indented);
+        
+        if (trimmed.startsWith('<') && !trimmed.startsWith('</') && !trimmed.endsWith('/>')) {
+          // 检查是否是自闭合标签
+          if (!trimmed.endsWith('/>') && !trimmed.includes('</')) {
+            indentLevel++;
+          }
+        }
+      } else if (type === 'script') {
+        // Script部分：TypeScript/JavaScript缩进
+        if (trimmed === '}' || trimmed.startsWith('}')) {
+          indentLevel = Math.max(0, indentLevel - 1);
+        }
+        
+        const indented = indent.repeat(indentLevel) + trimmed;
+        formattedLines.push(indented);
+        
+        if (trimmed.endsWith('{') || trimmed.endsWith('[') || trimmed.endsWith('(')) {
+          indentLevel++;
+        }
+      } else if (type === 'style') {
+        // Style部分：CSS缩进
+        if (trimmed === '}' || trimmed.startsWith('}')) {
+          indentLevel = Math.max(0, indentLevel - 1);
+        }
+        
+        const indented = indent.repeat(indentLevel) + trimmed;
+        formattedLines.push(indented);
+        
+        if (trimmed.endsWith('{')) {
+          indentLevel++;
+        }
+      }
+    }
+
+    return formattedLines.join('\n');
+  }
+
+  /**
+   * 备用格式化（当无法识别LD结构时使用）
+   */
+  private formatFallback(text: string, indent: string): string {
     const lines = text.split('\n');
     let indentLevel = 0;
     const formattedLines: string[] = [];
@@ -214,11 +336,6 @@ export class LDFormatter implements vscode.DocumentFormattingEditProvider {
         if (!trimmed.includes('</')) {
           indentLevel++;
         }
-      }
-      
-      // 减少缩进（闭合标签后的内容）
-      if (trimmed.startsWith('</')) {
-        // 已经在上面减少了
       }
     }
     

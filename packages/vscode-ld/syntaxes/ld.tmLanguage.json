@@ -14,7 +14,7 @@
   ],
   "repository": {
     "template": {
-      "begin": "(<)(template)(\\s[^>]*?)?(>)",
+      "begin": "(<)(template)(?:\\s[^>]*)?(>)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
@@ -30,6 +30,7 @@
         }
       },
       "end": "(</)(template)(>)",
+      "applyEndPatternLast": true,
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
@@ -44,15 +45,20 @@
       "name": "meta.tag.template.ld",
       "patterns": [
         {
-          "include": "text.html.basic"
+          "include": "#interpolation"
         },
         {
-          "include": "#interpolation"
+          "match": "<[a-zA-Z][a-zA-Z0-9-]*(?:\\s[^>]*)?>",
+          "name": "meta.tag.other.html"
+        },
+        {
+          "match": "</[a-zA-Z][a-zA-Z0-9-]*>",
+          "name": "meta.tag.other.html"
         }
       ]
     },
     "script": {
-      "begin": "(<)(script)(\\s[^>]*?)?(>)",
+      "begin": "(<)(script)(?:\\s[^>]*)?(>)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
@@ -68,6 +74,7 @@
         }
       },
       "end": "(</)(script)(>)",
+      "applyEndPatternLast": true,
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
@@ -83,9 +90,6 @@
       "contentName": "source.ts",
       "patterns": [
         {
-          "include": "source.ts"
-        },
-        {
           "include": "#vue3-apis"
         },
         {
@@ -93,11 +97,40 @@
         },
         {
           "include": "#ld-signals"
+        },
+        {
+          "match": "\\b(import|export|const|let|var|function|class|interface|type|enum|namespace|from|as|default)\\b",
+          "name": "keyword.control.typescript"
+        },
+        {
+          "match": "\\b(if|else|for|while|do|switch|case|break|continue|return|try|catch|finally|throw|new|this|super|extends|implements|static|public|private|protected|readonly|abstract|async|await|yield)\\b",
+          "name": "keyword.control.typescript"
+        },
+        {
+          "match": "\\b(true|false|null|undefined)\\b",
+          "name": "constant.language.typescript"
+        },
+        {
+          "match": "\\b(\\d+(\\.\\d+)?)\\b",
+          "name": "constant.numeric.typescript"
+        },
+        {
+          "match": "\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*'",
+          "name": "string.quoted.typescript"
+        },
+        {
+          "match": "//.*$",
+          "name": "comment.line.double-slash.typescript"
+        },
+        {
+          "begin": "/\\*",
+          "end": "\\*/",
+          "name": "comment.block.typescript"
         }
       ]
     },
     "style": {
-      "begin": "(<)(style)(\\s[^>]*?)?(>)",
+      "begin": "(<)(style)(?:\\s[^>]*)?(>)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
@@ -113,6 +146,7 @@
         }
       },
       "end": "(</)(style)(>)",
+      "applyEndPatternLast": true,
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
@@ -128,7 +162,31 @@
       "contentName": "source.css",
       "patterns": [
         {
-          "include": "source.css"
+          "match": "\\.[a-zA-Z][a-zA-Z0-9_-]*|#[a-zA-Z][a-zA-Z0-9_-]*|[a-zA-Z][a-zA-Z0-9_-]*",
+          "name": "entity.name.tag.css"
+        },
+        {
+          "begin": "\\{",
+          "end": "\\}",
+          "name": "meta.rule.css",
+          "patterns": [
+            {
+              "match": "[a-zA-Z-]+(?=\\s*:)",
+              "name": "support.type.property-name.css"
+            },
+            {
+              "match": ":",
+              "name": "punctuation.separator.key-value.css"
+            },
+            {
+              "match": "[^;\\}]+",
+              "name": "support.constant.property-value.css"
+            },
+            {
+              "match": ";",
+              "name": "punctuation.terminator.rule.css"
+            }
+          ]
         }
       ]
     },
@@ -136,9 +194,19 @@
       "begin": "\\{\\{",
       "end": "\\}\\}",
       "name": "meta.embedded.expression.ld",
+      "applyEndPatternLast": true,
       "patterns": [
         {
-          "include": "source.ts"
+          "match": "\\b(ref|reactive|computed|watch|useState|useEffect)\\b",
+          "name": "support.function.ld"
+        },
+        {
+          "match": "\\b(\\d+(\\.\\d+)?)\\b",
+          "name": "constant.numeric.typescript"
+        },
+        {
+          "match": "\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*'",
+          "name": "string.quoted.typescript"
         }
       ]
     },

@@ -66,7 +66,7 @@ export class LDPrettierFormatter implements vscode.DocumentFormattingEditProvide
       return formatted;
     } catch (error) {
       // 如果整体格式化失败，尝试分段格式化
-      return this.formatSections(text, options);
+      return this.formatSections(text, document, options);
     }
   }
 
@@ -75,51 +75,62 @@ export class LDPrettierFormatter implements vscode.DocumentFormattingEditProvide
    */
   private async formatSections(
     text: string,
+    document: vscode.TextDocument,
     options: vscode.FormattingOptions
   ): Promise<string> {
-    const sections: string[] = [];
-    let currentSection = '';
-    let currentType: 'template' | 'script' | 'style' | null = null;
+    const result: string[] = [];
 
-    const lines = text.split('\n');
-    for (const line of lines) {
-      if (line.trim().startsWith('<template')) {
-        if (currentSection && currentType) {
-          sections.push(await this.formatSection(currentSection, currentType, options));
-        }
-        currentSection = line + '\n';
-        currentType = 'template';
-      } else if (line.trim().startsWith('<script')) {
-        if (currentSection && currentType) {
-          sections.push(await this.formatSection(currentSection, currentType, options));
-        }
-        currentSection = line + '\n';
-        currentType = 'script';
-      } else if (line.trim().startsWith('<style')) {
-        if (currentSection && currentType) {
-          sections.push(await this.formatSection(currentSection, currentType, options));
-        }
-        currentSection = line + '\n';
-        currentType = 'style';
-      } else if (line.trim().startsWith('</template>') || 
-                 line.trim().startsWith('</script>') || 
-                 line.trim().startsWith('</style>')) {
-        currentSection += line;
-        if (currentSection && currentType) {
-          sections.push(await this.formatSection(currentSection, currentType, options));
-        }
-        currentSection = '';
-        currentType = null;
+    // 提取template部分
+    const templateMatch = text.match(/(<template[^>]*>)([\s\S]*?)(<\/template>)/i);
+    if (templateMatch) {
+      const templateTag = templateMatch[1];
+      const templateContent = templateMatch[2].trim();
+      const templateClose = templateMatch[3];
+      
+      if (templateContent) {
+        const formatted = await this.formatSection(templateContent, 'template', document, options);
+        result.push(templateTag + '\n' + formatted + '\n' + templateClose);
       } else {
-        currentSection += line + '\n';
+        result.push(templateTag + '\n' + templateClose);
       }
     }
 
-    if (currentSection && currentType) {
-      sections.push(await this.formatSection(currentSection, currentType, options));
+    // 提取script部分
+    const scriptMatch = text.match(/(<script[^>]*>)([\s\S]*?)(<\/script>)/i);
+    if (scriptMatch) {
+      const scriptTag = scriptMatch[1];
+      const scriptContent = scriptMatch[2].trim();
+      const scriptClose = scriptMatch[3];
+      
+      if (scriptContent) {
+        const formatted = await this.formatSection(scriptContent, 'script', document, options);
+        result.push(scriptTag + '\n' + formatted + '\n' + scriptClose);
+      } else {
+        result.push(scriptTag + '\n' + scriptClose);
+      }
     }
 
-    return sections.join('\n\n');
+    // 提取style部分
+    const styleMatch = text.match(/(<style[^>]*>)([\s\S]*?)(<\/style>)/i);
+    if (styleMatch) {
+      const styleTag = styleMatch[1];
+      const styleContent = styleMatch[2].trim();
+      const styleClose = styleMatch[3];
+      
+      if (styleContent) {
+        const formatted = await this.formatSection(styleContent, 'style', document, options);
+        result.push(styleTag + '\n' + formatted + '\n' + styleClose);
+      } else {
+        result.push(styleTag + '\n' + styleClose);
+      }
+    }
+
+    // 如果没有匹配到任何部分，返回原文本
+    if (result.length === 0) {
+      return text;
+    }
+
+    return result.join('\n\n');
   }
 
   /**
@@ -128,10 +139,13 @@ export class LDPrettierFormatter implements vscode.DocumentFormattingEditProvide
   private async formatSection(
     content: string,
     type: 'template' | 'script' | 'style',
+    document: vscode.TextDocument,
     options: vscode.FormattingOptions
   ): Promise<string> {
     try {
       let parser: string;
+      const prettierConfig = await this.getPrettierConfig(document.uri);
+      
       switch (type) {
         case 'template':
           parser = 'html';
@@ -147,15 +161,14 @@ export class LDPrettierFormatter implements vscode.DocumentFormattingEditProvide
       }
 
       const formatted = await prettier.format(content, {
+        ...prettierConfig,
         parser,
         tabWidth: options.tabSize || 2,
         useTabs: !options.insertSpaces,
-        semi: true,
-        singleQuote: true,
-        trailingComma: 'es5',
       });
 
-      return formatted;
+      // 移除Prettier添加的末尾换行（如果有）
+      return formatted.trimEnd();
     } catch (error) {
       // 如果格式化失败，返回原内容
       console.error(`格式化${type}部分失败:`, error);

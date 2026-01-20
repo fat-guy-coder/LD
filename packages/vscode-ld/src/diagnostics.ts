@@ -42,7 +42,15 @@ export class LDDiagnosticsProvider {
     const diagnostics: vscode.Diagnostic[] = [];
 
     try {
+      // 限制文档大小，防止性能问题
       const text = document.getText();
+      if (text.length > 1000000) {
+        // 对于超大文件，只进行基本检查
+        const structureDiagnostics = this.checkStructure(text, document);
+        diagnostics.push(...structureDiagnostics);
+        this.diagnosticCollection.set(document.uri, diagnostics);
+        return;
+      }
 
       // 优先使用 @vue/compiler-sfc 解析（如果可用）；否则降级为纯文本结构检查
       // 延迟加载 sfcParse，避免在模块加载时执行
@@ -230,43 +238,58 @@ export class LDDiagnosticsProvider {
   private checkTemplate(content: string, document: vscode.TextDocument): vscode.Diagnostic[] {
     const diagnostics: vscode.Diagnostic[] = [];
 
-    // 检查未闭合的标签
-    const openTags: string[] = [];
-    const tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
-    let match;
-
-    while ((match = tagRegex.exec(content)) !== null) {
-      const tagName = match[1];
-      const isClosing = match[0].startsWith('</');
-
-      if (isClosing) {
-        const lastOpenTag = openTags.pop();
-        if (lastOpenTag !== tagName) {
-          const position = document.positionAt(match.index);
-          diagnostics.push(
-            new vscode.Diagnostic(
-              new vscode.Range(position, position.translate(0, match[0].length)),
-              `标签未正确闭合: ${tagName}`,
-              vscode.DiagnosticSeverity.Warning
-            )
-          );
-        }
-      } else if (!match[0].endsWith('/>')) {
-        // 不是自闭合标签
-        openTags.push(tagName);
+    try {
+      // 限制内容长度
+      if (content.length > 500000) {
+        return diagnostics;
       }
-    }
 
-    // 检查未闭合的标签
-    if (openTags.length > 0) {
-      const position = document.positionAt(content.length);
-      diagnostics.push(
-        new vscode.Diagnostic(
-          new vscode.Range(position, position),
-          `未闭合的标签: ${openTags.join(', ')}`,
-          vscode.DiagnosticSeverity.Warning
-        )
-      );
+      // 检查未闭合的标签
+      const openTags: string[] = [];
+      const tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
+      let match;
+      let matchCount = 0;
+      const maxMatches = 10000; // 限制匹配次数，防止无限循环
+
+      while ((match = tagRegex.exec(content)) !== null) {
+        matchCount++;
+        if (matchCount > maxMatches) {
+          break; // 防止无限循环
+        }
+        const tagName = match[1];
+        const isClosing = match[0].startsWith('</');
+
+        if (isClosing) {
+          const lastOpenTag = openTags.pop();
+          if (lastOpenTag !== tagName) {
+            const position = document.positionAt(match.index);
+            diagnostics.push(
+              new vscode.Diagnostic(
+                new vscode.Range(position, position.translate(0, match[0].length)),
+                `标签未正确闭合: ${tagName}`,
+                vscode.DiagnosticSeverity.Warning
+              )
+            );
+          }
+        } else if (!match[0].endsWith('/>')) {
+          // 不是自闭合标签
+          openTags.push(tagName);
+        }
+      }
+
+      // 检查未闭合的标签
+      if (openTags.length > 0) {
+        const position = document.positionAt(content.length);
+        diagnostics.push(
+          new vscode.Diagnostic(
+            new vscode.Range(position, position),
+            `未闭合的标签: ${openTags.join(', ')}`,
+            vscode.DiagnosticSeverity.Warning
+          )
+        );
+      }
+    } catch (error) {
+      // 忽略错误，避免崩溃
     }
 
     return diagnostics;
@@ -278,31 +301,46 @@ export class LDDiagnosticsProvider {
   private checkScript(content: string, document: vscode.TextDocument): vscode.Diagnostic[] {
     const diagnostics: vscode.Diagnostic[] = [];
 
-    // 检查常见的TypeScript/JavaScript错误
-    // 这里可以集成ESLint或其他工具
+    try {
+      // 限制内容长度
+      if (content.length > 500000) {
+        return diagnostics;
+      }
 
-    // 检查未使用的导入（简单检查）
-    const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
-    const imports = new Set<string>();
-    let match;
+      // 检查常见的TypeScript/JavaScript错误
+      // 这里可以集成ESLint或其他工具
 
-    while ((match = importRegex.exec(content)) !== null) {
-      imports.add(match[1]);
-    }
+      // 检查未使用的导入（简单检查）
+      const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
+      const imports = new Set<string>();
+      let match;
+      let matchCount = 0;
+      const maxMatches = 1000; // 限制匹配次数
 
-    // 检查Vue3和React的混合使用（警告）
-    const hasVue3 = content.includes('ref(') || content.includes('computed(') || content.includes('watch(');
-    const hasReact = content.includes('useState') || content.includes('useEffect');
+      while ((match = importRegex.exec(content)) !== null) {
+        matchCount++;
+        if (matchCount > maxMatches) {
+          break;
+        }
+        imports.add(match[1]);
+      }
 
-    if (hasVue3 && hasReact) {
-      const position = document.positionAt(0);
-      diagnostics.push(
-        new vscode.Diagnostic(
-          new vscode.Range(position, position),
-          '检测到Vue3和React语法混合使用，请确保这是预期的行为',
-          vscode.DiagnosticSeverity.Information
-        )
-      );
+      // 检查Vue3和React的混合使用（警告）
+      const hasVue3 = content.includes('ref(') || content.includes('computed(') || content.includes('watch(');
+      const hasReact = content.includes('useState') || content.includes('useEffect');
+
+      if (hasVue3 && hasReact) {
+        const position = document.positionAt(0);
+        diagnostics.push(
+          new vscode.Diagnostic(
+            new vscode.Range(position, position),
+            '检测到Vue3和React语法混合使用，请确保这是预期的行为',
+            vscode.DiagnosticSeverity.Information
+          )
+        );
+      }
+    } catch (error) {
+      console.error('检查script块时出错:', error);
     }
 
     return diagnostics;
@@ -314,18 +352,27 @@ export class LDDiagnosticsProvider {
   private checkStyle(content: string, document: vscode.TextDocument): vscode.Diagnostic[] {
     const diagnostics: vscode.Diagnostic[] = [];
 
-    // 检查CSS语法错误（简单检查）
-    const unclosedBraces = (content.match(/\{/g) || []).length - (content.match(/\}/g) || []).length;
+    try {
+      // 限制内容长度
+      if (content.length > 500000) {
+        return diagnostics;
+      }
 
-    if (unclosedBraces !== 0) {
-      const position = document.positionAt(content.length);
-      diagnostics.push(
-        new vscode.Diagnostic(
-          new vscode.Range(position, position),
-          `CSS块未正确闭合，缺少 ${Math.abs(unclosedBraces)} 个大括号`,
-          vscode.DiagnosticSeverity.Error
-        )
-      );
+      // 检查CSS语法错误（简单检查）
+      const unclosedBraces = (content.match(/\{/g) || []).length - (content.match(/\}/g) || []).length;
+
+      if (unclosedBraces !== 0) {
+        const position = document.positionAt(content.length);
+        diagnostics.push(
+          new vscode.Diagnostic(
+            new vscode.Range(position, position),
+            `CSS块未正确闭合，缺少 ${Math.abs(unclosedBraces)} 个大括号`,
+            vscode.DiagnosticSeverity.Error
+          )
+        );
+      }
+    } catch (error) {
+      console.error('检查style块时出错:', error);
     }
 
     return diagnostics;

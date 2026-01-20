@@ -75,8 +75,9 @@ npm run package
 
 如果需要发布到VS Code市场：
 
-1. 安装 `vsce`: `npm install -g vsce`
+1. 安装 `@vscode/vsce`: `npm install -g @vscode/vsce`
+   - 或者使用项目本地安装：`pnpm install`（已在 devDependencies 中）
 2. 登录: `vsce login <publisher-name>`
-3. 发布: `vsce publish`
+3. 发布: `pnpm run publish` 或 `npx @vscode/vsce publish`
 
-注意：发布需要Azure DevOps账号和发布者账号。
+注意：发布需要Azure DevOps账号和发布者账号。详细步骤请参考 [PUBLISH.md](./PUBLISH.md)。

@@ -13,68 +13,101 @@ export class LDCompletionProvider implements vscode.CompletionItemProvider {
     token: vscode.CancellationToken,
     context: vscode.CompletionContext
   ): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
-    const config = vscode.workspace.getConfiguration('ld.completion');
-    if (!config.get<boolean>('enable', true)) {
+    try {
+      // 检查取消令牌
+      if (token.isCancellationRequested) {
+        return [];
+      }
+
+      const config = vscode.workspace.getConfiguration('ld.completion');
+      if (!config.get<boolean>('enable', true)) {
+        return [];
+      }
+
+      // 限制文档大小，防止性能问题
+      if (document.getText().length > 1000000) {
+        return [];
+      }
+
+      const linePrefix = document.lineAt(position).text.substring(0, position.character);
+      const items: vscode.CompletionItem[] = [];
+
+      // 检测是否在script标签中
+      const textBeforeCursor = document.getText(
+        new vscode.Range(new vscode.Position(0, 0), position)
+      );
+      
+      // 限制文本长度
+      if (textBeforeCursor.length > 500000) {
+        return items;
+      }
+
+      const isInScript = this.isInScriptBlock(textBeforeCursor);
+
+      // Vue3 API补全
+      if (isInScript) {
+        items.push(...this.getVue3Completions(linePrefix));
+        items.push(...this.getReactCompletions(linePrefix));
+        items.push(...this.getLDCompletions(linePrefix));
+      }
+
+      // Template标签补全
+      if (this.isInTemplateBlock(textBeforeCursor)) {
+        items.push(...this.getTemplateCompletions(linePrefix));
+      }
+
+      // 标签补全
+      if (linePrefix.endsWith('<')) {
+        items.push(...this.getTagCompletions());
+      }
+
+      return items;
+    } catch (error) {
+      console.error('补全提供者错误:', error);
       return [];
     }
-
-    const linePrefix = document.lineAt(position).text.substr(0, position.character);
-    const items: vscode.CompletionItem[] = [];
-
-    // 检测是否在script标签中
-    const textBeforeCursor = document.getText(
-      new vscode.Range(new vscode.Position(0, 0), position)
-    );
-    const isInScript = this.isInScriptBlock(textBeforeCursor);
-
-    // Vue3 API补全
-    if (isInScript) {
-      items.push(...this.getVue3Completions(linePrefix));
-      items.push(...this.getReactCompletions(linePrefix));
-      items.push(...this.getLDCompletions(linePrefix));
-    }
-
-    // Template标签补全
-    if (this.isInTemplateBlock(textBeforeCursor)) {
-      items.push(...this.getTemplateCompletions(linePrefix));
-    }
-
-    // 标签补全
-    if (linePrefix.endsWith('<')) {
-      items.push(...this.getTagCompletions());
-    }
-
-    return items;
   }
 
   /**
    * 检查是否在script块中
    */
   private isInScriptBlock(text: string): boolean {
-    const scriptMatches = text.match(/<script[^>]*>/g);
-    const scriptCloseMatches = text.match(/<\/script>/g);
-    
-    if (!scriptMatches) return false;
-    
-    const lastScriptOpen = text.lastIndexOf('<script');
-    const lastScriptClose = text.lastIndexOf('</script>');
-    
-    return lastScriptOpen > lastScriptClose || lastScriptClose === -1;
+    try {
+      // 限制文本长度，防止性能问题
+      if (text.length > 100000) {
+        return false;
+      }
+      
+      const lastScriptOpen = text.lastIndexOf('<script');
+      if (lastScriptOpen === -1) return false;
+      
+      const lastScriptClose = text.lastIndexOf('</script>', lastScriptOpen);
+      
+      return lastScriptClose === -1 || lastScriptOpen > lastScriptClose;
+    } catch {
+      return false;
+    }
   }
 
   /**
    * 检查是否在template块中
    */
   private isInTemplateBlock(text: string): boolean {
-    const templateMatches = text.match(/<template[^>]*>/g);
-    const templateCloseMatches = text.match(/<\/template>/g);
-    
-    if (!templateMatches) return false;
-    
-    const lastTemplateOpen = text.lastIndexOf('<template');
-    const lastTemplateClose = text.lastIndexOf('</template>');
-    
-    return lastTemplateOpen > lastTemplateClose || lastTemplateClose === -1;
+    try {
+      // 限制文本长度，防止性能问题
+      if (text.length > 100000) {
+        return false;
+      }
+      
+      const lastTemplateOpen = text.lastIndexOf('<template');
+      if (lastTemplateOpen === -1) return false;
+      
+      const lastTemplateClose = text.lastIndexOf('</template>', lastTemplateOpen);
+      
+      return lastTemplateClose === -1 || lastTemplateOpen > lastTemplateClose;
+    } catch {
+      return false;
+    }
   }
 
   /**

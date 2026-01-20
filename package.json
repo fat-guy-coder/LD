@@ -53,6 +53,7 @@
     "bench:memory": "tsx scripts/benchmark.mts memory",
     "test:memory": "tsx scripts/memory.mts",
     "test:memory:filter": "tsx scripts/memory.mts --filter",
+    "install:memory-test-deps": "tsx scripts/install-puppeteer.mts",
     "lint": "eslint packages/ --ext .ts,.tsx",
     "lint:fix": "eslint packages/ --ext .ts,.tsx --fix",
     "lint:staged": "lint-staged",
@@ -75,6 +76,7 @@
     "clean": "rimraf packages/*/dist packages/*/coverage packages/*/tsconfig.tsbuildinfo",
     "clean:all": "rimraf node_modules packages/*/node_modules packages/*/dist packages/*/coverage",
     "clean:reports": "rimraf reports coverage",
+    "install:puppeteer": "tsx scripts/install-puppeteer.mts",
     "prepare": "husky install",
     "ci": "pnpm lint && pnpm type-check:all && pnpm test && pnpm build:prod",
     "ci:quick": "pnpm lint && pnpm type-check:all && pnpm build:fast"
@@ -115,7 +117,6 @@
     "lint-staged": "^15.2.0",
     "ora": "^6.3.1",
     "prettier": "^3.2.4",
-    "puppeteer": "^24.34.0",
     "rimraf": "^5.0.5",
     "rollup": "^4.9.4",
     "rollup-plugin-dts": "^6.3.0",

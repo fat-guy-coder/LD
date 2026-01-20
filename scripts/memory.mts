@@ -7,12 +7,33 @@
 import { dirname, resolve, relative } from 'path'
 import { fileURLToPath } from 'url'
 import { promises as fs } from 'fs'
-import puppeteer, { type Browser, type Page } from 'puppeteer'
 import chalk from 'chalk'
 import ora from 'ora'
 import Table from 'cli-table3'
 import { createServer, type ViteDevServer } from 'vite'
 import { glob } from 'glob'
+
+// 动态导入 puppeteer，如果不存在则提示用户安装
+// 使用 any 类型避免类型导入失败（puppeteer 是可选依赖）
+type PuppeteerBrowser = any
+type PuppeteerPage = any
+
+let puppeteer: { launch: (options?: any) => Promise<PuppeteerBrowser> } | null = null
+
+async function loadPuppeteer(): Promise<void> {
+  try {
+    const puppeteerModule = await import('puppeteer')
+    puppeteer = puppeteerModule.default
+  } catch (error) {
+    console.error(chalk.red.bold('\n❌ Puppeteer 未安装！\n'))
+    console.log(chalk.yellow('Puppeteer 是用于内存测试的可选依赖，需要单独安装。'))
+    console.log(chalk.cyan('\n请运行以下命令安装：'))
+    console.log(chalk.white('  pnpm run install:memory-test-deps'))
+    console.log(chalk.white('  或者'))
+    console.log(chalk.white('  pnpm install puppeteer --save-dev\n'))
+    process.exit(1)
+  }
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = resolve(__dirname, '..')
@@ -27,7 +48,7 @@ interface TestResult {
 
 class MemoryRunner {
   private viteServer: ViteDevServer | null = null
-  private browser: Browser | null = null
+  private browser: PuppeteerBrowser | null = null
   private testFiles: string[] = []
 
   async run(): Promise<void> {
@@ -35,6 +56,14 @@ class MemoryRunner {
     const spinner = ora('Initializing...').start()
 
     try {
+      // 首先加载 Puppeteer
+      spinner.text = 'Loading Puppeteer...'
+      await loadPuppeteer()
+      if (!puppeteer) {
+        throw new Error('Failed to load Puppeteer')
+      }
+      spinner.succeed('Puppeteer loaded.')
+
       spinner.text = 'Discovering memory test files...'
       this.testFiles = await this.findTestFiles()
       if (this.testFiles.length === 0) {
@@ -49,7 +78,7 @@ class MemoryRunner {
       spinner.succeed(`Vite server running on port ${port}.`)
 
       spinner.text = 'Launching Puppeteer...'
-            this.browser = await puppeteer.launch({
+      this.browser = await puppeteer.launch({
         headless: true,
       })
       spinner.succeed('Puppeteer launched.')
@@ -162,7 +191,7 @@ class MemoryRunner {
     }
   }
 
-  private async getMemoryUsage(page: Page): Promise<{ JSHeapUsedSize: number }> {
+  private async getMemoryUsage(page: PuppeteerPage): Promise<{ JSHeapUsedSize: number }> {
     const metrics = await page.metrics()
     return {
       JSHeapUsedSize: metrics.JSHeapUsedSize ?? 0,
