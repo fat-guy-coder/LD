@@ -118,6 +118,20 @@
           </div>
         </div>
       </div>
+
+      <!-- 视图：AOT PoC -->
+      <div id="view-aot-poc" class="view">
+        <section class="poc-panel" style="padding: 12px; border: 1px solid #eee; border-radius: 8px; background: #fff;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap: 12px;">
+            <div>
+              <strong>AOT PoC</strong>
+              <div style="color:#666; font-size:12px;">验证：.vue 被编译成“局部变量 + 直写 DOM 文本节点”</div>
+            </div>
+            <button id="btn-run-aot-poc" class="console-button">运行 PoC</button>
+          </div>
+          <div id="aot-poc-mount" style="margin-top:10px; padding: 10px; min-height: 44px; border: 1px dashed #ccc; border-radius: 6px;"></div>
+        </section>
+      </div>
     </main>
   </div>
 
