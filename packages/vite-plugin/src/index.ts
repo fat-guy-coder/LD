@@ -24,7 +24,7 @@ function isFromLdVue(node: t.ImportDeclaration): boolean {
 function collectDefineExportsLocalNames(ast: t.File): Set<string> {
   const names = new Set<string>()
   babelTraverse(ast, {
-    ImportDeclaration(path) {
+    ImportDeclaration(path: any) {
       const node = path.node
       if (!isFromLdVue(node)) return
       for (const spec of node.specifiers) {
@@ -96,7 +96,7 @@ function extractDefineExportsFromSetup(scriptSetupCode: string): ExtractResult {
   let removed = false
 
   babelTraverse(ast, {
-    CallExpression(path) {
+    CallExpression(path: any) {
       const callee = path.node.callee
       if (!t.isIdentifier(callee)) return
       if (!localNames.has(callee.name)) return
