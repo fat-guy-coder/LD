@@ -27,10 +27,10 @@
     }
   },
   "currentState": {
-    "module": "compiler-ld",
+    "module": "compiler-sfc",
     "file": "src/index.ts",
     "status": "active",
-    "notes": "策略已转向AOT最终产物的性能与体积：当前优先推进编译链路（compiler-*）。compiler-core已有parse/transform/codegen雏形，compiler-ld目前仅实现.ld解析（@vue/compiler-sfc）。下一步聚焦：补齐compiler-ld的script编译/导出变量与类型（exportCapability P0），并串联compiler-core生成最小、零运行时的原生JS/CSS输出。"
+    "notes": "当前主线聚焦于 Vue SFC（.vue）与 TSX（.tsx）的编译增强：导出能力、AOT 最终产物优化，并串联 compiler-core 生成最小、零运行时的原生 JS/CSS 输出。"
   },
   "aiDirectives": {
     "corePrinciples": [
@@ -52,17 +52,27 @@
       "MUST_OPTIMIZE_FOR_FINAL_OUTPUT_NOT_FRAMEWORK_SIZE"
     ],
     "referenceDocuments": {
-      "description": "以下MD文档包含重要的设计决策、实现方案和竞争力分析，AI在生成代码前应该阅读这些文档以理解项目全貌。",
+      "description": "以下MD文档包含重要的设计决策、实现方案和路线图。",
       "required": [
-        "ai-generate-code-guidance/ld-file-requirements.md",
         "ai-generate-code-guidance/implementation-plan.md",
-        "ai-generate-code-guidance/competitive-features.md",
         "ai-generate-code-guidance/roadmap.md"
       ],
       "whenToRead": {
-        "beforeCompilerWork": "在开发编译器相关功能前，必须阅读ld-file-requirements.md和implementation-plan.md",
-        "beforeNewFeatures": "在实现新功能前，必须阅读competitive-features.md了解市场定位和优先级",
+        "beforeCompilerWork": "在开发编译器相关功能前，必须阅读implementation-plan.md",
         "planningPhase": "在规划开发任务时，必须阅读roadmap.md了解整体路线图"
+      }
+    },
+    "productStrategy": {
+      "positioning": "目标是让 Vue/React 开发体验更好，而不是创造全新的生态或强制开发者学习新语法。",
+      "principles": [
+        "优先复用 Vue/React 既有语法与工具链（Volar、TS Server、Prettier 等）",
+        "新文件格式/新语法仅在显著提升产物质量与 DX 且无法通过插件方式实现时才引入",
+        "以渐进式增强为主：先保证高亮/类型/诊断/格式化等 IDE 体验稳定，再逐步开放更多能力"
+      ],
+      "rustWasm": {
+        "priority": "deferred_optional",
+        "policy": "Rust/C++/WASM 属于可选优化项。仅在核心功能（编译链路、导出能力、稳定 IDE 体验、性能与体积目标）全部完成后再评估与实现。",
+        "rationale": "WASM 集成会显著增加工具链复杂度与维护成本，过早引入会分散主线目标。"
       }
     },
     "prohibitions": [
@@ -215,39 +225,6 @@
         },
         "optimizationTarget": "所有优化工作都应该针对最终编译产物，而不是框架本身的代码。编译器的复杂度可以接受，只要最终输出优秀。"
       },
-      "ld": {
-        "parser": "@vue/compiler-sfc (for template/script/style parsing)",
-        "transformer": "@ld/compiler-core (custom, Vue3/React → LD IR)",
-        "generator": "@ld/compiler-core (custom, LD IR → native JS)",
-        "output": "Direct, fine-grained native DOM manipulations. Zero VDOM. Zero runtime.",
-        "fileFormat": {
-          "structure": "template + script + style (same as Vue SFC)",
-          "syntaxSupport": [
-            "Vue3 Composition API (ref, computed, watch, etc.)",
-            "React Hooks (useState, useEffect, etc.)",
-            "Mixed usage of both syntaxes in same file"
-          ],
-          "exportCapability": {
-            "variables": "MUST support exporting variables from .ld files",
-            "types": "MUST support exporting TypeScript types from .ld files",
-            "externalTypes": "OPTIONAL: Support importing types/variables from external .ts files",
-            "rationale": "Solve Vue SFC limitation: cannot export variables and types"
-          },
-          "compilationOutput": {
-            "javascript": "Single optimized .js file with direct DOM operations",
-            "css": "Single .css file (scoped styles extracted)",
-            "types": "Optional .d.ts file for exported types",
-            "runtime": "ZERO runtime dependency - pure native JavaScript",
-            "virtualDOM": "ZERO virtual DOM - direct DOM manipulation only"
-          },
-          "futureExtensions": {
-            "rustSupport": "Support Rust syntax via imports, compile to WebAssembly",
-            "cppSupport": "Support C++ syntax via imports, compile to WebAssembly",
-            "wasmIntegration": "Generate glue code for WebAssembly modules",
-            "canvasOptimization": "Optimize for high-performance Canvas/SVG rendering"
-          }
-        }
-      },
       "sfc": {
         "parser": "@vue/compiler-sfc",
         "transformer": "@ld/compiler-core (custom)",
@@ -271,7 +248,6 @@
       "vue",
       "compiler-core",
       "compiler-sfc",
-      "compiler-ld",
       "router",
       "ld",
       "vite-plugin",
@@ -282,22 +258,13 @@
       "wasm-bridge"
     ],
     "competitiveFeatures": {
-      "multiLanguageSFC": {
-        "priority": "P0",
-        "description": "支持在.ld文件中混合使用Vue3、React Hooks、Rust和C++",
-        "status": "planned",
-        "modules": [
-          "compiler-ld",
-          "wasm-bridge"
-        ]
-      },
       "zeroRuntime": {
         "priority": "P0",
         "description": "完全零运行时，编译后纯原生JavaScript",
         "status": "in-progress",
         "modules": [
           "compiler-core",
-          "compiler-ld"
+          "compiler-sfc"
         ]
       },
       "canvasOptimization": {
@@ -319,10 +286,10 @@
       },
       "exportCapability": {
         "priority": "P0",
-        "description": "支持导出变量和TypeScript类型",
+        "description": "支持从 .vue / .tsx 编译入口导出变量与 TypeScript 类型",
         "status": "in-progress",
         "modules": [
-          "compiler-ld"
+          "compiler-sfc"
         ]
       }
     }

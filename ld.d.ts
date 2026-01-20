@@ -4,6 +4,8 @@
  * 开发者可以无缝使用Vue3和React语法，但实际运行的是LD框架
  */
 
+/// <reference path="./.ld/exports.vue.d.ts" />
+
 // JSX 运行时声明
 declare module 'ld/jsx-runtime' {
   export function jsx(type: any, props: any, key?: any): any
@@ -336,6 +338,94 @@ declare module 'ld' {
     AnimationEvent,
     TransitionEvent,
   }
+}
+
+// ============================================================================
+// 模块声明：从 'vue' 和 'react' 导入时的类型映射（仅类型层面，实际实现由 LD 提供）
+// ============================================================================
+
+declare module 'vue' {
+  // Vue3 Composition API：全部从 'ld' 类型转发
+  export {
+    ref,
+    reactive,
+    computed,
+    watch,
+    watchEffect,
+    onMounted,
+    onUpdated,
+    onUnmounted,
+    onBeforeMount,
+    onBeforeUpdate,
+    onBeforeUnmount,
+    readonly,
+    toRef,
+    toRefs,
+    unref,
+    isRef,
+    toRaw,
+    markRaw,
+    type Ref,
+    type ComputedRef,
+    type WatchOptions,
+    type UnwrapRef,
+  } from 'ld'
+}
+
+// ============================================================================
+// 模块声明：@ld/vue（用于 defineExports 等编译期宏/工具函数的类型）
+// ============================================================================
+
+declare module '@ld/vue' {
+  /**
+   * Used by @ld/vite-plugin to collect extra named exports from <script setup>.
+   * Runtime is irrelevant; the call is removed/processed by the plugin.
+   */
+  export function defineExports(exports: Record<string, any>): void
+}
+
+
+declare module 'react' {
+  // React Hooks 与相关类型：全部从 'ld' 类型转发
+  export {
+    useState,
+    useEffect,
+    useMemo,
+    useCallback,
+    useRef,
+    useContext,
+    useReducer,
+    useLayoutEffect,
+    useTransition,
+    useDeferredValue,
+    useSyncExternalStore,
+    type Dispatch,
+    type SetStateAction,
+    type DependencyList,
+    type EffectCallback,
+    type MutableRefObject,
+    type RefObject,
+    type Context,
+    type Reducer,
+    type DispatchReducer,
+    type TransitionStartFunction,
+    type StoreSubscribe,
+    type StoreGetSnapshot,
+    type ChangeEvent,
+    type SyntheticEvent,
+    type KeyboardEvent,
+    type MouseEvent,
+    type FocusEvent,
+    type FormEvent,
+    type TouchEvent,
+    type WheelEvent,
+    type AnimationEvent,
+    type TransitionEvent,
+  } from 'ld'
+
+  // 兼容 import React from 'react' / React.* 的用法
+  export = React
+  export as namespace React
 }
 
 // ============================================================================

@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
  * 扩展激活函数
  */
 export function activate(context: vscode.ExtensionContext) {
+  return;
   try {
     console.log('LD Language Support扩展已激活');
     

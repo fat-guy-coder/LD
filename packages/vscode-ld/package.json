@@ -14,65 +14,20 @@
         "vscode": "^1.80.0"
     },
     "categories": [
-        "Programming Languages",
-        "Formatters",
-        "Linters"
+        "Programming Languages"
     ],
     "keywords": [
         "ld",
         "vue",
         "react",
         "typescript",
-        "syntax highlighting",
-        "formatting"
+        "syntax highlighting"
     ],
     "main": "./out/extension.js",
+    "activationEvents": [
+       
+    ],
     "contributes": {
-        "commands": [
-            {
-                "command": "ld.formatDocument",
-                "title": "格式化LD文档",
-                "category": "LD",
-                "icon": "$(code)"
-            },
-            {
-                "command": "ld.setDefaultFormatter",
-                "title": "将LD设置为默认格式化器（工作区）",
-                "category": "LD",
-                "icon": "$(settings-gear)"
-            }
-        ],
-        "keybindings": [
-            {
-                "command": "editor.action.formatDocument",
-                "key": "shift+alt+f",
-                "when": "editorLangId == ld && editorTextFocus && !editorReadonly"
-            }
-        ],
-        "menus": {
-            "commandPalette": [
-                {
-                    "command": "ld.formatDocument"
-                },
-                {
-                    "command": "ld.setDefaultFormatter"
-                }
-            ],
-            "editor/context": [
-                {
-                    "command": "ld.formatDocument",
-                    "when": "editorLangId == ld",
-                    "group": "1_modification"
-                }
-            ],
-            "editor/title": [
-                {
-                    "command": "ld.formatDocument",
-                    "when": "editorLangId == ld",
-                    "group": "navigation"
-                }
-            ]
-        },
         "languages": [
             {
                 "id": "ld",
@@ -98,59 +53,7 @@
                 "language": "ld",
                 "path": "./snippets/ld.code-snippets"
             }
-        ],
-        "formatters": [
-            {
-                "language": "ld"
-            }
-        ],
-        "iconThemes": [
-            {
-                "id": "ld-icons",
-                "label": "LD Icons",
-                "path": "./icons/ld-icon-theme.json"
-            }
-        ],
-        "configuration": {
-            "title": "LD Language",
-            "properties": {
-                "ld.highlight.enable": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "启用LD文件语法高亮（默认启用）"
-                },
-                "ld.format.enable": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "启用LD文件格式化（默认禁用，用于排查问题）"
-                },
-                "ld.format.indentSize": {
-                    "type": "number",
-                    "default": 2,
-                    "description": "缩进大小"
-                },
-                "ld.format.insertSpaces": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "使用空格缩进"
-                },
-                "ld.completion.enable": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "启用自动补全（默认禁用，用于排查问题）"
-                },
-                "ld.diagnostics.enable": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "启用错误检测和诊断（默认禁用，用于排查问题）"
-                },
-                "ld.format.usePrettier": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "使用Prettier进行格式化（需要安装prettier）"
-                }
-            }
-        }
+        ]
     },
     "scripts": {
         "compile": "tsup",

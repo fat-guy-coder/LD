@@ -1,5 +1,8 @@
 {
   "extends": "../tsconfig.base.json",
+  "files": [
+    "../ld.d.ts"
+  ],
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "ld",

@@ -1,6 +1,8 @@
 {
   "extends": "./tsconfig.base.json",
-  "files": [],
+  "files": [
+    "./ld.d.ts"
+  ],
   "references": [
     {
       "path": "./packages/reactivity"

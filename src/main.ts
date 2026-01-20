@@ -698,6 +698,32 @@ async function loadModuleMemoryData(): Promise<void> {
 // ==================================================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  // PoC: AOT .vue direct DOM update verification
+  const runBtn = document.getElementById('btn-run-aot-poc') as HTMLButtonElement | null
+  const mountEl = document.getElementById('aot-poc-mount') as HTMLDivElement | null
+  if (runBtn && mountEl) {
+    const btnAny = runBtn as HTMLButtonElement & { __ldAttached?: boolean }
+    if (!btnAny.__ldAttached) {
+      runBtn.addEventListener('click', async () => {
+        mountEl.innerHTML = ''
+        try {
+          const mod = (await import('./poc-aot-button.vue')) as unknown as { mount?: (el: HTMLElement) => void }
+          if (typeof mod.mount !== 'function') {
+            console.error('[AOT PoC] 未找到导出的 mount(el) 函数；说明 PoC transform 可能未命中。')
+            mountEl.textContent = 'PoC 未命中：未找到 mount(el) 导出。'
+            return
+          }
+          mod.mount(mountEl)
+          console.info('[AOT PoC] mount 已执行。点击按钮应直接更新文本节点（不走通用 reactivity 链路）。')
+        } catch (e) {
+          console.error('[AOT PoC] 加载/执行失败:', e)
+          mountEl.textContent = 'PoC 运行失败，查看控制台日志。'
+        }
+      })
+      btnAny.__ldAttached = true
+    }
+  }
+
   // 初始化开发控制台
   const devConsole = new DevConsole()
   void devConsole.init()

@@ -18,7 +18,6 @@ export default defineConfig({
       { find: '@ld/react', replacement: resolve(__dirname, 'packages/react/src') },
       { find: '@ld/vue', replacement: resolve(__dirname, 'packages/vue/src') },
       { find: '@ld/babel-plugin-ld', replacement: resolve(__dirname, 'packages/babel-plugin-ld/src') },
-      { find: '@ld/compiler-ld', replacement: resolve(__dirname, 'packages/compiler-ld/src') },
     ],
   },
   test: {

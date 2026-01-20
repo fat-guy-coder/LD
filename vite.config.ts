@@ -68,6 +68,8 @@ export default defineConfig({
   // 插件配置
   plugins: [
     vitePluginDevConsole(),
+    // @ld/vite-plugin: provides .vue export enhancements + AOT PoC transforms
+    (await import('@ld/vite-plugin')).default(),
     {
       name: 'serve-statistics-json',
       configureServer(server) {

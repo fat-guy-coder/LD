@@ -1,12 +1,22 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "LD",
+  "scopeName": "text.html.ld",
   "patterns": [
     {
       "include": "#template"
     },
     {
+      "include": "#script-ts"
+    },
+    {
       "include": "#script"
+    },
+    {
+      "include": "#style-scss"
+    },
+    {
+      "include": "#style-less"
     },
     {
       "include": "#style"
@@ -20,23 +30,19 @@
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.template.html"
+          "name": "entity.name.tag.html"
         },
         "3": {
-          "name": "entity.other.attribute-name.html"
-        },
-        "4": {
           "name": "punctuation.definition.tag.end.html"
         }
       },
       "end": "(</)(template)(>)",
-      "applyEndPatternLast": true,
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.template.html"
+          "name": "entity.name.tag.html"
         },
         "3": {
           "name": "punctuation.definition.tag.end.html"
@@ -45,42 +51,42 @@
       "name": "meta.tag.template.ld",
       "patterns": [
         {
-          "include": "#interpolation"
-        },
-        {
-          "match": "<[a-zA-Z][a-zA-Z0-9-]*(?:\\s[^>]*)?>",
+          "match": "</?[a-zA-Z][a-zA-Z0-9-]*(?:\\s[^>]*)?>",
           "name": "meta.tag.other.html"
         },
         {
-          "match": "</[a-zA-Z][a-zA-Z0-9-]*>",
-          "name": "meta.tag.other.html"
+          "begin": "\\{\\{",
+          "end": "\\}\\}",
+          "name": "meta.embedded.expression.ld",
+          "patterns": [
+            {
+              "include": "source.tsx"
+            }
+          ]
         }
       ]
     },
-    "script": {
-      "begin": "(<)(script)(?:\\s[^>]*)?(>)",
+
+    "script-ts": {
+      "begin": "(<)(script)(?:\\s[^>]*)?\\s(lang=\\\"ts\\\"|lang='ts')(?:\\s[^>]*)?(>)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.script.html"
+          "name": "entity.name.tag.html"
         },
         "3": {
-          "name": "entity.other.attribute-name.html"
-        },
-        "4": {
           "name": "punctuation.definition.tag.end.html"
         }
       },
       "end": "(</)(script)(>)",
-      "applyEndPatternLast": true,
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.script.html"
+          "name": "entity.name.tag.html"
         },
         "3": {
           "name": "punctuation.definition.tag.end.html"
@@ -90,45 +96,113 @@
       "contentName": "source.ts",
       "patterns": [
         {
-          "include": "#vue3-apis"
-        },
-        {
-          "include": "#react-hooks"
-        },
-        {
-          "include": "#ld-signals"
-        },
-        {
-          "match": "\\b(import|export|const|let|var|function|class|interface|type|enum|namespace|from|as|default)\\b",
-          "name": "keyword.control.typescript"
-        },
-        {
-          "match": "\\b(if|else|for|while|do|switch|case|break|continue|return|try|catch|finally|throw|new|this|super|extends|implements|static|public|private|protected|readonly|abstract|async|await|yield)\\b",
-          "name": "keyword.control.typescript"
-        },
-        {
-          "match": "\\b(true|false|null|undefined)\\b",
-          "name": "constant.language.typescript"
-        },
-        {
-          "match": "\\b(\\d+(\\.\\d+)?)\\b",
-          "name": "constant.numeric.typescript"
-        },
-        {
-          "match": "\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*'",
-          "name": "string.quoted.typescript"
-        },
-        {
-          "match": "//.*$",
-          "name": "comment.line.double-slash.typescript"
-        },
-        {
-          "begin": "/\\*",
-          "end": "\\*/",
-          "name": "comment.block.typescript"
+          "include": "source.ts"
         }
       ]
     },
+
+    "script": {
+      "begin": "(<)(script)(?:\\s[^>]*)?(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "end": "(</)(script)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "name": "meta.tag.script.ld",
+      "contentName": "source.tsx",
+      "patterns": [
+        {
+          "include": "source.tsx"
+        }
+      ]
+    },
+
+    "style-scss": {
+      "begin": "(<)(style)(?:\\s[^>]*)?\\s(lang=\\\"scss\\\"|lang='scss')(?:\\s[^>]*)?(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "end": "(</)(style)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "name": "meta.tag.style.ld",
+      "contentName": "source.scss",
+      "patterns": [
+        {
+          "include": "source.scss"
+        }
+      ]
+    },
+
+    "style-less": {
+      "begin": "(<)(style)(?:\\s[^>]*)?\\s(lang=\\\"less\\\"|lang='less')(?:\\s[^>]*)?(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "end": "(</)(style)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "name": "meta.tag.style.ld",
+      "contentName": "source.less",
+      "patterns": [
+        {
+          "include": "source.less"
+        }
+      ]
+    },
+
     "style": {
       "begin": "(<)(style)(?:\\s[^>]*)?(>)",
       "beginCaptures": {
@@ -136,23 +210,19 @@
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.style.html"
+          "name": "entity.name.tag.html"
         },
         "3": {
-          "name": "entity.other.attribute-name.html"
-        },
-        "4": {
           "name": "punctuation.definition.tag.end.html"
         }
       },
       "end": "(</)(style)(>)",
-      "applyEndPatternLast": true,
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.style.html"
+          "name": "entity.name.tag.html"
         },
         "3": {
           "name": "punctuation.definition.tag.end.html"
@@ -162,78 +232,9 @@
       "contentName": "source.css",
       "patterns": [
         {
-          "match": "\\.[a-zA-Z][a-zA-Z0-9_-]*|#[a-zA-Z][a-zA-Z0-9_-]*|[a-zA-Z][a-zA-Z0-9_-]*",
-          "name": "entity.name.tag.css"
-        },
-        {
-          "begin": "\\{",
-          "end": "\\}",
-          "name": "meta.rule.css",
-          "patterns": [
-            {
-              "match": "[a-zA-Z-]+(?=\\s*:)",
-              "name": "support.type.property-name.css"
-            },
-            {
-              "match": ":",
-              "name": "punctuation.separator.key-value.css"
-            },
-            {
-              "match": "[^;\\}]+",
-              "name": "support.constant.property-value.css"
-            },
-            {
-              "match": ";",
-              "name": "punctuation.terminator.rule.css"
-            }
-          ]
-        }
-      ]
-    },
-    "interpolation": {
-      "begin": "\\{\\{",
-      "end": "\\}\\}",
-      "name": "meta.embedded.expression.ld",
-      "applyEndPatternLast": true,
-      "patterns": [
-        {
-          "match": "\\b(ref|reactive|computed|watch|useState|useEffect)\\b",
-          "name": "support.function.ld"
-        },
-        {
-          "match": "\\b(\\d+(\\.\\d+)?)\\b",
-          "name": "constant.numeric.typescript"
-        },
-        {
-          "match": "\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*'",
-          "name": "string.quoted.typescript"
-        }
-      ]
-    },
-    "vue3-apis": {
-      "patterns": [
-        {
-          "match": "\\b(ref|reactive|computed|watch|watchEffect|readonly|toRef|toRefs|unref|isRef|onMounted|onUnmounted|onUpdated|onBeforeMount|onBeforeUnmount|onBeforeUpdate|provide|inject)\\b",
-          "name": "support.function.vue3.ld"
-        }
-      ]
-    },
-    "react-hooks": {
-      "patterns": [
-        {
-          "match": "\\b(useState|useEffect|useMemo|useCallback|useRef|useContext|useReducer|useLayoutEffect|useImperativeHandle|useDebugValue)\\b",
-          "name": "support.function.react.ld"
-        }
-      ]
-    },
-    "ld-signals": {
-      "patterns": [
-        {
-          "match": "\\b(createSignal|createComputed|createEffect|createReactive|signal|computed|effect)\\b",
-          "name": "support.function.ld.ld"
+          "include": "source.css"
         }
       ]
     }
-  },
-  "scopeName": "text.html.ld"
+  }
 }

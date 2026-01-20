@@ -1,5 +1,5 @@
 // 注意：这是示例文件，用于测试 LD 编译器
-// 使用LD框架提供的React Hooks兼容API，底层转发到LD Signal实现
+// 使用标准 React Hooks API 作为开发体验入口，实际由 LD 编译器在底层转发到 LD Signal 实现
 import { useState, useEffect, useMemo } from 'ld'
 import type { KeyboardEvent, ChangeEvent } from 'ld'
 import './todo-list.css'

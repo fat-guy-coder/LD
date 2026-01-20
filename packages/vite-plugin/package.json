@@ -16,8 +16,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "build": "tsup src/index.ts --format esm,cjs --dts --tsconfig tsconfig.dts.json --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --tsconfig tsconfig.dts.json --watch",
     "test": "vitest",
     "type-check": "tsc --noEmit"
   },
@@ -25,6 +25,12 @@
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.24.0",
+    "@babel/parser": "^7.24.0",
+    "@babel/traverse": "^7.24.0",
+    "@babel/types": "^7.24.0",
+    "@vue/compiler-sfc": "^3.4.21"
   }
 }
-

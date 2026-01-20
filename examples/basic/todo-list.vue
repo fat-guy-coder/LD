@@ -47,8 +47,10 @@
 </template>
 
 <script setup lang="ts">
-// 使用LD框架提供的Vue3兼容API
-import { ref, computed, onMounted, watch } from 'ld'
+// 使用 LD 提供的 Vue3 风格 API（类型与实现均由 LD 提供）
+// 为了让开发者/AI 无感，可以直接从 'vue' 导入（类型由 ld.d.ts 映射到 LD 实现）
+import { ref, computed, onMounted, watch } from 'vue'
+import { defineExports } from '@ld/vue'
 
 interface Todo {
   text: string
@@ -116,6 +118,19 @@ onMounted(() => {
 watch(todos, (newTodos) => {
   localStorage.setItem('vue-todos', JSON.stringify(newTodos))
 }, { deep: true })
+
+// PoC: 通过 defineExports 声明本组件模块的额外导出（由 @ld/vite-plugin 处理）
+defineExports({
+  todos,
+  newTodo,
+  totalCount,
+  completedCount,
+  addTodo,
+  toggleTodo,
+  removeTodo,
+  clearCompleted,
+  clearAll,
+})
 </script>
 
 <style scoped>
